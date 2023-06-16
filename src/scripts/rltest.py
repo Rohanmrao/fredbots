@@ -1,6 +1,5 @@
 # test out a basic RL code snippet here
 
-
 import gym
 from gym import spaces
 import rospy
