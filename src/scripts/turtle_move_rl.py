@@ -7,6 +7,7 @@ from turtlesim.msg import Pose
 from std_srvs.srv import Empty
 from geometry_msgs.msg import Twist
 from math import pow, atan2, sqrt
+import numpy as np
 
 class TurtleEnv(gym.Env):
     def __init__(self):
@@ -22,34 +23,40 @@ class TurtleEnv(gym.Env):
 
         self.rate = rospy.Rate(10)
 
-        self.goal_x = 5    # destination coordinates
-        self.goal_y = 5
-        self.position_x = 4  # init coordinates 
-        self.position_y = 2
+        self.goal_x = 3   # destination coordinates
+        self.goal_y = 3
+        self.position_x = 0  # init coordinates
+        self.position_y = 0
+
+        self.episodes = 1000
+        self.learning_rate = 0.1
+        self.discount_factor = 0.99
+
+        self.q_table = np.zeros((10, 10, 4))
 
     def reset(self):
         self.reset_proxy()  # Reset the turtlesim simulation
-        # self.goal_x = rospy.get_param('~goal_x')
-        # self.goal_y = rospy.get_param('~goal_y')
         self.position_x = 0
-        self.position_y = 0    #reset to init coordinates
+        self.position_y = 0    # reset to init coordinates
         return self.get_observation()
 
     def step(self, action):
-        if action == 0:  # Up
-            self.move(1.0, 0.0)
-        elif action == 1:  # Down
-            self.move(-1.0, 0.0)
-        elif action == 2:  # Left
-            self.move(0.0, 1.0)
-        elif action == 3:  # Right
-            self.move(0.0, -1.0)
-
+        self.move_turtle(action)
         self.rate.sleep()
         obs = self.get_observation()
         reward = self.get_reward()
         done = self.is_done()
         return obs, reward, done, {}
+
+    def move_turtle(self, action):
+        if action == 0:  # Up
+            self.move(2.0, 0.0)
+        elif action == 1:  # Down
+            self.move(-2.0, 0.0)
+        elif action == 2:  # Left
+            self.move(0.0, 2.0)
+        elif action == 3:  # Right
+            self.move(0.0, -2.0)
 
     def move(self, linear_vel, angular_vel):
         velocity_msg = Twist()
@@ -64,7 +71,7 @@ class TurtleEnv(gym.Env):
     def get_observation(self):
         return [self.goal_x, self.goal_y, self.position_x, self.position_y]
 
-    def get_reward(self): # use trial and error to minimise the distance between the goal and current pose using euclidian distance
+    def get_reward(self):
         distance_to_goal = sqrt(pow(self.goal_x - self.position_x, 2) + pow(self.goal_y - self.position_y, 2))
         reward = -distance_to_goal
         return reward
@@ -74,28 +81,37 @@ class TurtleEnv(gym.Env):
         distance_to_goal = sqrt(pow(self.goal_x - self.position_x, 2) + pow(self.goal_y - self.position_y, 2))
         return distance_to_goal < distance_threshold
 
+    def q_learning(self):
+        for episode in range(self.episodes):
+            state = self.reset()
+            done = False
+
+            while not done:
+                state_index = self.get_state_index(state)
+                action = self.get_action(state_index)
+
+                next_state, reward, done, _ = self.step(action)
+                next_state_index = self.get_state_index(next_state)
+
+                current_q_value = self.q_table[state_index][action]
+                max_q_value = np.max(self.q_table[next_state_index])
+                new_q_value = (1 - self.learning_rate) * current_q_value + self.learning_rate * (reward + self.discount_factor * max_q_value)
+
+                self.q_table[state_index][action] = new_q_value
+
+                state = next_state
+
+            print(f"Episode: {episode + 1} completed.")
+
+    def get_state_index(self, state):
+        x = int(state[2])  # position_x
+        y = int(state[3])  # position_y
+        return x, y
+
+    def get_action(self, state_index):
+        x, y = state_index
+        return np.argmax(self.q_table[x][y])
 
 if __name__ == '__main__':
-
-    # rospy.init_node('turtle_move_rl')
-
     env = TurtleEnv()
-
-    episodes = 100
-
-    for episode in range(episodes):
-        state = env.reset()
-        total_reward = 0
-        done = False
-
-        while not done:
-            action = env.action_space.sample() #pick a random action 
-            print(f"Episode: {episode + 1}, Reward: {total_reward}")
-            print(env.goal_x,env.goal_y)
-            next_state, reward, done, _ = env.step(action)
-
-            total_reward += reward
-            state = next_state
-
-            if done:
-                print(f"Episode: {episode + 1}, Reward: {total_reward}")
+    env.q_learning()
