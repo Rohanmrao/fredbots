@@ -22,10 +22,10 @@ class TurtleEnv(gym.Env):
 
         self.rate = rospy.Rate(10)
 
-        self.goal_x = 10    # destination coordinates
-        self.goal_y = 10
-        self.position_x = 0  # init coordinates 
-        self.position_y = 0
+        self.goal_x = 5    # destination coordinates
+        self.goal_y = 5
+        self.position_x = 4  # init coordinates 
+        self.position_y = 2
 
     def reset(self):
         self.reset_proxy()  # Reset the turtlesim simulation
@@ -70,7 +70,7 @@ class TurtleEnv(gym.Env):
         return reward
 
     def is_done(self):
-        distance_threshold = 0.1
+        distance_threshold = 0.5
         distance_to_goal = sqrt(pow(self.goal_x - self.position_x, 2) + pow(self.goal_y - self.position_y, 2))
         return distance_to_goal < distance_threshold
 
@@ -90,7 +90,8 @@ if __name__ == '__main__':
 
         while not done:
             action = env.action_space.sample() #pick a random action 
-            # print(f"Episode: {episode + 1}, Reward: {total_reward}")
+            print(f"Episode: {episode + 1}, Reward: {total_reward}")
+            print(env.goal_x,env.goal_y)
             next_state, reward, done, _ = env.step(action)
 
             total_reward += reward
