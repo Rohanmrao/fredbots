@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import gym
 from gym import spaces
 import rospy
@@ -9,7 +11,7 @@ class TurtlesimEnv(gym.Env):
         super(TurtlesimEnv, self).__init__()
 
         # Initialize the ROS node
-        rospy.init_node('turtlesim_gym')
+        rospy.init_node('module_env')
 
         # Define the action and observation spaces
         self.action_space = spaces.Discrete(4)  # Forward, Backward, Turn Left, Turn Right

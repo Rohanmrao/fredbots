@@ -1,4 +1,4 @@
-# test out a basic RL code snippet here
+#!/usr/bin/env python3
 
 import gym
 from gym import spaces
@@ -8,7 +8,7 @@ from turtlesim.msg import Pose
 import module_env
 
 # Initialize the ROS node
-rospy.init_node('turtlesim_rl')
+rospy.init_node('rltest')
 
 # Define the action and observation spaces
 action_space = spaces.Discrete(2)  # Turn Left, Turn Right
