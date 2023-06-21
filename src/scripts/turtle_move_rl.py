@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
         while not done:
             action = env.action_space.sample() #pick a random action 
-            print(f"Episode: {episode + 1}, Reward: {total_reward}")
+            # print(f"Episode: {episode + 1}, Reward: {total_reward}")
             next_state, reward, done, _ = env.step(action)
 
             total_reward += reward
