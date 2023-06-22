@@ -205,7 +205,7 @@
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<geometry>
-				<mesh filename="package://fredbots/meshes/hokuyo.dae"/>
+				<mesh filename="package://atom/meshes/hokuyo.dae"/>
 			</geometry>
 		</visual>
 
@@ -340,6 +340,6 @@
 	</gazebo>
 
 	<!-- Motor, Camera and Lidar Simulation -->
-	<xacro:include filename="$(find fredbots)/urdf/atom.gazebo" />
+	<xacro:include filename="$(find atom)/urdf/atom.gazebo" />
 
 </robot>
