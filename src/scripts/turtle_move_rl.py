@@ -51,13 +51,13 @@ class TurtleEnv(gym.Env):
 
     def move_turtle(self, action):
         if action == 0:  # Up
-            self.move(2.0, 0.0)
+            self.move(5.0, 0.0)
         elif action == 1:  # Down
-            self.move(-2.0, 0.0)
+            self.move(-5.0, 0.0)
         elif action == 2:  # Left
-            self.move(0.0, 2.0)
+            self.move(0.0, 5.0)
         elif action == 3:  # Right
-            self.move(0.0, -2.0)
+            self.move(0.0, -5.0)
 
     def move(self, linear_vel, angular_vel):
         velocity_msg = Twist()
