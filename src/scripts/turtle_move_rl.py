@@ -31,6 +31,7 @@ class TurtleEnv(gym.Env):
         self.episodes = 1000
         self.learning_rate = 0.1
         self.discount_factor = 0.99
+        self.epsilon = 0.9
 
         self.q_table = np.zeros((10, 10, 4))
 
@@ -69,6 +70,7 @@ class TurtleEnv(gym.Env):
         self.position_y = round(data.y, 2)
 
     def get_observation(self):
+
         return [self.goal_x, self.goal_y, self.position_x, self.position_y]
 
     def get_reward(self):
@@ -88,14 +90,21 @@ class TurtleEnv(gym.Env):
 
             while not done:
                 state_index = self.get_state_index(state)
+                print("start state ",state_index)
                 action = self.get_action(state_index)
+                print("action ",action)
 
                 next_state, reward, done, _ = self.step(action)
                 next_state_index = self.get_state_index(next_state)
+                print("next start state ",next_state_index)
+                print("reward ", reward)
 
                 current_q_value = self.q_table[state_index][action]
+                print("old_q_value ",current_q_value)
                 max_q_value = np.max(self.q_table[next_state_index])
+                print("max q value of present state ", max_q_value)
                 new_q_value = (1 - self.learning_rate) * current_q_value + self.learning_rate * (reward + self.discount_factor * max_q_value)
+                print("new_q_value of present state ",new_q_value)
 
                 self.q_table[state_index][action] = new_q_value
 
@@ -110,7 +119,11 @@ class TurtleEnv(gym.Env):
 
     def get_action(self, state_index):
         x, y = state_index
-        return np.argmax(self.q_table[x][y])
+        # return np.argmax(self.q_table[x][y])
+        if np.random.random() < self.epsilon:
+            return np.argmax(self.q_table[x,y])
+        else:
+            return np.random.randint(4)
 
 if __name__ == '__main__':
     env = TurtleEnv()
