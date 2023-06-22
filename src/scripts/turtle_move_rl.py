@@ -25,15 +25,15 @@ class TurtleEnv(gym.Env):
 
         self.rate = rospy.Rate(2)
 
-        self.goal_x = 3   # destination coordinates
-        self.goal_y = 3
+        self.goal_x = 3.5   # destination coordinates
+        self.goal_y = 3.5
         self.position_x = 5.544445  # init coordinates
         self.position_y = 5.544445
 
         self.episodes = 5
         self.learning_rate = 0.5
         self.discount_factor = 0.99
-        self.epsilon = 0.2
+        self.epsilon = 0.4
 
         self.q_table = np.zeros((10, 10, 4))
 
@@ -84,7 +84,7 @@ class TurtleEnv(gym.Env):
         distance_threshold = 0.5
         distance_to_goal = sqrt(pow(self.goal_x - self.position_x, 2) + pow(self.goal_y - self.position_y, 2))
         distance_to_bound = sqrt(pow(5.544445 - self.position_x, 2) + pow(5.544445 - self.position_y, 2))
-        if distance_to_bound >= 4.5:
+        if distance_to_bound >= 3.5:
             self.reset()
         print("x and y ",self.position_x,self.position_y)
         print("distance_tobound ",distance_to_bound)
