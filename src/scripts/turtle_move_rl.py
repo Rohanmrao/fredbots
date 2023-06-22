@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# pos_x and pos_y seem to be changing 
+
 import gym
 from gym import spaces
 import rospy
@@ -84,8 +86,7 @@ class TurtleEnv(gym.Env):
         distance_to_bound = sqrt(pow(5.544445 - self.position_x, 2) + pow(5.544445 - self.position_y, 2))
         print("x and y ",self.position_x,self.position_y)
         print("distance_tobound ",distance_to_bound)
-        # if distance_to_bound > 2:
-        #     return True 
+
         return distance_to_goal < distance_threshold
 
     def q_learning(self):
