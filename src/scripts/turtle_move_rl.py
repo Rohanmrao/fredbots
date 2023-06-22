@@ -25,20 +25,20 @@ class TurtleEnv(gym.Env):
 
         self.goal_x = 3   # destination coordinates
         self.goal_y = 3
-        self.position_x = 0  # init coordinates
-        self.position_y = 0
+        self.position_x = 5.544445  # init coordinates
+        self.position_y = 5.544445
 
-        self.episodes = 1000
+        self.episodes = 5
         self.learning_rate = 0.1
         self.discount_factor = 0.99
-        self.epsilon = 0.9
+        self.epsilon = 0.3
 
         self.q_table = np.zeros((10, 10, 4))
 
     def reset(self):
         self.reset_proxy()  # Reset the turtlesim simulation
-        self.position_x = 0
-        self.position_y = 0    # reset to init coordinates
+        # self.position_x = 0
+        # self.position_y = 0    # reset to init coordinates
         return self.get_observation()
 
     def step(self, action):
@@ -89,8 +89,10 @@ class TurtleEnv(gym.Env):
             done = False
 
             while not done:
+                print("Episode no. : ",episode)
                 state_index = self.get_state_index(state)
                 print("start state ",state_index)
+                print("pos_x, pos_y ",self.position_x,self.position_y)
                 action = self.get_action(state_index)
                 print("action ",action)
 
