@@ -21,7 +21,7 @@ class TurtleEnv(gym.Env):
         self.action_space = spaces.Discrete(4)  # Up, Down, Left, Right
         self.observation_space = spaces.Box(low=0, high=10, shape=(4,))
 
-        self.rate = rospy.Rate(10)
+        self.rate = rospy.Rate(2)
 
         self.goal_x = 3   # destination coordinates
         self.goal_y = 3
@@ -81,6 +81,11 @@ class TurtleEnv(gym.Env):
     def is_done(self):
         distance_threshold = 0.5
         distance_to_goal = sqrt(pow(self.goal_x - self.position_x, 2) + pow(self.goal_y - self.position_y, 2))
+        distance_to_bound = sqrt(pow(5.544445 - self.position_x, 2) + pow(5.544445 - self.position_y, 2))
+        print("x and y ",self.position_x,self.position_y)
+        print("distance_tobound ",distance_to_bound)
+        # if distance_to_bound > 2:
+        #     return True 
         return distance_to_goal < distance_threshold
 
     def q_learning(self):
