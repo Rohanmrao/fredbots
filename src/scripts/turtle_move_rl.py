@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # pos_x and pos_y seem to be changing 
+# I added the shortest path but it'll not work cuz the no.of episodes for learninig is very less is what i think 
 
 import gym
 from gym import spaces
@@ -23,17 +24,17 @@ class TurtleEnv(gym.Env):
         self.action_space = spaces.Discrete(4)  # Up, Down, Left, Right
         self.observation_space = spaces.Box(low=0, high=10, shape=(4,))
 
-        self.rate = rospy.Rate(2)
+        self.rate = rospy.Rate(10)
 
-        self.goal_x = 3.5   # destination coordinates
-        self.goal_y = 3.5
+        self.goal_x = 4   # destination coordinates
+        self.goal_y = 4
         self.position_x = 5.544445  # init coordinates
         self.position_y = 5.544445
 
         self.episodes = 5
-        self.learning_rate = 0.5
+        self.learning_rate = 0.1
         self.discount_factor = 0.99
-        self.epsilon = 0.4
+        self.epsilon = 0.3
 
         self.q_table = np.zeros((10, 10, 4))
 
@@ -41,6 +42,8 @@ class TurtleEnv(gym.Env):
         self.reset_proxy()  # Reset the turtlesim simulation
         # self.position_x = 0
         # self.position_y = 0    # reset to init coordinates
+        self.position_x = 5.544445  # init coordinates
+        self.position_y = 5.544445
         return self.get_observation()
 
     def step(self, action):
@@ -53,13 +56,13 @@ class TurtleEnv(gym.Env):
 
     def move_turtle(self, action):
         if action == 0:  # Up
-            self.move(2.0, 0.0)
+            self.move(5.0, 0.0)
         elif action == 1:  # Down
-            self.move(-2.0, 0.0)
+            self.move(-5.0, 0.0)
         elif action == 2:  # Left
-            self.move(0.0, 2.0)
+            self.move(0.0, 5.0)
         elif action == 3:  # Right
-            self.move(0.0, -2.0)
+            self.move(0.0, -5.0)
 
     def move(self, linear_vel, angular_vel):
         velocity_msg = Twist()
@@ -84,8 +87,9 @@ class TurtleEnv(gym.Env):
         distance_threshold = 0.5
         distance_to_goal = sqrt(pow(self.goal_x - self.position_x, 2) + pow(self.goal_y - self.position_y, 2))
         distance_to_bound = sqrt(pow(5.544445 - self.position_x, 2) + pow(5.544445 - self.position_y, 2))
-        if distance_to_bound >= 3.5:
+        if distance_to_bound>4:
             self.reset()
+            return False 
         print("x and y ",self.position_x,self.position_y)
         print("distance_tobound ",distance_to_bound)
 
@@ -97,7 +101,7 @@ class TurtleEnv(gym.Env):
             done = False
 
             while not done:
-                print("Episode no. : ",episode)
+                print("Episode no. : ",episode+1)
                 state_index = self.get_state_index(state)
                 print("start state ",state_index)
                 print("pos_x, pos_y ",self.position_x,self.position_y)
@@ -120,9 +124,27 @@ class TurtleEnv(gym.Env):
 
                 state = next_state
 
-            print(f"Episode: {episode + 1} completed.")
+            print(f"Episode: {episode + 1} completed. ************************************")
+        
+          
+    def get_shortest_path(self):
+        print("now checking for shortest path ")
+        state = self.reset()  
+        state_index = self.get_state_index(state)
+        shortest_path = []
+        shortest_path.append([state_index[0],state_index[1]])
 
-    def get_state_index(self, state):   #current state
+        done = self.is_done()
+        while not done:
+            action = self.get_action(state_index)
+            next_state, _, done, _ = self.step(action)
+            next_state = self.get_state_index(next_state)
+            shortest_path.append([next_state[0],next_state[1]])
+            state_index = next_state
+        print(shortest_path)
+
+
+    def get_state_index(self, state):
         x = int(state[2])  # position_x
         y = int(state[3])  # position_y
         return x, y
@@ -138,3 +160,4 @@ class TurtleEnv(gym.Env):
 if __name__ == '__main__':
     env = TurtleEnv()
     env.q_learning()
+    env.get_shortest_path()
