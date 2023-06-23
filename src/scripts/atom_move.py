@@ -11,6 +11,9 @@ from nav_msgs.msg import Odometry
 from math import pow, atan2, sqrt
 import numpy as np
 
+from gazebo_msgs.srv import SetModelState
+from gazebo_msgs.msg import ModelState
+
 class AtomEnv(gym.Env):
     def __init__(self):
         super(AtomEnv, self).__init__()
@@ -19,6 +22,19 @@ class AtomEnv(gym.Env):
         self.velocity_publisher = rospy.Publisher('/atom/cmd_vel', Twist, queue_size=10)
         self.pose_subscriber = rospy.Subscriber('/atom/odom', Odometry, self.update_pose)
         # self.reset_proxy = rospy.ServiceProxy('/reset', Empty)
+
+
+        self.model_state_msg = ModelState()
+        self.model_state_msg.model_name = 'atom'
+        self.model_state_msg.pose.position.x = 0.0
+        self.model_state_msg.pose.position.y = 0.0
+        self.model_state_msg.pose.position.z = 0.0
+        self.model_state_msg.pose.orientation.x = 0.0
+        self.model_state_msg.pose.orientation.y = 0.0
+        self.model_state_msg.pose.orientation.z = 0.0
+        self.model_state_msg.pose.orientation.w = 1.0
+
+        self.set_model_state_proxy = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
 
         self.action_space = spaces.Discrete(4)  # Up, Down, Left, Right
         self.observation_space = spaces.Box(low=0, high=10, shape=(4,))
@@ -84,8 +100,14 @@ class AtomEnv(gym.Env):
         return reward
 
     def is_done(self):
+        dist_bound = sqrt(pow(0 - self.position_x, 2) + pow(0 - self.position_y, 2))
+        print("distance to bound ", dist_bound)
         distance_threshold = 0.5
         distance_to_goal = sqrt(pow(self.goal_x - self.position_x, 2) + pow(self.goal_y - self.position_y, 2))
+        if dist_bound > 1:
+            response = self.set_model_state_proxy(self.model_state_msg)
+            print("reset done ###########################################################################################")
+
         return distance_to_goal < distance_threshold
 
     def q_learning(self):
