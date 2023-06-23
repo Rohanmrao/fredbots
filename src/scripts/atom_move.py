@@ -102,8 +102,9 @@ class AtomEnv(gym.Env):
                 print("Action ",action)
 
                 next_state, reward, done, _ = self.step(action)
+                print("next state ",next_state[2],next_state[3])
                 next_state_index = self.get_state_index(next_state)
-                print("Next State ",next_state_index)
+                # print("Next State ",next_state_index)
                 print("Reward ", reward)
                 current_q_value = self.q_table[state_index][action]
                 print("Old_Q_Value ",current_q_value)
