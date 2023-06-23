@@ -13,4 +13,5 @@
 
   <!-- Spawn the robot in Gazebo -->
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model atom" respawn="false" output="screen" />
+  <node name="atom_move" pkg="fredbots" type="atom_move.py" output="screen"></node>
 </launch>
