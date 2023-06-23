@@ -100,7 +100,6 @@ class AtomEnv(gym.Env):
         velocity_msg.angular.z = angular_vel
         self.velocity_publisher.publish(velocity_msg)
 
-
     def get_observation(self):
 
         return [self.goal_x, self.goal_y, self.position_x, self.position_y]
@@ -113,6 +112,12 @@ class AtomEnv(gym.Env):
     def is_done(self):
         distance_threshold = 0.5
         distance_to_goal = sqrt(pow(self.goal_x - self.position_x, 2) + pow(self.goal_y - self.position_y, 2))
+
+        distance_to_bound = sqrt(pow(self.position_x - 0, 2) + pow(self.position_y - 0, 2))
+
+        if distance_to_bound >= 2:
+            self.set_robot_coordinates_to_init()
+
         return distance_to_goal < distance_threshold
 
     def q_learning(self):
