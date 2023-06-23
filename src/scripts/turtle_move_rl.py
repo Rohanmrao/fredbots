@@ -3,8 +3,6 @@
 # pos_x and pos_y seem to be changing 
 # I added the shortest path but it'll not work cuz the no.of episodes for learninig is very less is what i think 
 
-#LOL
-
 import gym
 from gym import spaces
 import rospy
@@ -42,8 +40,6 @@ class TurtleEnv(gym.Env):
 
     def reset(self):
         self.reset_proxy()  # Reset the turtlesim simulation
-        # self.position_x = 0
-        # self.position_y = 0    # reset to init coordinates
         self.position_x = 5.544445  # init coordinates
         self.position_y = 5.544445
         return self.get_observation()
