@@ -38,6 +38,10 @@ class AtomEnv(gym.Env):
         self.epsilon = 0.2
 
         self.q_table = np.zeros((10, 10, 4))
+    
+    def update_pose(self, data):
+        self.position_x = round(data.pose.pose.position.x, 2)
+        self.position_y = round(data.pose.pose.position.y, 2)
 
     def reset(self):
         # self.reset_proxy()  # Reset the turtlesim simulation
@@ -55,13 +59,13 @@ class AtomEnv(gym.Env):
 
     def move_atom(self, action):
         if action == 0:  # Up
-            self.move(3.0, 0.0)
+            self.move(5.0, 0.0)
         elif action == 1:  # Down
-            self.move(-3.0, 0.0)
+            self.move(-5.0, 0.0)
         elif action == 2:  # Left
-            self.move(0.0, 3.0)
+            self.move(0.0, 5.0)
         elif action == 3:  # Right
-            self.move(0.0, -3.0)
+            self.move(0.0, -5.0)
 
     def move(self, linear_vel, angular_vel):
         velocity_msg = Twist()
@@ -69,9 +73,6 @@ class AtomEnv(gym.Env):
         velocity_msg.angular.z = angular_vel
         self.velocity_publisher.publish(velocity_msg)
 
-    def update_pose(self, data):
-        self.position_x = round(data.pose.pose.position.x, 2)
-        self.position_y = round(data.pose.pose.position.y, 2)
 
     def get_observation(self):
 
@@ -118,7 +119,8 @@ class AtomEnv(gym.Env):
 
             print(f"Episode: {episode + 1} completed.")
 
-    def get_state_index(self, state):
+    def get_state_index(self, state):        # return np.argmax(self.q_table[x][y])
+
         x = int(state[2])  # position_x
         y = int(state[3])  # position_y
         return x, y
