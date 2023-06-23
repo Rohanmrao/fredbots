@@ -27,13 +27,10 @@ class AtomEnv(gym.Env):
 
         self.goal_x = 3   # destination coordinates
         self.goal_y = 3
-<<<<<<< HEAD
         # self.position_x = 0  # init coordinates
         # self.position_y = 0
-=======
         self.position_x = 0  # init coordinates
         self.position_y = 0
->>>>>>> acebaf0f02e472810f2ed12c921cf63c14dbac68
 
         self.episodes = 5
         self.learning_rate = 0.5
@@ -73,13 +70,8 @@ class AtomEnv(gym.Env):
         self.velocity_publisher.publish(velocity_msg)
 
     def update_pose(self, data):
-<<<<<<< HEAD
         self.position_x = round(data.pose.pose.position.x, 2)
         self.position_y = round(data.pose.pose.position.y, 2)
-=======
-        self.position_x = round(data.position.x, 2)
-        self.position_y = round(data.position.y, 2)
->>>>>>> acebaf0f02e472810f2ed12c921cf63c14dbac68
 
     def get_observation(self):
 
@@ -105,6 +97,7 @@ class AtomEnv(gym.Env):
                 print("Overall State : ",state)
                 state_index = self.get_state_index(state)
                 print("Current State ",state[2],state[3])
+                print("Goal State ",state[0],state[1])
                 action = self.get_action(state_index)
                 print("Action ",action)
 
