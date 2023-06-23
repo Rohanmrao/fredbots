@@ -129,15 +129,6 @@ class AtomEnv(gym.Env):
         print("distance to bound ", dist_bound)
         distance_threshold = 0.5
         distance_to_goal = sqrt(pow(self.goal_x - self.position_x, 2) + pow(self.goal_y - self.position_y, 2))
-        if dist_bound > 1:
-            response = self.set_model_state_proxy(self.model_state_msg)
-            print("reset done ###########################################################################################")
-
-        distance_to_bound = sqrt(pow(self.position_x - 0, 2) + pow(self.position_y - 0, 2))
-
-        if distance_to_bound >= 9:
-            self.set_robot_coordinates_to_init()
-
         return distance_to_goal < distance_threshold
 
     def q_learning(self):
