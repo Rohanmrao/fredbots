@@ -115,7 +115,7 @@ class AtomEnv(gym.Env):
 
         distance_to_bound = sqrt(pow(self.position_x - 0, 2) + pow(self.position_y - 0, 2))
 
-        if distance_to_bound >= 2:
+        if distance_to_bound >= 9:
             self.set_robot_coordinates_to_init()
 
         return distance_to_goal < distance_threshold
