@@ -3,6 +3,8 @@
 # pos_x and pos_y seem to be changing 
 # I added the shortest path but it'll not work cuz the no.of episodes for learninig is very less is what i think 
 
+#LOL
+
 import gym
 from gym import spaces
 import rospy
