@@ -5,9 +5,8 @@
 import gym
 from gym import spaces
 import rospy
-from turtlesim.msg import Pose
 from std_srvs.srv import Empty
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, Pose
 from math import pow, atan2, sqrt
 import numpy as np
 
@@ -16,8 +15,8 @@ class AtomEnv(gym.Env):
         super(AtomEnv, self).__init__()
 
         rospy.init_node('atom_move', anonymous=True)
-        self.velocity_publisher = rospy.Publisher('/atom/cmd_vel', Twist, queue_size=10)
-        self.pose_subscriber = rospy.Subscriber('/atom/odom', Pose, self.update_pose)
+        self.velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+        self.pose_subscriber = rospy.Subscriber('/odom', Pose, self.update_pose)
         # self.reset_proxy = rospy.ServiceProxy('/reset', Empty)
 
         self.action_space = spaces.Discrete(4)  # Up, Down, Left, Right
@@ -88,6 +87,7 @@ class AtomEnv(gym.Env):
     def q_learning(self):
         for episode in range(self.episodes):
             # state = self.reset()
+            state = [self.goal_x, self.goal_y, self.position_x, self.position_y]
             done = False
 
             while not done:
