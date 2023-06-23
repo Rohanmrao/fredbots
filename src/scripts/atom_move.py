@@ -59,13 +59,13 @@ class AtomEnv(gym.Env):
 
     def move_atom(self, action):
         if action == 0:  # Up
-            self.move(5.0, 0.0)
+            self.move(40.0, 0.0)
         elif action == 1:  # Down
-            self.move(-5.0, 0.0)
+            self.move(-40.0, 0.0)
         elif action == 2:  # Left
-            self.move(0.0, 5.0)
+            self.move(0.0, 40.0)
         elif action == 3:  # Right
-            self.move(0.0, -5.0)
+            self.move(0.0, -40.0)
 
     def move(self, linear_vel, angular_vel):
         velocity_msg = Twist()
