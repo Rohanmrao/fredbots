@@ -15,8 +15,8 @@ class AtomEnv(gym.Env):
         super(AtomEnv, self).__init__()
 
         rospy.init_node('atom_move', anonymous=True)
-        self.velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
-        self.pose_subscriber = rospy.Subscriber('/odom', Pose, self.update_pose)
+        self.velocity_publisher = rospy.Publisher('/atom/cmd_vel', Twist, queue_size=10)
+        self.pose_subscriber = rospy.Subscriber('/atom/odom', Pose, self.update_pose)
         # self.reset_proxy = rospy.ServiceProxy('/reset', Empty)
 
         self.action_space = spaces.Discrete(4)  # Up, Down, Left, Right
@@ -43,14 +43,14 @@ class AtomEnv(gym.Env):
     #     return self.get_observation()
 
     def step(self, action):
-        self.move_turtle(action)
+        self.move_atom(action)
         self.rate.sleep()
         obs = self.get_observation()
         reward = self.get_reward()
         done = self.is_done()
         return obs, reward, done, {}
 
-    def move_turtle(self, action):
+    def move_atom(self, action):
         if action == 0:  # Up
             self.move(5.0, 0.0)
         elif action == 1:  # Down
@@ -67,8 +67,8 @@ class AtomEnv(gym.Env):
         self.velocity_publisher.publish(velocity_msg)
 
     def update_pose(self, data):
-        self.position_x = round(data.x, 2)
-        self.position_y = round(data.y, 2)
+        self.position_x = round(data.linear.x, 2)
+        self.position_y = round(data.linear.y, 2)
 
     def get_observation(self):
 
