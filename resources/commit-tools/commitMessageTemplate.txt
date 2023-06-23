@@ -1,0 +1,10 @@
+<commit header>
+
+changes since last commit :
+- <new changes since last commit>
+
+
+features pending :
+- <pending features>
+
+current commit policy - <commit policy, branch structure>

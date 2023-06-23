@@ -1,0 +1,13 @@
+added atom
+
+changes since last commit :
+- added atom
+
+
+near term features pending (deadline - 16th June, 2023) :
+- 
+
+long term features pending :
+- 
+
+current commit policy - commit to main
