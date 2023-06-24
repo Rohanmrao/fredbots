@@ -18,20 +18,16 @@ class AtomEnv(gym.Env):
         super(AtomEnv, self).__init__()
 
         rospy.init_node('atom_move', anonymous=True)
-        rate = rospy.Rate(10) # 10hz
         self.velocity_publisher = rospy.Publisher('/atom/cmd_vel', Twist, queue_size=10)
         self.pose_subscriber = rospy.Subscriber('/atom/odom', Odometry, self.update_pose)
-        # self.reset_proxy = rospy.ServiceProxy('/reset', Empty)
 
         self.action_space = spaces.Discrete(4)  # Up, Down, Left, Right
         self.observation_space = spaces.Box(low=0, high=10, shape=(4,))
 
         self.rate = rospy.Rate(10)
 
-        self.goal_x = 3   # destination coordinates
-        self.goal_y = 3
-        # self.position_x = 0  # init coordinates
-        # self.position_y = 0
+        self.goal_x = -2   # destination coordinates
+        self.goal_y = 2
         self.position_x = 0  # init coordinates
         self.position_y = 0
 
@@ -58,6 +54,8 @@ class AtomEnv(gym.Env):
         return self.get_observation()
 
     def set_robot_coordinates_to_init(self):
+
+        print("\nRESET")
 
         self.state_msg.model_name = 'atom'
         self.state_msg.pose.position.x = 0
