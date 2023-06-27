@@ -1,0 +1,418 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+    <model name="atom">
+        <static>false</static>
+
+        <!-- Make Chassis of Bot -->
+        <link name="chassis">
+            <pose>0 0 0.2 0 0 0</pose>
+            <inertial>
+                <mass>15.0</mass>
+                <inertia> <!-- inertias are tricky to compute -->
+                    <!-- http://gazebosim.org/tutorials?tut=inertia&cat=build_robot -->
+                    <ixx>1.535</ixx>       <!-- for a box: ixx = 0.083 * mass * (y*y + z*z) -->
+                    <ixy>0.0</ixy>         <!-- for a box: ixy = 0 -->
+                    <ixz>0.0</ixz>         <!-- for a box: ixz = 0 -->
+                    <iyy>1.535</iyy>       <!-- for a box: iyy = 0.083 * mass * (x*x + z*z) -->
+                    <iyz>0.0</iyz>         <!-- for a box: iyz = 0 -->
+                    <izz>1.745</izz>       <!-- for a box: izz = 0.083 * mass * (x*x + y*y) -->
+                </inertia>
+            </inertial>
+            <collision name="collision">
+                <geometry>
+                    <box>
+                        <size> 0.5 0.5 0.2 </size>
+                    </box>
+                </geometry>
+            </collision>
+
+            <visual name="visual">
+                <geometry>
+                    <box>
+                        <size> 0.5 0.5 0.2 </size>
+                    </box>
+                </geometry>
+
+                <material>
+                    <script>
+                        <uri>model://atom/materials/scripts/repeated.material</uri>
+                        <name>Atom</name>
+                    </script>
+                </material>
+
+            </visual>
+            
+        </link>
+
+        <!-- Right Wheel Back -->
+        <link name="right_wheel_back">
+            <pose> -0.2 0.3 0.1 0 1.5707 1.5707</pose>
+            <inertial>
+                <mass>5.0</mass>
+                <inertia> <!-- inertias are tricky to compute -->
+                    <!-- http://gazebosim.org/tutorials?tut=inertia&cat=build_robot -->
+                    <ixx>0.1</ixx>
+                    <ixy>0.0</ixy>
+                    <ixz>0.0</ixz>
+                    <iyy>0.1</iyy>
+                    <iyz>0.0</iyz>
+                    <izz>0.1</izz>
+                </inertia>
+            </inertial>
+            <visual name="visual">
+                <geometry>
+                    <cylinder>
+                        <radius> 0.1 </radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+                <material> <!-- Wheel material -->
+                    <ambient>0.1 0.1 0.1 1</ambient>
+                    <diffuse>0.1 0.1 0.2 1</diffuse>
+                    <specular>0 0 0 0</specular>
+                    <emissive>0 0 0 1</emissive>
+                </material> <!-- End wheel material -->
+            </visual>
+            <collision name="collision">
+                <geometry>
+                    <cylinder>
+                        <radius> 0.1 </radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            
+        </link>
+
+        <!-- Right Wheel Front -->
+        <link name="right_wheel_front">
+            <pose> 0.2 0.3 0.1 0 1.5707 1.5707</pose>
+            <inertial>
+                <mass>5.0</mass>
+                <inertia> <!-- inertias are tricky to compute -->
+                    <!-- http://gazebosim.org/tutorials?tut=inertia&cat=build_robot -->
+                    <ixx>0.1</ixx>
+                    <ixy>0.0</ixy>
+                    <ixz>0.0</ixz>
+                    <iyy>0.1</iyy>
+                    <iyz>0.0</iyz>
+                    <izz>0.1</izz>
+                </inertia>
+            </inertial>
+            <visual name="visual">
+                <geometry>
+                    <cylinder>
+                        <radius> 0.1 </radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+                <material> <!-- Wheel material -->
+                    <ambient>0.1 0.1 0.1 1</ambient>
+                    <diffuse>0.1 0.1 0.2 1</diffuse>
+                    <specular>0 0 0 0</specular>
+                    <emissive>0 0 0 1</emissive>
+                </material> <!-- End wheel material -->
+            </visual>
+            <collision name="collision">
+                <geometry>
+                    <cylinder>
+                        <radius> 0.1 </radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- Left Wheel Back -->
+        <link name="left_wheel_back">
+            <pose> -0.2 -0.3 0.1 0 1.5707 1.5707</pose>
+            <inertial>
+                <mass>5.0</mass>
+                <inertia> <!-- inertias are tricky to compute -->
+                    <!-- http://gazebosim.org/tutorials?tut=inertia&cat=build_robot -->
+                    <ixx>0.1</ixx>
+                    <ixy>0.0</ixy>
+                    <ixz>0.0</ixz>
+                    <iyy>0.1</iyy>
+                    <iyz>0.0</iyz>
+                    <izz>0.1</izz>
+                </inertia>
+            </inertial>
+            <visual name="visual">
+                <geometry>
+                    <cylinder>
+                        <radius> 0.1 </radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+                <material> <!-- Wheel material -->
+                    <ambient>0.1 0.1 0.1 1</ambient>
+                    <diffuse>0.1 0.1 0.2 1</diffuse>
+                    <specular>0 0 0 0</specular>
+                    <emissive>0 0 0 1</emissive>
+                </material> <!-- End wheel material -->
+            </visual>
+            <collision name="collision">
+                <geometry>
+                    <cylinder>
+                        <radius> 0.1 </radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- Left Wheel Front -->
+        <link name="left_wheel_front">
+            <pose> 0.2 -0.3 0.1 0 1.5707 1.5707</pose>
+            <inertial>
+                <mass>5.0</mass>
+                <inertia> <!-- inertias are tricky to compute -->
+                    <!-- http://gazebosim.org/tutorials?tut=inertia&cat=build_robot -->
+                    <ixx>0.1</ixx>
+                    <ixy>0.0</ixy>
+                    <ixz>0.0</ixz>
+                    <iyy>0.1</iyy>
+                    <iyz>0.0</iyz>
+                    <izz>0.1</izz>
+                </inertia>
+            </inertial>
+            <visual name="visual">
+                <geometry>
+                    <cylinder>
+                        <radius> 0.1 </radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+                <material> <!-- Wheel material -->
+                    <ambient>0.1 0.1 0.1 1</ambient>
+                    <diffuse>0.1 0.1 0.2 1</diffuse>
+                    <specular>0 0 0 0</specular>
+                    <emissive>0 0 0 1</emissive>
+                </material> <!-- End wheel material -->
+            </visual>
+            <collision name="collision">
+                <geometry>
+                    <cylinder>
+                        <radius> 0.1 </radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- Define Joints -->
+        <!-- Right Wheel Joint Back-->
+        <joint type="revolute" name="right_wheel_hinge_back">
+            <pose>0 0 0.03 0 0 0</pose>
+            <child>right_wheel_back</child>
+            <parent>chassis</parent>
+            <axis>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <!-- Right Wheel Joint Front-->
+        <joint type="revolute" name="right_wheel_hinge_front">
+            <pose>0 0 0.03 0 0 0</pose>
+            <child>right_wheel_front</child>
+            <parent>chassis</parent>
+            <axis>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <!-- Left Wheel Joint Back-->
+        <joint type="revolute" name="left_wheel_hinge_back">
+            <pose>0 0 -0.03 0 0 0</pose>
+            <child>left_wheel_back</child>
+            <parent>chassis</parent>
+            <axis>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <!-- Left Wheel Joint front-->
+        <joint type="revolute" name="left_wheel_hinge_front">
+            <pose>0 0 -0.03 0 0 0</pose>
+            <child>left_wheel_front</child>
+            <parent>chassis</parent>
+            <axis>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <!-- Camera -->
+        <link name="camera_link">
+            <pose>0.26 0 0.15 0 0 0</pose>
+
+            <visual name="visual">
+                <geometry>
+                    <box>
+                        <size>0.05 0.05 0.05</size>
+                    </box>
+                </geometry>
+            </visual>
+
+            <collision name="collision">
+                <geometry>
+                    <box>
+                        <size>0.05 0.05 0.05</size>
+                    </box>
+                </geometry>
+            </collision>
+
+            <sensor type="camera" name="camera1">
+                <update_rate>30.0</update_rate>
+                <camera name="head">
+                    <horizontal_fov>1.3962634</horizontal_fov>
+                    <image>
+                        <width>800</width>
+                        <height>800</height>
+                        <format>R8G8B8</format>
+                    </image>
+                    <clip>
+                        <near>0.02</near>
+                        <far>300</far>
+                    </clip>
+                </camera>
+                <always_on>1</always_on>
+                <visualize>1</visualize>
+                <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+                    <alwaysOn>true</alwaysOn>
+                    <updateRate>0.0</updateRate>
+                    <cameraName>atom/camera</cameraName>
+                    <imageTopicName>rgb/image_raw</imageTopicName>
+                    <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>
+                    <frameName>camera_link</frameName>
+                    <hackBaseline>0.07</hackBaseline>
+                    <distortionK1>0.0</distortionK1>
+                    <distortionK2>0.0</distortionK2>
+                    <distortionK3>0.0</distortionK3>
+                    <distortionT1>0.0</distortionT1>
+                    <distortionT2>0.0</distortionT2>
+                    <publishTF>true</publishTF>
+                </plugin> 
+            </sensor>
+        </link>
+
+        <!-- Camera Joint -->
+        <joint type="fixed" name="camera_joint" >
+            <!--<pose>0.26 0 0.15 0 0 0</pose> -->
+            <parent>chassis</parent>
+            <child>camera_link</child>
+            <axis>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+        <!-- Project center to the ground -->
+        <link name="robot_footprint"></link>
+
+        <!-- Plugin -->
+        <plugin name="skid_steer_drive_controller" filename="libgazebo_ros_skid_steer_drive.so">
+            <updateRate>100.0</updateRate>
+            <robotNamespace>/</robotNamespace>
+            <leftFrontJoint>left_wheel_hinge_front</leftFrontJoint>
+            <rightFrontJoint>right_wheel_hinge_front</rightFrontJoint>
+            <leftRearJoint>left_wheel_hinge_back</leftRearJoint>
+            <rightRearJoint>right_wheel_hinge_back</rightRearJoint>
+            <wheelSeparation>0.4</wheelSeparation>
+            <wheelDiameter>0.2</wheelDiameter>
+            <robotBaseFrame>robot_footprint</robotBaseFrame>
+            <torque>10</torque>
+            <topicName>cmd_vel</topicName>
+            <odometryTopic>odom</odometryTopic>
+            <odometryFrame>odom</odometryFrame>
+            <commandTopic>cmd_vel</commandTopic>
+            <topic_name_twist>cmd_vel</topic_name_twist>
+            <topic_name_odometry>odom</topic_name_odometry>
+            <topic_name_joint>joint</topic_name_joint>
+            <broadcastTF>true</broadcastTF>
+            <covariance_x>0.0001</covariance_x>
+            <covariance_y>0.0001</covariance_y>
+            <covariance_yaw>0.01</covariance_yaw>
+
+        </plugin>
+
+        <!-- LiDAR -->
+        <link name="hokuyo">
+            <pose>0.24 0 0.33 0 0 0</pose>
+            <inertial>
+                <mass>1e-5</mass>
+                <inertia> <!-- inertias are tricky to compute -->
+                    <!-- http://gazebosim.org/tutorials?tut=inertia&cat=build_robot -->
+                    <ixx>1e-6</ixx>
+                    <ixy>0.0</ixy>
+                    <ixz>0.0</ixz>
+                    <iyy>1e-6</iyy>
+                    <iyz>0.0</iyz>
+                    <izz>1e-6</izz>
+                </inertia>
+            </inertial>
+
+            <visual name="visual">
+                <geometry>
+                    <mesh>
+                        <uri> model://atom/meshes/hokuyo.dae</uri>
+                    </mesh>
+                </geometry>
+            </visual>
+
+            <collision name="collision">
+                <geometry>
+                    <box>
+                        <size>0.1 0.1 0.1</size>
+                    </box>
+                </geometry>
+            </collision>
+
+            <sensor type="ray" name="head_hokuyo_sensor">
+                <pose>0 0 0 0 0 0</pose>
+                <visualize>false</visualize>
+                <update_rate>40</update_rate>
+                <ray>
+                    <scan>
+                        <horizontal>
+                            <samples>720</samples>
+                            <resolution>1</resolution>
+                            <min_angle>-1.570796</min_angle>
+                            <max_angle>1.570796</max_angle>
+                        </horizontal>
+                    </scan>
+
+                    <range>
+                        <min>0.10</min>
+                        <max>30.0</max>
+                        <resolution>0.01</resolution>
+                    </range>
+
+                    <noise>
+                        <type>gaussian</type>
+                        <!-- Noise parameters based on published spec for Hokuyo laser
+                           achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
+                           stddev of 0.01m will put 99.7% of samples within 0.03m of the true
+                           reading. -->
+                        <mean>0.0</mean>
+                        <stddev>0.01</stddev>
+                    </noise>
+
+                </ray>
+                <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
+                    <topicName>/scan</topicName>
+                    <frameName>hokuyo</frameName>
+                </plugin>
+            </sensor>
+        </link>
+        
+        <joint name="hokuyo_joint" type="fixed">
+            <pose></pose>
+            <parent>chassis</parent>
+            <child>hokuyo</child>
+            <axis>
+                <xyz>0 1 0</xyz>
+            </axis>
+        </joint>
+
+    </model>
+</sdf>
