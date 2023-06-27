@@ -66,9 +66,9 @@ class TurtlesimActorCriticAgent:
         state = tf.convert_to_tensor([state], dtype=tf.float32)
         logits, _ = self.model(state)
         action_probabilities = tf.nn.softmax(logits)
-        print("action_probs b4converting to numpy: ",action_probabilities)
+        print("action_probs b4 converting to numpy: ",action_probabilities)
         action_probabilities = action_probabilities[0].numpy()  # Convert to NumPy array
-        print("action probability after cinverting to numpy ", action_probabilities)
+        print("action probability after converting to numpy ", action_probabilities)
         action = np.random.choice(len(action_probabilities), p=action_probabilities)
         print("chosen action ", action )
         return action
