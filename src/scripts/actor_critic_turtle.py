@@ -145,6 +145,7 @@ class TurtleBot3Controller:
 
                 # Compute action
                 state = np.array([current_x, current_y, current_theta, distance_to_target, relative_angle])
+                print("curent state: ", state)
                 action = self.agent.get_action(state)
 
                 # Move turtle
@@ -170,6 +171,7 @@ class TurtleBot3Controller:
             episode_discounted_rewards = []
 
             while not rospy.is_shutdown():
+                print("episode: ",episode+1)
                 if self.state is not None:
                     current_x, current_y, current_theta, _, _ = self.state
                     distance_to_target = self.euclidean_distance(current_x, current_y, self.target_x, self.target_y)
