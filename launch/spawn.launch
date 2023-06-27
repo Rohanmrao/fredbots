@@ -7,11 +7,31 @@
 
   <!-- Publish joint states -->
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+    <param name="use_gui" value="True"/>
 
   <!-- Publish the robot's TF -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+  <node name="atom1_tf_broadcaster" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 base_footprint world" />
 
   <!-- Spawn the robot in Gazebo -->
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model atom" respawn="false" output="screen" />
   <node name="atom_move" pkg="fredbots" type="atom_move.py" output="screen"></node>
+  <node name="rviz" pkg="rviz" type="rviz" args="=-d $(find fredbots)/src/atom/default.rviz" />
+
+  <param name="base_frame" value="base_footprint"/>
+  <param name="odom_frame" value="odom"/>
+  <param name="map_frame" value="map"/>
+  <param name="publish_map" value="true"/>
+  <param name="delta" value="0.1"/>
+  <param name="maxUrange" value="10.0"/>
+  <param name="sigma" value="0.05"/>
+  <param name="kernelSize" value="3"/>
+  <param name="lstep" value="0.05"/>
+  <param name="astep" value="0.05"/>
+  <param name="iterations" value="5"/>
+  <param name="lsigma" value="0.075"/>
+  <param name="ogain" value="3.0"/>
+  <param name="minimumScore" value="100"/>
+  <param name="maximumScore" value="0"/>
+
 </launch>
