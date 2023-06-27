@@ -3,7 +3,7 @@
   <include file="$(find gazebo_ros)/launch/empty_world.launch" />
 
   <!-- Load the Atom robot URDF -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find atom)/urdf/atom.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fredbots)/src/atom/urdf/atom.xacro'" />
 
   <!-- Publish joint states -->
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
