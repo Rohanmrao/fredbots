@@ -136,12 +136,16 @@ class TurtleBot3Controller:
 
                 current_theta = current_theta if current_theta >= 0 else 2 * math.pi + current_theta
 
+                # print("current theta ", current_theta)
+
                 # Calculate relative angle
                 relative_angle = target_angle - current_theta
                 if relative_angle > math.pi:
                     relative_angle -= 2 * math.pi
                 elif relative_angle < -math.pi:
                     relative_angle += 2 * math.pi
+                
+                # print("relative theta ", relative_angle)
 
                 # Compute action
                 state = np.array([current_x, current_y, current_theta, distance_to_target, relative_angle])
@@ -164,7 +168,8 @@ class TurtleBot3Controller:
 
     def train_agent(self, num_episodes):
         for episode in range(num_episodes):
-            self.set_target_position(np.random.uniform(0, 10), np.random.uniform(0, 10))
+            # self.set_target_position(np.random.uniform(0, 10), np.random.uniform(0, 10))
+            self.set_target_position(4,4)
             episode_reward = 0
             episode_states = []
             episode_actions = []
@@ -174,6 +179,10 @@ class TurtleBot3Controller:
                 print("episode: ",episode+1)
                 if self.state is not None:
                     current_x, current_y, current_theta, _, _ = self.state
+                    print("x: ",current_x)
+                    print("y: ",current_y)
+                    print("target_x", self.target_x)
+                    print("target_y", self.target_y)
                     distance_to_target = self.euclidean_distance(current_x, current_y, self.target_x, self.target_y)
                     if distance_to_target < 0.5:  # Reached target
                         break
@@ -183,6 +192,7 @@ class TurtleBot3Controller:
                         target_angle += 2 * math.pi
 
                     current_theta = current_theta if current_theta >= 0 else 2 * math.pi + current_theta
+                    print("current theta ", current_theta)
 
                     # Calculate relative angle
                     relative_angle = target_angle - current_theta
@@ -190,6 +200,8 @@ class TurtleBot3Controller:
                         relative_angle -= 2 * math.pi
                     elif relative_angle < -math.pi:
                         relative_angle += 2 * math.pi
+                    
+                    print("relative angle ", relative_angle)
 
                     # Compute action
                     state = np.array([current_x, current_y, current_theta, distance_to_target, relative_angle])
