@@ -38,6 +38,8 @@ class TurtleEnv(gym.Env):
 
         self.q_table = np.zeros((10, 10, 4))
 
+        self.min_dist_to_goal = 999
+
     def reset(self):
         self.reset_proxy()  # Reset the turtlesim simulation
         self.position_x = 5.544445  # init coordinates
@@ -50,13 +52,13 @@ class TurtleEnv(gym.Env):
         obs = self.get_observation()
         reward = self.get_reward()
         done = self.is_done()
-        return obs, reward, done, {}
+        return obs, reward, done
 
     def move_turtle(self, action):
-        if action == 0:  # Up
-            self.move(5.0, 0.0)
-        elif action == 1:  # Down
-            self.move(-5.0, 0.0)
+        if action == 0:  # Forward
+            self.move(10.0, 0.0)
+        elif action == 1:  # Backward
+            self.move(-10.0, 0.0)
         elif action == 2:  # Left
             self.move(0.0, 5.0)
         elif action == 3:  # Right
@@ -91,6 +93,9 @@ class TurtleEnv(gym.Env):
         print("x and y ",self.position_x,self.position_y)
         print("distance_tobound ",distance_to_bound)
 
+        if self.min_dist_to_goal > distance_to_goal:
+            self.min_dist_to_goal = distance_to_goal
+        print("min_dist_to_goal ",self.min_dist_to_goal)
         return distance_to_goal < distance_threshold
 
     def q_learning(self):
@@ -106,7 +111,7 @@ class TurtleEnv(gym.Env):
                 action = self.get_action(state_index)
                 print("action ",action)
 
-                next_state, reward, done, _ = self.step(action)
+                next_state, reward, done = self.step(action)
                 next_state_index = self.get_state_index(next_state)
                 print("next start state ",next_state_index)
                 print("reward ", reward)
@@ -135,7 +140,7 @@ class TurtleEnv(gym.Env):
         done = self.is_done()
         while not done:
             action = self.get_action(state_index)
-            next_state, _, done, _ = self.step(action)
+            next_state, _, done = self.step(action)
             next_state = self.get_state_index(next_state)
             shortest_path.append([next_state[0],next_state[1]])
             state_index = next_state
