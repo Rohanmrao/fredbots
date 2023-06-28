@@ -127,6 +127,8 @@ class TurtleBot3Controller:
         self.target_x = 4
         self.target_y = 4
 
+        self.count = 0
+
         self.agent = TurtlesimActorCriticAgent(num_actions=5)
         # actions:
             # Move forward with a moderate linear velocity.
@@ -154,21 +156,13 @@ class TurtleBot3Controller:
         self.target_y = target_y
 
     def reset_turtlesim(self):
-        # Create a publisher to publish the initial pose
-        pub = rospy.Publisher('/turtle1/pose', Pose, queue_size=1)
-        rospy.init_node('reset_turtlesim', anonymous=True)
-        
-        # Create an instance of the Pose message and set the desired initial position and orientation
-        initial_pose = Pose()
-        initial_pose.x = 0.0
-        initial_pose.y = 0.0
-        initial_pose.theta = 0.0
-        
-        # Publish the initial pose to reset the Turtlesim
-        pub.publish(initial_pose)
-        
-        # Sleep briefly to ensure the message is published
-        rospy.sleep(0.1)
+        rospy.wait_for_service('/reset')
+        try:
+            reset_service = rospy.ServiceProxy('/reset', Empty)
+            reset_service()
+            rospy.sleep(1.0)
+        except rospy.ServiceException as e:
+            print("Reset service call failed:", str(e))
 
 
 
@@ -213,10 +207,10 @@ class TurtleBot3Controller:
             # self.rate.sleep()
 
         # Stop the turtle
-        vel_msg = Twist()
-        vel_msg.linear.x = 0.0
-        vel_msg.angular.z = 0.0
-        self.velocity_publisher.publish(vel_msg)
+        # vel_msg = Twist()
+        # vel_msg.linear.x = 0.0
+        # vel_msg.angular.z = 0.0
+        # self.velocity_publisher.publish(vel_msg)
 
     def train_agent(self, num_episodes):
         for episode in range(num_episodes):
@@ -225,13 +219,14 @@ class TurtleBot3Controller:
             # self.turtlesim()
 
             # self.reset_turtlesim()
-            print("reset happened !!!!!")
+            # print("reset happened !!!!!")
             # self.set_target_position(np.random.uniform(0, 10), np.random.uniform(0, 10))
             self.set_target_position(4,4)
             episode_reward = 0
             episode_states = []
             episode_actions = []
             episode_discounted_rewards = []
+
 
             while not rospy.is_shutdown():
                 print("episode: ",episode+1)
@@ -288,7 +283,7 @@ class TurtleBot3Controller:
                     # Move turtle
                     vel_msg = Twist()
                     vel_msg.linear.x = 1.0  # Constant linear velocity
-                    vel_msg.angular.z = action / 2.0  # Scale the action for angular velocity
+                    vel_msg.angular.z = action / 3.0  # Scale the action for angular velocity
                     self.velocity_publisher.publish(vel_msg)
 
                     next_state = self.state
@@ -309,6 +304,10 @@ class TurtleBot3Controller:
             self.velocity_publisher.publish(vel_msg)
 
             print("stopping done")
+
+            self.reset_turtlesim()
+            self.count+=1
+            print("reset happened ",self.count)
 
             # Compute discounted rewards
             discounted_rewards = []
