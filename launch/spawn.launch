@@ -1,37 +1,28 @@
 <launch>
-  <!-- Launch Gazebo with an empty world -->
-  <include file="$(find gazebo_ros)/launch/empty_world.launch" />
+    <!-- Launch Gazebo with an empty world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+    </include>
 
-  <!-- Load the Atom robot URDF -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fredbots)/src/atom/urdf/atom.xacro'" />
+    <!-- Spawn the Atom wheeled robot in Gazebo -->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model wheeled_robot -param robot_description">
+        <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fredbots)/src/atom/urdf/atom.xacro'" />
+    </node>
 
-  <!-- Publish joint states -->
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
-    <param name="use_gui" value="True"/>
+    <!-- Launch RViz for sensor visualization -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find fredbots)/src/atom/default.rviz"/>
 
-  <!-- Publish the robot's TF -->
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
-  <node name="atom1_tf_broadcaster" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 base_footprint world" />
+    <!-- Run the atom_move.py node -->
+    <node name="atom_move_node" pkg="fredbots" type="atom_move.py" output="screen"/>
 
-  <!-- Spawn the robot in Gazebo -->
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model atom" respawn="false" output="screen" />
-  <node name="atom_move" pkg="fredbots" type="atom_move.py" output="screen"></node>
-  <node name="rviz" pkg="rviz" type="rviz" args="=-d $(find fredbots)/src/atom/default.rviz" />
+    <param name="use_sim_time" value="true"/>
 
-  <param name="base_frame" value="base_footprint"/>
-  <param name="odom_frame" value="odom"/>
-  <param name="map_frame" value="map"/>
-  <param name="publish_map" value="true"/>
-  <param name="delta" value="0.1"/>
-  <param name="maxUrange" value="10.0"/>
-  <param name="sigma" value="0.05"/>
-  <param name="kernelSize" value="3"/>
-  <param name="lstep" value="0.05"/>
-  <param name="astep" value="0.05"/>
-  <param name="iterations" value="5"/>
-  <param name="lsigma" value="0.075"/>
-  <param name="ogain" value="3.0"/>
-  <param name="minimumScore" value="100"/>
-  <param name="maximumScore" value="0"/>
+    <!-- Start the robot_state_publisher -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" />
+    <node name="atom1_tf_broadcaster" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 odom world" />
 
 </launch>
