@@ -9,9 +9,9 @@
     </include>
 
     <!-- Spawn the Atom wheeled robot in Gazebo -->
-    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model wheeled_robot -param robot_description">
-        <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fredbots)/src/atom/urdf/atom.xacro'" />
-    </node>
+
+      <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model atom" respawn="false" output="screen" />
+      <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fredbots)/src/atom/urdf/atom.xacro'" />
 
     <!-- Launch RViz for sensor visualization -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find fredbots)/src/atom/default.rviz"/>
