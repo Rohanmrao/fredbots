@@ -139,6 +139,8 @@ class TurtleBot3Controller:
         self.velocity_publisher = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
         self.pose_subscriber = rospy.Subscriber('/turtle1/pose', Pose, self.pose_callback)
         self.reset_proxy = rospy.ServiceProxy('/reset', Empty)
+        
+
         self.rate = rospy.Rate(10)  # 10hz
 
     def pose_callback(self, data):
@@ -151,14 +153,24 @@ class TurtleBot3Controller:
         self.target_x = target_x
         self.target_y = target_y
 
-    def reset(self):
-        self.reset_proxy()  # Reset the turtlesim simulation
-        self.current_x = 5.544445  # init coordinates
-        self.current_y = 5.544445
-        print("\ntest\n")
-        print(self.current_x, self.current_y)
-        # return self.get_observation()
-    
+    def reset_turtlesim(self):
+        # Create a publisher to publish the initial pose
+        pub = rospy.Publisher('/turtle1/pose', Pose, queue_size=1)
+        rospy.init_node('reset_turtlesim', anonymous=True)
+        
+        # Create an instance of the Pose message and set the desired initial position and orientation
+        initial_pose = Pose()
+        initial_pose.x = 0.0
+        initial_pose.y = 0.0
+        initial_pose.theta = 0.0
+        
+        # Publish the initial pose to reset the Turtlesim
+        pub.publish(initial_pose)
+        
+        # Sleep briefly to ensure the message is published
+        rospy.sleep(0.1)
+
+
 
 
 
@@ -209,7 +221,11 @@ class TurtleBot3Controller:
     def train_agent(self, num_episodes):
         for episode in range(num_episodes):
 
-            self.reset()
+            # state = self.reset()
+            # self.turtlesim()
+
+            # self.reset_turtlesim()
+            print("reset happened !!!!!")
             # self.set_target_position(np.random.uniform(0, 10), np.random.uniform(0, 10))
             self.set_target_position(4,4)
             episode_reward = 0
