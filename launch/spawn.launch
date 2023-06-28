@@ -23,6 +23,10 @@
 
     <!-- Start the robot_state_publisher -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" />
-    <node name="atom1_tf_broadcaster" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 odom world" />
+    <node name="atom1_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis right_wheel_front" />
+    <node name="atom1_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis right_wheel_back" />
+    <node name="atom1_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis left_wheel_front" />
+    <node name="atom1_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis left_wheel_back" />
+    <node name="atom1_tf_broadcaster_wrf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" />
 
 </launch>
