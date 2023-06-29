@@ -167,50 +167,6 @@ class TurtleBot3Controller:
         self.target_y = target_y
 
     def reset_turtlesim(self):
-<<<<<<< HEAD
-        # reset the turtlesim
-        self.reset_proxy()
-        self.position_x = 5.544445  # init coordinates
-        self.position_y = 5.544445
-
-        # def move_turtle(self):
-        #     while not rospy.is_shutdown():
-        #         if self.state is not None:k
-        #             current_x, current_y, current_theta, _, _ = self.state
-        #             distance_to_target = self.euclidean_distance(current_x, current_y, self.target_x, self.target_y)
-        #             if distance_to_target < 0.5:  # Reached target
-        #                 break
-
-        #             target_angle = math.atan2(self.target_y - current_y, self.target_x - current_x)
-        #             if target_angle < 0:
-        #                 target_angle += 2 * math.pi
-
-        #             current_theta = current_theta if current_theta >= 0 else 2 * math.pi + current_theta
-
-        #             # print("current theta ", current_theta)
-
-        #             # Calculate relative angle
-        #             relative_angle = target_angle - current_theta
-        #             if relative_angle > math.pi:
-        #                 relative_angle -= 2 * math.pi
-        #             elif relative_angle < -math.pi:
-        #                 relative_angle += 2 * math.pi
-
-        #             # print("relative theta ", relative_angle)
-
-        #             # Compute action
-        #             state = np.array([current_x, current_y, current_theta, distance_to_target, relative_angle])
-        #             print("curent state: ", state)
-        #             action = self.agent.get_action(state)
-
-        #             # Move turtle
-        #             vel_msg = Twist()
-        #             vel_msg.linear.x = 1.0  # Constant linear velocity
-        #             vel_msg.angular.z = action / 2.0  # Scale the action for angular velocity
-        #             self.velocity_publisher.publish(vel_msg)
-
-        # self.rate.sleep()
-=======
         rospy.wait_for_service('/reset')
         try:
             reset_service = rospy.ServiceProxy('/reset', Empty)
@@ -260,7 +216,6 @@ class TurtleBot3Controller:
     #             self.velocity_publisher.publish(vel_msg)
 
             # self.rate.sleep()
->>>>>>> amulya
 
         # Stop the turtle
         # vel_msg = Twist()
@@ -273,13 +228,8 @@ class TurtleBot3Controller:
             # state = self.reset()
             # self.turtlesim()
 
-<<<<<<< HEAD
-            self.reset_turtlesim()
-            print("reset happened !!!!!")
-=======
             # self.reset_turtlesim()
             # print("reset happened !!!!!")
->>>>>>> amulya
             # self.set_target_position(np.random.uniform(0, 10), np.random.uniform(0, 10))
             self.set_target_position(4, 4)
             episode_reward = 0
@@ -360,13 +310,7 @@ class TurtleBot3Controller:
                     # Move turtle
                     vel_msg = Twist()
                     vel_msg.linear.x = 1.0  # Constant linear velocity
-<<<<<<< HEAD
-                    vel_msg.angular.z = (
-                        action / 5.0
-                    )  # Scale the action for angular velocity
-=======
                     vel_msg.angular.z = action / 3.0  # Scale the action for angular velocity
->>>>>>> amulya
                     self.velocity_publisher.publish(vel_msg)
 
                     next_state = self.state
@@ -390,14 +334,9 @@ class TurtleBot3Controller:
 
             print("stopping done")
 
-<<<<<<< HEAD
-            # call reset
-            self.reset_turtlesim()
-=======
             self.reset_turtlesim()
             self.count+=1
             print("reset happened ",self.count)
->>>>>>> amulya
 
             # Compute discounted rewards
             discounted_rewards = []
