@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-
 import math
 import numpy as np
 import rospy
 import gym
 from gym import spaces
-
 import tensorflow as tf
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
@@ -121,22 +119,25 @@ class TurtlesimActorCriticAgent:
         self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
 
 
-
 class AtomEnv(gym.Env):
     def __init__(self):
         super(AtomEnv, self).__init__()
-        rospy.init_node('atom_a2c', anonymous=True)
-        self.velocity_publisher = rospy.Publisher('/atom/cmd_vel', Twist, queue_size=10)
-        self.pose_subscriber = rospy.Subscriber('/atom/odom', Odometry, self.pose_callback)
+        rospy.init_node("atom_a2c", anonymous=True)
+        self.velocity_publisher = rospy.Publisher("/atom/cmd_vel", Twist, queue_size=10)
+        self.pose_subscriber = rospy.Subscriber(
+            "/atom/odom", Odometry, self.pose_callback
+        )
         # self.reset_proxy = rospy.ServiceProxy('/reset', Empty)
 
-        self.set_model_state_proxy = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+        self.set_model_state_proxy = rospy.ServiceProxy(
+            "/gazebo/set_model_state", SetModelState
+        )
 
         self.model_state_msg = ModelState()
-        self.model_state_msg.model_name = 'atom_bot'
+        self.model_state_msg.model_name = "atom_bot"
 
         self.state = None
-        
+
         self.target_x = 4
         self.target_y = 4
 
@@ -145,20 +146,18 @@ class AtomEnv(gym.Env):
 
         self.model_state_msg.pose.position.x = 0.0
         self.model_state_msg.pose.position.y = 0.0
-        
-        
-        self.rate = rospy.Rate(10)  # 10hz
 
+        self.rate = rospy.Rate(10)  # 10hz
 
     def pose_callback(self, data):
         quaternion = (
             data.pose.pose.orientation.x,
             data.pose.pose.orientation.y,
             data.pose.pose.orientation.z,
-            data.pose.pose.orientation.w
+            data.pose.pose.orientation.w,
         )
         _, _, current_theta = tf_trans.euler_from_quaternion(quaternion)
-        
+
         self.state = [
             data.pose.pose.position.x,
             data.pose.pose.position.y,
@@ -174,21 +173,39 @@ class AtomEnv(gym.Env):
         self.target_x = target_x
         self.target_y = target_y
 
+
     def reset(self):
-        # self.reset_proxy()
+        vel_msg = Twist()
+        vel_msg.linear.x = 0.0
+        vel_msg.angular.z = 0.0
+        self.velocity_publisher.publish(vel_msg)
+
+        self.model_state_msg = ModelState()
+        self.model_state_msg.model_name = "atom_bot"
         self.model_state_msg.pose.position.x = 0.0
         self.model_state_msg.pose.position.y = 0.0
         self.model_state_msg.pose.orientation.z = 0.0
-        self.model_state_msg.pose.orientation.w = 0.0
-        self.set_model_state_proxy(self.model_state_msg)
-        self.state = None
-        self.count = 0
-        self.rate.sleep()
+        self.model_state_msg.pose.orientation.w = 1.0
+
+        try:
+            # Set the model state directly using a ROS topic
+            model_state_pub = rospy.Publisher('/gazebo/set_model_state', ModelState, queue_size=10)
+            model_state_pub.publish(self.model_state_msg)
+
+            self.state = None
+            self.count = 0
+            rospy.sleep(1)
+        except rospy.ROSException as e:
+            print("Reset failed:", str(e))
+        except:
+            print("Reset failed for non-ROS reason")
+            
         return np.array(self.state)
+
 
     def train_agent(self, num_episodes):
         for episode in range(num_episodes):
-            # state = self.reset()
+            # self.reset()
             # self.turtlesim()
 
             # self.reset_turtlesim()
@@ -199,7 +216,6 @@ class AtomEnv(gym.Env):
             episode_states = []
             episode_actions = []
             episode_discounted_rewards = []
-
 
             while not rospy.is_shutdown():
                 print("episode: ", episode + 1)
@@ -222,13 +238,12 @@ class AtomEnv(gym.Env):
                     )
                     print("distance to target: ", distance_to_target)
 
+                    print("current position: ", current_x, current_y)
                     distance_to_bound = self.euclidean_distance(
-                        current_x, current_y, 5.544445, 5.544445
+                        current_x, current_y, 0, 0
                     )
                     print("distance_to_bound: ", distance_to_bound)
-                    if (
-                        distance_to_bound > 2.5
-                    ):  # more than 2.5 radius from start position
+                    if distance_to_bound > 2.5:  # more than 2.5 radius from start position
                         break
                     if distance_to_target < 0.5:  # Reached target
                         break
@@ -275,7 +290,9 @@ class AtomEnv(gym.Env):
                     # Move turtle
                     vel_msg = Twist()
                     vel_msg.linear.x = 1.0  # Constant linear velocity
-                    vel_msg.angular.z = action / 3.0  # Scale the action for angular velocity
+                    vel_msg.angular.z = (
+                        action / 1.5
+                    )  # Scale the action for angular velocity
                     self.velocity_publisher.publish(vel_msg)
 
                     next_state = self.state
@@ -300,8 +317,8 @@ class AtomEnv(gym.Env):
             print("stopping done")
 
             self.reset()
-            self.count+=1
-            print("reset happened ",self.count)
+            self.count += 1
+            print("reset happened ", self.count)
 
             # Compute discounted rewards
             discounted_rewards = []
@@ -333,5 +350,3 @@ class AtomEnv(gym.Env):
 if __name__ == "__main__":
     controller = AtomEnv()
     controller.train_agent(num_episodes=100)
-
-
