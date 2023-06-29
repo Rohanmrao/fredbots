@@ -59,8 +59,8 @@ class ActorCriticModel(keras.Model):
         return logits, values
 
 
-# Custom Actor-Critic agent for turtlesim
-class TurtlesimActorCriticAgent:
+# Custom Actor-Critic agent for Atom
+class AtomActorCriticAgent:
     def __init__(self, num_actions):
         self.model = ActorCriticModel(num_actions)
         self.optimizer = keras.optimizers.Adam(learning_rate=0.01)
@@ -135,6 +135,13 @@ class AtomEnv(gym.Env):
 
         self.model_state_msg = ModelState()
         self.model_state_msg.model_name = "atom_bot"
+        self.model_state_msg.pose.position.x = 0.0
+        self.model_state_msg.pose.position.y = 0.0
+        self.model_state_msg.pose.position.z = 0.0
+        self.model_state_msg.pose.orientation.x = 0.0
+        self.model_state_msg.pose.orientation.y = 0.0
+        self.model_state_msg.pose.orientation.z = 0.0
+        self.model_state_msg.pose.orientation.w = 1.0
 
         self.state = None
 
@@ -142,10 +149,7 @@ class AtomEnv(gym.Env):
         self.target_y = 4
 
         self.count = 0
-        self.agent = TurtlesimActorCriticAgent(num_actions=5)
-
-        self.model_state_msg.pose.position.x = 0.0
-        self.model_state_msg.pose.position.y = 0.0
+        self.agent = AtomActorCriticAgent(num_actions=5)
 
         self.rate = rospy.Rate(10)  # 10hz
 
@@ -180,37 +184,31 @@ class AtomEnv(gym.Env):
         vel_msg.angular.z = 0.0
         self.velocity_publisher.publish(vel_msg)
 
+        print("\n\n\n",self.state,"\n\n\n")
+        self.set_model_state_proxy = rospy.ServiceProxy(
+            "/gazebo/set_model_state", SetModelState
+        )
+        # rospy.sleep(1)
+        self.rate.sleep()
         self.model_state_msg = ModelState()
         self.model_state_msg.model_name = "atom_bot"
         self.model_state_msg.pose.position.x = 0.0
         self.model_state_msg.pose.position.y = 0.0
+        self.model_state_msg.pose.position.z = 0.0
+        self.model_state_msg.pose.orientation.x = 0.0
+        self.model_state_msg.pose.orientation.y = 0.0
         self.model_state_msg.pose.orientation.z = 0.0
         self.model_state_msg.pose.orientation.w = 1.0
 
-        try:
-            # Set the model state directly using a ROS topic
-            model_state_pub = rospy.Publisher('/gazebo/set_model_state', ModelState, queue_size=10)
-            model_state_pub.publish(self.model_state_msg)
-
-            self.state = None
-            self.count = 0
-            rospy.sleep(1)
-        except rospy.ROSException as e:
-            print("Reset failed:", str(e))
-        except:
-            print("Reset failed for non-ROS reason")
+        self.state = [0, 0, 0, 0, 0]
             
         return np.array(self.state)
 
 
     def train_agent(self, num_episodes):
         for episode in range(num_episodes):
-            # self.reset()
-            # self.turtlesim()
+            self.reset()
 
-            # self.reset_turtlesim()
-            # print("reset happened !!!!!")
-            # self.set_target_position(np.random.uniform(0, 10), np.random.uniform(0, 10))
             self.set_target_position(4, 4)
             episode_reward = 0
             episode_states = []
@@ -287,11 +285,11 @@ class AtomEnv(gym.Env):
                     )
                     action = self.agent.get_action(state)
 
-                    # Move turtle
+                    # Move robot
                     vel_msg = Twist()
                     vel_msg.linear.x = 1.0  # Constant linear velocity
                     vel_msg.angular.z = (
-                        action / 1.5
+                        action / 0.8
                     )  # Scale the action for angular velocity
                     self.velocity_publisher.publish(vel_msg)
 
@@ -308,7 +306,7 @@ class AtomEnv(gym.Env):
                 self.rate.sleep()
             # print(episode_states)
             print("i came out")
-            # Stop the turtle
+            # Stop the robot
             vel_msg = Twist()
             vel_msg.linear.x = 0.0
             vel_msg.angular.z = 0.0
@@ -316,7 +314,7 @@ class AtomEnv(gym.Env):
 
             print("stopping done")
 
-            self.reset()
+            # self.reset()
             self.count += 1
             print("reset happened ", self.count)
 
