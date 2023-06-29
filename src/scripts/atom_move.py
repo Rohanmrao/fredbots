@@ -24,7 +24,7 @@ class AtomEnv(gym.Env):
         self.set_model_state_proxy = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
 
         self.model_state_msg = ModelState()
-        self.model_state_msg.model_name = 'atom_bot'
+        self.model_state_msg.model_name = 'atom'
         self.model_state_msg.pose.position.x = 0.0
         self.model_state_msg.pose.position.y = 0.0
         self.model_state_msg.pose.position.z = 0.0
@@ -53,6 +53,7 @@ class AtomEnv(gym.Env):
         self.position_y = round(data.pose.pose.position.y, 2)
 
     def reset(self):
+        
         # self.reset_proxy()  # Reset the turtlesim simulation
         self.position_x = 0
         self.position_y = 0    # reset to init coordinates
@@ -98,7 +99,7 @@ class AtomEnv(gym.Env):
         dist_bound = sqrt(pow(0 - self.position_x, 2) + pow(0 - self.position_y, 2))
         print("dist_bound ",dist_bound)
         if dist_bound > 2:
-            # response = self.set_model_state_proxy(self.model_state_msg)
+            response = self.set_model_state_proxy(self.model_state_msg)
             print("reset DONE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         distance_threshold = 0.5
         distance_to_goal = sqrt(pow(self.goal_x - self.position_x, 2) + pow(self.goal_y - self.position_y, 2))
