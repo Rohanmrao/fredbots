@@ -3,7 +3,7 @@
   <include file="$(find gazebo_ros)/launch/empty_world.launch" />
 
   <!-- Load the Atom robot URDF -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find atom)/urdf/atom.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fredbots)/src/atom/urdf/atom.xacro'" />
 
   <!-- Publish joint states -->
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
@@ -13,8 +13,7 @@
 
   <!-- Spawn the robot in Gazebo -->
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model atom" respawn="false" output="screen" />
-  <!-- <node name="atom_move" pkg="fredbots" type="atom_move.py" output="screen"></node> -->
-  <node name="atom_move" pkg="fredbots" type="atom_a2c.py" output="screen"></node>
+  <node name="atom_move" pkg="fredbots" type="atom_move.py" output="screen"></node>
 </launch>
 
 

@@ -158,5 +158,4 @@ class TurtleEnv(gym.Env):
 if __name__ == '__main__':
     env = TurtleEnv()
     env.q_learning()
-    # env.get_shortest_path()
-
+    env.get_shortest_path()
