@@ -7,8 +7,6 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-# from sklearn.preprocessing import OneHotEncoder
-
 
 
 
@@ -84,24 +82,11 @@ class TurtlesimActorCriticAgent:
             # states = tf.convert_to_tensor([states], dtype=tf.float32)
             print("shape of states to train fn: ", states.shape)
 
-            # states = self.state
-            # states = tf.convert_to_tensor([states], dtype=tf.float32)
-            
-            # print("self.model.output[0]: ",self.model.output[0])
-
             logits, values = self.model(states)
             print("logits: ",logits)
             advantage = discounted_rewards - values
             print("ACTIONS SHAPE BEFORE ONE HOT")
             print(actions.shape)
-            # print("self.model.output[0]",self.model.output[0])
-            # actions_one_hot = tf.one_hot(actions, depth=self.model.output[0])
-            # print(actions_one_hot,"%%"*5)
-            # print("self.model.output[0]: ",self.model.output[0])
-
-            # actions_one_hot = tf.one_hot(actions, depth=5)
-            # policy_loss = self.huber_loss(actions_one_hot, logits, from_logits=True)
-            # value_loss = self.huber_loss(discounted_rewards, values)
 
             actions_one_hot = tf.one_hot(actions, depth=len(logits[0]))
             policy_loss = self.loss_fn(actions_one_hot, logits)
@@ -165,52 +150,6 @@ class TurtleBot3Controller:
             print("Reset service call failed:", str(e))
 
 
-
-
-
-    # def move_turtle(self):
-    #     while not rospy.is_shutdown():
-    #         if self.state is not None:
-    #             current_x, current_y, current_theta, _, _ = self.state
-    #             distance_to_target = self.euclidean_distance(current_x, current_y, self.target_x, self.target_y)
-    #             if distance_to_target < 0.5:  # Reached target
-    #                 break
-
-    #             target_angle = math.atan2(self.target_y - current_y, self.target_x - current_x)
-    #             if target_angle < 0:
-    #                 target_angle += 2 * math.pi
-
-    #             current_theta = current_theta if current_theta >= 0 else 2 * math.pi + current_theta
-
-    #             # print("current theta ", current_theta)
-
-    #             # Calculate relative angle
-    #             relative_angle = target_angle - current_theta
-    #             if relative_angle > math.pi:
-    #                 relative_angle -= 2 * math.pi
-    #             elif relative_angle < -math.pi:
-    #                 relative_angle += 2 * math.pi
-                
-    #             # print("relative theta ", relative_angle)
-
-    #             # Compute action
-    #             state = np.array([current_x, current_y, current_theta, distance_to_target, relative_angle])
-    #             print("curent state: ", state)
-    #             action = self.agent.get_action(state)
-
-    #             # Move turtle
-    #             vel_msg = Twist()
-    #             vel_msg.linear.x = 1.0  # Constant linear velocity
-    #             vel_msg.angular.z = action / 2.0  # Scale the action for angular velocity
-    #             self.velocity_publisher.publish(vel_msg)
-
-            # self.rate.sleep()
-
-        # Stop the turtle
-        # vel_msg = Twist()
-        # vel_msg.linear.x = 0.0
-        # vel_msg.angular.z = 0.0
-        # self.velocity_publisher.publish(vel_msg)
 
     def train_agent(self, num_episodes):
         for episode in range(num_episodes):
