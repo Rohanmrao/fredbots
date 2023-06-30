@@ -5,29 +5,26 @@ from turtlesim.msg import Pose
 import math
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-
 
 class ActorCriticAgent:
-    def _init_(self, state_size, action_size):
+    def __init__(self, state_size, action_size):
         self.state_size = state_size
         self.action_size = action_size
         self.actor = self.build_actor()
         self.critic = self.build_critic()
 
     def build_actor(self):
-        actor = Sequential()
-        actor.add(Dense(32, input_dim=self.state_size, activation='relu'))
-        actor.add(Dense(32, activation='relu'))
-        actor.add(Dense(self.action_size, activation='softmax'))
+        actor = tf.keras.models.Sequential()
+        actor.add(tf.keras.layers.Dense(32, input_dim=self.state_size, activation='relu'))
+        actor.add(tf.keras.layers.Dense(32, activation='relu'))
+        actor.add(tf.keras.layers.Dense(self.action_size, activation='softmax'))
         return actor
 
     def build_critic(self):
-        critic = Sequential()
-        critic.add(Dense(32, input_dim=self.state_size, activation='relu'))
-        critic.add(Dense(32, activation='relu'))
-        critic.add(Dense(1, activation='linear'))
+        critic = tf.keras.models.Sequential()
+        critic.add(tf.keras.layers.Dense(32, input_dim=self.state_size, activation='relu'))
+        critic.add(tf.keras.layers.Dense(32, activation='relu'))
+        critic.add(tf.keras.layers.Dense(1, activation='linear'))
         return critic
 
     def load_model_weights(self, weights_file):
@@ -40,7 +37,7 @@ class ActorCriticAgent:
 
 
 class TurtleBot3Controller:
-    def _init_(self):
+    def __init__(self):
         rospy.init_node('turtlebot3_controller', anonymous=True)
         self.state = None
         self.target_x = 0
@@ -84,5 +81,6 @@ class TurtleBot3Controller:
 
 # Example usage
 if __name__ == '__main__':
+    print("tf version: ", tf.version())
     controller = TurtleBot3Controller()
     controller.shortest_path(weights_file='model.h5')
