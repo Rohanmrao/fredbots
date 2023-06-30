@@ -1,8 +1,8 @@
 <launch>
 
 
-    <arg name="first_atom_x_pos" default="-2.0"/>
-    <arg name="first_atom_y_pos" default="-1.0"/>
+    <arg name="first_atom_x_pos" default=" 1.0"/>
+    <arg name="first_atom_y_pos" default=" 1.0"/>
     <arg name="first_atom_z_pos" default=" 0.0"/>
     <arg name="first_atom_yaw"   default=" 0.0"/>
 
@@ -19,7 +19,7 @@
     <!-- Launch Gazebo with an empty world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
 
-
+        <arg name="world_name" value="$(find fredbots)/worlds/simple_maze.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
