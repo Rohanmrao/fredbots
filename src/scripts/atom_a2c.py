@@ -1,3 +1,4 @@
+<<<<<<< HEAD:src/scripts/atom_a2c.py
 #!/usr/bin/env python3
 import math
 import numpy as np
@@ -337,3 +338,5 @@ class AtomEnv(gym.Env):
 if __name__ == "__main__":
     controller = AtomEnv()
     controller.train_agent(num_episodes=100)
+=======
+>>>>>>> parent of 1fdab71... model:src/scripts/reach_goal_a2c_turtlesim.py
