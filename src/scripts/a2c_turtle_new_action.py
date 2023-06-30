@@ -209,9 +209,66 @@ class TurtleBot3Controller:
                     print("distance_to_bound: ", distance_to_bound)
                     if distance_to_bound >3.5: # more than 2.5 radius from start position
                         reward = -distance_to_target*2
+                        target_angle = math.atan2(self.target_y - current_y, self.target_x - current_x)
+                        print("target angle b4: ", target_angle)
+                        if target_angle < 0:
+                            target_angle += 2 * math.pi
+
+                        print("target angle: ", target_angle)
+
+                        current_theta = current_theta if current_theta >= 0 else 2 * math.pi + current_theta
+                        print("current theta ", current_theta)
+                        # exit()
+
+                        # Calculate relative angle
+                        relative_angle = target_angle - current_theta
+                        if relative_angle > math.pi:
+                            relative_angle -= 2 * math.pi
+                        elif relative_angle < -math.pi:
+                            relative_angle += 2 * math.pi
+                    
+                        print("relative angle ", relative_angle)
+                        # exit()
+
+                        # Compute action
+                        state = np.array([current_x, current_y, current_theta, distance_to_target, relative_angle])
+                        action = self.agent.get_action(state)
+                        episode_reward += reward
+                        episode_states.append(state)  # episode_states contains present state  
+                        episode_actions.append(action)
+                        episode_discounted_rewards.append(reward)
                         break
+
                     if distance_to_target < 0.5:  # Reached target
-                        reward = -distance_to_target
+                        reward = -distance_to_target+100
+                        target_angle = math.atan2(self.target_y - current_y, self.target_x - current_x)
+                        print("target angle b4: ", target_angle)
+                        if target_angle < 0:
+                            target_angle += 2 * math.pi
+
+                        print("target angle: ", target_angle)
+
+                        current_theta = current_theta if current_theta >= 0 else 2 * math.pi + current_theta
+                        print("current theta ", current_theta)
+                        # exit()
+
+                        # Calculate relative angle
+                        relative_angle = target_angle - current_theta
+                        if relative_angle > math.pi:
+                            relative_angle -= 2 * math.pi
+                        elif relative_angle < -math.pi:
+                            relative_angle += 2 * math.pi
+                    
+                        print("relative angle ", relative_angle)
+                        # exit()
+
+                        # Compute action
+                        state = np.array([current_x, current_y, current_theta, distance_to_target, relative_angle])
+                        action = self.agent.get_action(state)
+                        episode_reward += reward
+                        episode_states.append(state)  # episode_states contains present state  
+                        episode_actions.append(action)
+                        episode_discounted_rewards.append(reward)
                         break
 
                     target_angle = math.atan2(self.target_y - current_y, self.target_x - current_x)
@@ -298,10 +355,11 @@ class TurtleBot3Controller:
            
 
             print(f"Episode {episode + 1}: Reward = {episode_reward}")
+        
+        self.agent.model.save_weights('model.h5')
 
 
 # Example usage
 if __name__ == '__main__':
     controller = TurtleBot3Controller()
-    controller.train_agent(num_episodes=1)
-    controller.agent.model.save('model.h5')
+    controller.train_agent(num_episodes=100)
