@@ -211,7 +211,7 @@ class TurtleBot3Controller:
                         reward = -distance_to_target*2
                         break
                     if distance_to_target < 0.5:  # Reached target
-                        reward = -distance_to_target
+                        reward = -distance_to_target + 100
                         break
 
                     target_angle = math.atan2(self.target_y - current_y, self.target_x - current_x)
