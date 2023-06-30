@@ -2,6 +2,7 @@ import math
 import numpy as np
 import rospy
 import tensorflow as tf
+from turtlesim.msg import Pose
 from geometry_msgs.msg import Twist
 from std_srvs.srv import Empty
 from tensorflow import keras

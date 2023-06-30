@@ -8,7 +8,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 
-
+# changing actions to just FRONT, BACK, LEFT, RIGHT
 
 # Actor model
 class Actor(keras.Model):
@@ -116,7 +116,7 @@ class TurtleBot3Controller:
 
         self.count = 0
 
-        self.agent = TurtlesimActorCriticAgent(num_actions=5)
+        self.agent = TurtlesimActorCriticAgent(num_actions=4)
         # actions:
             # Move forward with a moderate linear velocity.
             # Move backward with a moderate linear velocity.
@@ -150,6 +150,22 @@ class TurtleBot3Controller:
             rospy.sleep(1.0)
         except rospy.ServiceException as e:
             print("Reset service call failed:", str(e))
+
+    def move_turtle(self, action):
+        if action == 0:  # Up
+            self.move(3.0, 0.0)
+        elif action == 1:  # Down
+            self.move(-3.0, 0.0)
+        elif action == 2:  # Left
+            self.move(0.0, 3.0)
+        elif action == 3:  # Right
+            self.move(0.0, -3.0)
+
+    def move(self, linear_vel, angular_vel):
+        velocity_msg = Twist()
+        velocity_msg.linear.x = linear_vel
+        velocity_msg.angular.z = angular_vel
+        self.velocity_publisher.publish(velocity_msg)
 
 
 
@@ -191,9 +207,11 @@ class TurtleBot3Controller:
 
                     distance_to_bound = self.euclidean_distance(current_x, current_y, 5.544445 , 5.544445 )
                     print("distance_to_bound: ", distance_to_bound)
-                    if distance_to_bound >2.5: # more than 2.5 radius from start position
+                    if distance_to_bound >3.5: # more than 2.5 radius from start position
+                        reward = -distance_to_target*2
                         break
                     if distance_to_target < 0.5:  # Reached target
+                        reward = -distance_to_target
                         break
 
                     target_angle = math.atan2(self.target_y - current_y, self.target_x - current_x)
@@ -221,11 +239,17 @@ class TurtleBot3Controller:
                     state = np.array([current_x, current_y, current_theta, distance_to_target, relative_angle])
                     action = self.agent.get_action(state)
 
+                    # either 0,1,2,3
+
+                    # Move turtle withnew actions 
+
+                    self.move_turtle(action)
+
                     # Move turtle
-                    vel_msg = Twist()
-                    vel_msg.linear.x = 1.0  # Constant linear velocity
-                    vel_msg.angular.z = action / 3.0  # Scale the action for angular velocity
-                    self.velocity_publisher.publish(vel_msg)
+                    # vel_msg = Twist()
+                    # vel_msg.linear.x = 1.0  # Constant linear velocity
+                    # vel_msg.angular.z = action / 3.0  # Scale the action for angular velocity
+                    # self.velocity_publisher.publish(vel_msg)
 
                     next_state = self.state
                     reward = -distance_to_target
@@ -279,4 +303,5 @@ class TurtleBot3Controller:
 # Example usage
 if __name__ == '__main__':
     controller = TurtleBot3Controller()
-    controller.train_agent(num_episodes=100)
+    controller.train_agent(num_episodes=1)
+    controller.agent.model.save('model.h5')
