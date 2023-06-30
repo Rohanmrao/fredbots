@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import rospy
 from std_msgs.msg import Empty
 from geometry_msgs.msg import Twist
@@ -85,5 +86,7 @@ if __name__ == '__main__':
     print("tf version: ", tf.version())
     controller = TurtleBot3Controller()
     controller.shortest_path(weights_file='model.h5')
+=======
+>>>>>>> parent of 1fdab71... model
 =======
 >>>>>>> parent of 1fdab71... model
