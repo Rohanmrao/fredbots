@@ -354,19 +354,12 @@ class TurtleBot3Controller:
             self.agent.train(episode_states, episode_actions, discounted_rewards)
         
             print(f"Episode {episode + 1}: Reward = {episode_reward}")
-<<<<<<< HEAD
         
         self.agent.model.save_weights('model.h5')
-=======
-        self.agent.model.save_weights('model/model.h5')
->>>>>>> 66c1494fd487aa273b5d2d21a8eab59b61656c4a
 
 
 # Example usage
 if __name__ == '__main__':
     controller = TurtleBot3Controller()
     controller.train_agent(num_episodes=100)
-<<<<<<< HEAD
-=======
 
->>>>>>> 66c1494fd487aa273b5d2d21a8eab59b61656c4a
