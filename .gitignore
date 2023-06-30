@@ -1,3 +1,4 @@
 .vscode/
 resources/exclude
 test
+__pycache__
