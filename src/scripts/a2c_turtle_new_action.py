@@ -6,7 +6,7 @@ import math
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.utils import layers
+from tensorflow.keras import layers
 
 # changing actions to just FRONT, BACK, LEFT, RIGHT
 
