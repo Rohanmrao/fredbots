@@ -340,6 +340,6 @@
 	</gazebo>
 
 	<!-- Motor, Camera and Lidar Simulation -->
-	<xacro:include filename="$(find fredbots)/src/bot_2/atom.gazebo" />
+	<xacro:include filename="$(find fredbots)/src/atom/multi_urdf/bot_2/atom.gazebo" />
 
 </robot>
