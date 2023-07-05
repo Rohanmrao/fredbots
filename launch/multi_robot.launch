@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+	<!-- Robot pose -->
+	<arg name="x" default="0"/>
+	<arg name="y" default="0"/>
+	<arg name="z" default="0"/>
+	<arg name="roll" default="0"/>
+	<arg name="pitch" default="0"/>
+	<arg name="yaw" default="0"/>
+	<arg name="robot_name" default="atom_bot"/>
+
+	<!-- Launch Gazebo World -->
+	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+
+		<arg name="world_name" value="$(find fredbots)/worlds/simple_maze.world"/>
+		<arg name="paused" value="false"/>
+		<arg name="use_sim_time" value="true"/>
+		<arg name="gui" value="true"/>
+		<arg name="headless" value="false"/>
+		<arg name="debug" value="false"/>
+    	</include>
+
+
+  <!-- BEGIN ROBOT 1-->
+  <group ns="robot1">
+
+  	<param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/bot_1/atom.xacro'" />
+    <param name="tf_prefix" value="robot1_tf" />
+    <include file="$(find fredbots)/launch/one_robot.launch" >
+      <arg name="init_pose" value="-x 1 -y 1 -z 0" />
+      <arg name="robot_name"  value="Robot1" />
+    </include>
+
+  </group>
+
+  <!-- BEGIN ROBOT 2-->
+  <group ns="robot2">
+
+	<param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/bot_2/atom.xacro'" />
+    <param name="tf_prefix" value="robot2_tf" />
+    <include file="$(find fredbots)/launch/one_robot.launch" >
+      <arg name="init_pose" value="-x -1 -y 1 -z 0" />
+      <arg name="robot_name"  value="Robot2" />
+
+    </include>
+
+  </group>
+
+  <!-- BEGIN ROBOT 2-->
+  <group ns="robot3">
+
+	<param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/bot_3/atom.xacro'" />
+    <param name="tf_prefix" value="robot3_tf" />
+    <include file="$(find fredbots)/launch/one_robot.launch" >
+      <arg name="init_pose" value="-x 0 -y 1 -z 0" />
+      <arg name="robot_name"  value="Robot3" />
+
+    </include>
+  </group>
+
+  <!-- BEGIN ROBOT 2-->
+  <group ns="robot4">
+
+	<param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/bot_4/atom.xacro'" />
+    <param name="tf_prefix" value="robot4_tf" />
+    <include file="$(find fredbots)/launch/one_robot.launch" >
+      <arg name="init_pose" value="-x -2 -y 1 -z 0" />
+      <arg name="robot_name"  value="Robot4" />
+    </include>
+
+  </group>
+
+</launch>

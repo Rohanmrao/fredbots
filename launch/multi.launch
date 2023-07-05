@@ -1,46 +1,47 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <launch>
-
-    <arg name="first_atom_x_pos" default=" 1.0"/>
-    <arg name="first_atom_y_pos" default=" 1.0"/>
-    <arg name="first_atom_z_pos" default=" 0.0"/>
-    <arg name="first_atom_yaw"   default=" 0.0"/>
-
-    <arg name="bot_name"/>
+	<!-- Robot pose -->
+	<arg name="x" default="0"/>
+	<arg name="y" default="0"/>
+	<arg name="z" default="0"/>
+	<arg name="roll" default="0"/>
+	<arg name="pitch" default="0"/>
+	<arg name="yaw" default="0"/>
+	<arg name="robot_name" default="atom"/>
 
     <!-- Launch Gazebo with an empty world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
 
-        <arg name="world_name" value="$(find fredbots)/worlds/simple_maze.world"/>
+     <arg name="world_name" value="$(find fredbots)/worlds/simple_maze.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
         <arg name="headless" value="false"/>
         <arg name="debug" value="false"/>
+
     </include>
 
-    <!-- Spawn the Atom wheeled robot in Gazebo -->
+	<param name="robot_description_atom1" command="$(find xacro)/xacro '$(find fredbots)/src/atom/urdf/atom.xacro'" />
 
-    <!-- Spawn the Atom wheeled robot in Gazebo -->
+  <!-- BEGIN ROBOT 1-->
+  <group ns="atom1">
+    <param name="tf_prefix" value="atom1_tf" />
+    <include file="$(find fredbots)/launch/spawn.launch" >
+      <arg name="init_pose" value="-x 1 -y 1 -z 0" />
+      <arg name="robot_name"  value="atom1" />
+    </include>
+  </group>
 
-      <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="'-urdf -param robot_description -model atom' '-urdf -model turtlebot3_burger -x $(arg first_atom_x_pos) -y $(arg first_atom_y_pos) -z $(arg first_atom_z_pos) -Y $(arg first_atom_yaw)' " respawn="false" output="screen" />
-        <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fredbots)/src/atom/urdf/atom.xacro'" />
+	<param name="robot_description_atom2" command="$(find xacro)/xacro '$(find fredbots)/src/atom/urdf/atom_2.xacro'" />
 
-    <!-- Launch RViz for sensor visualization -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find fredbots)/src/atom/default.rviz"/>
-
-    <!-- Run the atom_move.py node -->
-    <node name="atom_move_node" pkg="fredbots" type="atom_move.py" output="screen"/>
-
-    <param name="use_sim_time" value="true"/>
-
-    <!-- Start the robot_state_publisher -->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" />
-    <node name="atom1_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis right_wheel_front" />
-    <node name="atom1_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis right_wheel_back" />
-    <node name="atom1_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis left_wheel_front" />
-    <node name="atom1_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis left_wheel_back" />
-    <node name="atom1_tf_broadcaster_wrf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" />
-  
+  <!-- BEGIN ROBOT 2-->
+  <group ns="atom2">
+    <param name="tf_prefix" value="atom2_tf" />
+    <include file="$(find atom)/launch/spawn.launch" >
+      <arg name="init_pose" value="-x -1 -y 1 -z 0" />
+      <arg name="robot_name"  value="atom2" />
+    </include>
+  </group>
 
 </launch>

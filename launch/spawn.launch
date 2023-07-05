@@ -1,31 +1,26 @@
 <?xml version="1.0"?>
 
 <launch>
-  <!-- Launch Gazebo with an empty world -->
-  <include file="$(find gazebo_ros)/launch/empty_world.launch">
-     <arg name="world_name" value="$(find fredbots)/worlds/simple_maze.world"/>
-        <arg name="paused" value="false"/>
-        <arg name="use_sim_time" value="true"/>
-        <arg name="gui" value="true"/>
-        <arg name="headless" value="false"/>
-        <arg name="debug" value="false"/>
-    </include>
 
-  <!-- Load the Atom robot URDF -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fredbots)/src/atom/urdf/atom.xacro'" />
 
-  <!-- Publish joint states -->
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+    <arg name="robot_name"/>
+    <arg name="init_pose"/>
 
-  <!-- Publish the robot's TF -->
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <node name="spawn_atom" pkg="gazebo" type="spawn_model"
+     args="$(arg init_pose) -urdf -param /robot_description -model $(arg robot_name)"
+     respawn="false" output="screen" />
 
-  <!-- Spawn the robot in Gazebo -->
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model atom" respawn="false" output="screen" />
-  <node name="atom_move" pkg="fredbots" type="atom_move.py" output="screen" />
+    <!-- Publish joint states -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 
-  <!-- Spawn the robot in Rviz-->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find fredbots)/src/atom/default.rviz"/>
-  <node name="atom1_tf_broadcaster_wrf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" />
+    <!-- Publish the robot's TF -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-</launch>
+    <node name="atom_move" pkg="fredbots" type="atom_move.py" output="screen" />
+
+    <!-- Spawn the robot in Rviz-->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find fredbots)/src/atom/default.rviz"/>
+    <node name="atom1_tf_broadcaster_wrf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" />
+      
+
+  </launch>
