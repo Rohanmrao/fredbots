@@ -8,12 +8,15 @@
 	<arg name="roll" default="0"/>
 	<arg name="pitch" default="0"/>
 	<arg name="yaw" default="0"/>
-	<arg name="robot_name" default="atom_bot"/>
+	<arg name="robot_name" default="atom"/>
+
+  <!-- World File -->
+	<arg name="world_file" default="$(find fredbots)/worlds/empty.world"/>
 
 	<!-- Launch Gazebo World -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
 
-		<arg name="world_name" value="$(find fredbots)/worlds/simple_maze.world"/>
+		<arg name="world_name" value="$(find fredbots)/worlds/nonempty.world"/>
 		<arg name="paused" value="false"/>
 		<arg name="use_sim_time" value="true"/>
 		<arg name="gui" value="true"/>
@@ -21,11 +24,12 @@
 		<arg name="debug" value="false"/>
     	</include>
 
+  <param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/atom/urdf/atom.xacro'" />
 
   <!-- BEGIN ROBOT 1-->
+  <param name="robot_description_Robot1" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_1/atom.xacro'" />
   <group ns="robot1">
 
-  	<param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/bot_1/atom.xacro'" />
     <param name="tf_prefix" value="robot1_tf" />
     <include file="$(find fredbots)/launch/one_robot.launch" >
       <arg name="init_pose" value="-x 1 -y 1 -z 0" />
@@ -34,39 +38,41 @@
 
   </group>
 
-  <!-- BEGIN ROBOT 2-->
+  <!-- BEGIN ROBOT 2 -->
+	<param name="robot_description_Robot2" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_2/atom.xacro'" />
   <group ns="robot2">
 
-	<param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/bot_2/atom.xacro'" />
     <param name="tf_prefix" value="robot2_tf" />
     <include file="$(find fredbots)/launch/one_robot.launch" >
-      <arg name="init_pose" value="-x -1 -y 1 -z 0" />
+      <arg name="init_pose" value="-x 0 -y 1 -z 0" />
       <arg name="robot_name"  value="Robot2" />
 
     </include>
 
   </group>
 
-  <!-- BEGIN ROBOT 2-->
+  <!-- BEGIN ROBOT 3-->
+  <param name="robot_description_Robot3" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_3/atom.xacro'" />
   <group ns="robot3">
 
-	<param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/bot_3/atom.xacro'" />
     <param name="tf_prefix" value="robot3_tf" />
     <include file="$(find fredbots)/launch/one_robot.launch" >
-      <arg name="init_pose" value="-x 0 -y 1 -z 0" />
+      <arg name="init_pose" value="-x -1 -y 1 -z 0" />
       <arg name="robot_name"  value="Robot3" />
 
     </include>
+
   </group>
 
   <!-- BEGIN ROBOT 2-->
+  <param name="robot_description_Robot4" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_4/atom.xacro'" />
   <group ns="robot4">
 
-	<param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/bot_4/atom.xacro'" />
     <param name="tf_prefix" value="robot4_tf" />
     <include file="$(find fredbots)/launch/one_robot.launch" >
       <arg name="init_pose" value="-x -2 -y 1 -z 0" />
       <arg name="robot_name"  value="Robot4" />
+
     </include>
 
   </group>
