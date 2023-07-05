@@ -6,15 +6,7 @@
     <arg name="first_atom_z_pos" default=" 0.0"/>
     <arg name="first_atom_yaw"   default=" 0.0"/>
 
-    <arg name="second_atom_x_pos" default=" 2.0"/>
-    <arg name="second_atom_y_pos" default=" 1.0"/>
-    <arg name="second_atom_z_pos" default=" 0.0"/>
-    <arg name="second_atom_yaw"   default=" 0.0"/>
-
-    <arg name="third_atom_x_pos" default=" 0.5"/>
-    <arg name="third_atom_y_pos" default=" 0.0"/>
-    <arg name="third_atom_z_pos" default=" 0.0"/>
-    <arg name="third_atom_yaw"   default=" 0.0"/>
+    <arg name="bot_name"/>
 
     <!-- Launch Gazebo with an empty world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -29,7 +21,9 @@
 
     <!-- Spawn the Atom wheeled robot in Gazebo -->
 
-      <node name="spawn_atom_1" pkg="gazebo_ros" type="spawn_model" args="'-urdf -param robot_description' '-urdf -model atom -x $(arg first_atom_x_pos) -y $(arg first_atom_y_pos) -z $(arg first_atom_z_pos) -Y $(arg first_atom_yaw)' " respawn="false" output="screen" />
+    <!-- Spawn the Atom wheeled robot in Gazebo -->
+
+      <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="'-urdf -param robot_description -model atom' '-urdf -model turtlebot3_burger -x $(arg first_atom_x_pos) -y $(arg first_atom_y_pos) -z $(arg first_atom_z_pos) -Y $(arg first_atom_yaw)' " respawn="false" output="screen" />
         <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fredbots)/src/atom/urdf/atom.xacro'" />
 
     <!-- Launch RViz for sensor visualization -->
@@ -47,6 +41,6 @@
     <node name="atom1_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis left_wheel_front" />
     <node name="atom1_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis left_wheel_back" />
     <node name="atom1_tf_broadcaster_wrf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" />
-
+  
 
 </launch>

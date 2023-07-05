@@ -1,25 +1,9 @@
+<?xml version="1.0"?>
+
 <launch>
-
-
-    <arg name="first_atom_x_pos" default=" 1.0"/>
-    <arg name="first_atom_y_pos" default=" 1.0"/>
-    <arg name="first_atom_z_pos" default=" 0.0"/>
-    <arg name="first_atom_yaw"   default=" 0.0"/>
-
-    <arg name="second_atom_x_pos" default=" 2.0"/>
-    <arg name="second_atom_y_pos" default=" 1.0"/>
-    <arg name="second_atom_z_pos" default=" 0.0"/>
-    <arg name="second_atom_yaw"   default=" 0.0"/>
-
-    <arg name="third_atom_x_pos" default=" 0.5"/>
-    <arg name="third_atom_y_pos" default=" 0.0"/>
-    <arg name="third_atom_z_pos" default=" 0.0"/>
-    <arg name="third_atom_yaw"   default=" 0.0"/>
-
-    <!-- Launch Gazebo with an empty world -->
-    <include file="$(find gazebo_ros)/launch/empty_world.launch">
-
-        <arg name="world_name" value="$(find fredbots)/worlds/simple_maze.world"/>
+  <!-- Launch Gazebo with an empty world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+     <arg name="world_name" value="$(find fredbots)/worlds/simple_maze.world"/>
         <arg name="paused" value="false"/>
         <arg name="use_sim_time" value="true"/>
         <arg name="gui" value="true"/>
@@ -27,52 +11,21 @@
         <arg name="debug" value="false"/>
     </include>
 
-  <group ns = "atom1">
-    <!-- Spawn the Atom wheeled robot in Gazebo -->
+  <!-- Load the Atom robot URDF -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fredbots)/src/atom/urdf/atom.xacro'" />
 
-      <node name="spawn_urdf_1" pkg="gazebo_ros" type="spawn_model" args="'-urdf -param robot_description -model atom' '-urdf -model turtlebot3_burger -x $(arg first_atom_x_pos) -y $(arg first_atom_y_pos) -z $(arg first_atom_z_pos) -Y $(arg first_atom_yaw)' " respawn="false" output="screen" />
-        <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fredbots)/src/atom/urdf/atom.xacro'" />
+  <!-- Publish joint states -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 
-    <!-- Launch RViz for sensor visualization -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find fredbots)/src/atom/default.rviz"/>
+  <!-- Publish the robot's TF -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-    <!-- Run the atom_move.py node -->
-    <node name="atom_move_node" pkg="fredbots" type="atom_move.py" output="screen"/>
+  <!-- Spawn the robot in Gazebo -->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model atom" respawn="false" output="screen" />
+  <node name="atom_move" pkg="fredbots" type="atom_move.py" output="screen" />
 
-    <param name="use_sim_time" value="true"/>
-
-    <!-- Start the robot_state_publisher -->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" />
-    <node name="atom1_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis right_wheel_front" />
-    <node name="atom1_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis right_wheel_back" />
-    <node name="atom1_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis left_wheel_front" />
-    <node name="atom1_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis left_wheel_back" />
-    <node name="atom1_tf_broadcaster_wrf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" />
-
-  </group>
-
-    <group ns = "atom2">
-    <!-- Spawn the Atom wheeled robot in Gazebo -->
-
-      <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model atom" respawn="false" output="screen" />
-      <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fredbots)/src/atom/urdf/atom.xacro'" />
-
-    <!-- Launch RViz for sensor visualization -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find fredbots)/src/atom/default.rviz"/>
-
-    <!-- Run the atom_move.py node -->
-    <node name="atom_move_node" pkg="fredbots" type="atom_move.py" output="screen"/>
-
-    <param name="use_sim_time" value="true"/>
-
-    <!-- Start the robot_state_publisher -->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" />
-    <node name="atom1_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis right_wheel_front" />
-    <node name="atom1_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis right_wheel_back" />
-    <node name="atom1_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis left_wheel_front" />
-    <node name="atom1_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 chassis left_wheel_back" />
-    <node name="atom1_tf_broadcaster_wrf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" />
-    
-  </group>
+  <!-- Spawn the robot in Rviz-->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find fredbots)/src/atom/default.rviz"/>
+  <node name="atom1_tf_broadcaster_wrf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" />
 
 </launch>
