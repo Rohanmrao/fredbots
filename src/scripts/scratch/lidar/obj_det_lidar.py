@@ -85,13 +85,10 @@ def main():
     rospy.init_node('obstacle_detector')
 
     # Create a subscriber to the topic /odom
-    sub = rospy.Subscriber('/odom', Odometry, newOdom)
+    sub = rospy.Subscriber('/atom/odom', Odometry, newOdom)
 
     # Create a subscriber to the topic /scan
     sub = rospy.Subscriber('/scan', LaserScan, scan_callback)
-
-    # Create a publisher to the topic /cmd_vel
-    pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
 
     # Set the rate
     rate = rospy.Rate(0.1)
@@ -108,7 +105,7 @@ def main():
     # While ROS is still running
     while not rospy.is_shutdown():
         # Publish the message
-        pub.publish(vel)
+        # pub.publish(vel)
 
         # Sleep for the rest of the cycle
         rate.sleep()
