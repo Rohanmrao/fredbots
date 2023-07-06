@@ -188,6 +188,22 @@ class AtomEnv():
 
     #     return np.array(self.state)
 
+    def move_turtle(self, action):
+        if action == 1:  # Up
+            self.move(3.0, 0.0)
+        elif action == 0:  # Down
+            self.move(-3.0, 0.0)
+        elif action == 2:  # Left
+            self.move(0.0, 3.0)
+        elif action == 3:  # Right
+            self.move(0.0, -3.0)
+
+    def move(self, linear_vel, angular_vel):
+        velocity_msg = Twist()
+        velocity_msg.linear.x = linear_vel
+        velocity_msg.angular.z = angular_vel
+        self.velocity_publisher.publish(velocity_msg)
+
 
     def reset(self):
         response = self.set_model_state_proxy(self.model_state_msg)
@@ -230,7 +246,7 @@ class AtomEnv():
                         current_x, current_y, 0, 0
                     )
                     print("distance_to_bound: ", distance_to_bound)
-                    if distance_to_bound > 2:  # more than 2.5 radius from start position
+                    if distance_to_bound > 4.5:  # more than 2.5 radius from start position
                         break
                     if distance_to_target < 0.5:  # Reached target
                         break
@@ -275,12 +291,13 @@ class AtomEnv():
                     action = self.agent.get_action(state)
 
                     # Move robot
-                    vel_msg = Twist()
+                    self.move_turtle(action)
+                    """ vel_msg = Twist()
                     vel_msg.linear.x = 1.0  # Constant linear velocity
                     vel_msg.angular.z = (
                         action / 0.8
                     )  # Scale the action for angular velocity
-                    self.velocity_publisher.publish(vel_msg)
+                    self.velocity_publisher.publish(vel_msg) """
 
                     next_state = self.state
                     reward = -distance_to_target
@@ -347,5 +364,4 @@ class AtomEnv():
 
 if __name__ == "__main__":
     controller = AtomEnv()
-    controller.train_agent(num_episodes=1)
-    # controller.agent.save_model("trained_model")
+    controller.train_agent(num_episodes=100)
