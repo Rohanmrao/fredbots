@@ -1,57 +1,31 @@
+import rospy
+from geometry_msgs.msg import Twist
+from turtlesim.msg import Pose
+from std_srvs.srv import Empty
 import math
 import numpy as np
-import rospy
 import tensorflow as tf
-from turtlesim.msg import Pose
-from geometry_msgs.msg import Twist
-from std_srvs.srv import Empty
 from tensorflow import keras
 from tensorflow.keras import layers
-# from sklearn.preprocessing import OneHotEncoder
 
-
-
-
-# Actor model
-class Actor(keras.Model):
-    def __init__(self, num_actions):
-        super(Actor, self).__init__()
-        self.dense1 = layers.Dense(32, activation="relu")
-        self.dense2 = layers.Dense(32, activation="relu")
-        self.policy_logits = layers.Dense(num_actions)
-
-    def call(self, inputs):
-        x = self.dense1(inputs)
-        x = self.dense2(x)
-        logits = self.policy_logits(x)
-        return logits
-
-
-# Critic model
-class Critic(keras.Model):
-    def __init__(self):
-        super(Critic, self).__init__()
-        self.dense1 = layers.Dense(32, activation="relu")
-        self.dense2 = layers.Dense(32, activation="relu")
-        self.values = layers.Dense(1)
-
-    def call(self, inputs):
-        x = self.dense1(inputs)
-        x = self.dense2(x)
-        values = self.values(x)
-        return values
-
+# changing actions to just FRONT, BACK, LEFT, RIGHT
 
 # Actor-Critic model
 class ActorCriticModel(keras.Model):
     def __init__(self, num_actions):
         super(ActorCriticModel, self).__init__()
-        self.actor = Actor(num_actions)
-        self.critic = Critic()
+        self.num_actions = num_actions
+        self.model = keras.Sequential([
+            layers.Dense(32, activation='relu'),
+            layers.Dense(32, activation='relu')
+        ])
+        self.policy_logits = layers.Dense(num_actions)
+        self.values = layers.Dense(1)
 
     def call(self, inputs):
-        logits = self.actor(inputs)
-        values = self.critic(inputs)
+        x = self.model(inputs)
+        logits = self.policy_logits(x)
+        values = self.values(x)
         return logits, values
 
 
@@ -60,51 +34,34 @@ class TurtlesimActorCriticAgent:
     def __init__(self, num_actions):
         self.model = ActorCriticModel(num_actions)
         self.optimizer = keras.optimizers.Adam(learning_rate=0.01)
-        self.huber_loss = keras.losses.Huber()
         self.loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
-        # Huber loss is a type of loss function commonly used in regression tasks, including reinforcement learning.
 
     def get_action(self, state):
         state = tf.convert_to_tensor([state], dtype=tf.float32)
-        print("shape of state to get_action fn: ", state.shape)
-        logits, _ = self.model(state)  # state is the input
-        # print("logits: ", logits)
-        # print("self.model.output[0] for actions: ",self.model.output[0])
+        logits, _ = self.model(state)
         action_probabilities = tf.nn.softmax(logits)
-        # print("action_probs b4 converting to numpy: ",action_probabilities)
         action_probabilities = action_probabilities[0].numpy()  # Convert to NumPy array
-        # print("action probability after converting to numpy ", action_probabilities)
         action = np.random.choice(len(action_probabilities), p=action_probabilities)
-        print("chosen action ", action)
         return action
 
     def train(self, states, actions, discounted_rewards):
-        with tf.GradientTape() as tape:  # tf.GradientTape() is a TensorFlow API that enables automatic differentiation.
-            # states = tf.convert_to_tensor([states], dtype=tf.float32)
-            print("shape of states to train fn: ", states.shape)
-
-            # states = self.state
-            # states = tf.convert_to_tensor([states], dtype=tf.float32)
-            
-            # print("self.model.output[0]: ",self.model.output[0])
-
+        with tf.GradientTape() as tape:
             logits, values = self.model(states)
-            print("logits: ", logits)
             advantage = discounted_rewards - values
-            print("ACTIONS SHAPE BEFORE ONE HOT")
-            print(actions.shape)
 
-            actions_one_hot = tf.one_hot(actions, depth=len(logits[0]))
+            actions_one_hot = tf.one_hot(actions, depth=self.model.num_actions)
             policy_loss = self.loss_fn(actions_one_hot, logits)
 
             discounted_rewards = tf.reshape(discounted_rewards, values.shape)
-
             value_loss = self.loss_fn(discounted_rewards, values)
 
             total_loss = policy_loss + value_loss
 
         grads = tape.gradient(total_loss, self.model.trainable_variables)
         self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
+        self.model.save('model.h5')
+        print("\n\n\n\nMODEL GOT SAVED\n\n\n")
+
 
 
 # TurtleBot3 Controller
@@ -119,7 +76,7 @@ class TurtleBot3Controller:
 
         self.count = 0
 
-        self.agent = TurtlesimActorCriticAgent(num_actions=5)
+        self.agent = TurtlesimActorCriticAgent(num_actions=4)
         # actions:
         # Move forward with a moderate linear velocity.
         # Move backward with a moderate linear velocity.
@@ -136,14 +93,16 @@ class TurtleBot3Controller:
         )
         self.reset_proxy = rospy.ServiceProxy("/reset", Empty)
 
-        # initial coordinates
-        self.position_x = 5.544445  # init coordinates
-        self.position_y = 5.544445
-
         self.rate = rospy.Rate(10)  # 10hz
 
     def pose_callback(self, data):
-        self.state = [data.x, data.y, data.theta, data.linear_velocity, data.angular_velocity,]
+        self.state = [
+            data.x,
+            data.y,
+            data.theta,
+            data.linear_velocity,
+            data.angular_velocity,
+        ]
 
     def euclidean_distance(self, x1, y1, x2, y2):
         return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
@@ -153,15 +112,29 @@ class TurtleBot3Controller:
         self.target_y = target_y
 
     def reset_turtlesim(self):
-        rospy.wait_for_service('/reset')
+        rospy.wait_for_service("/reset")
         try:
-            reset_service = rospy.ServiceProxy('/reset', Empty)
+            reset_service = rospy.ServiceProxy("/reset", Empty)
             reset_service()
             rospy.sleep(1.0)
         except rospy.ServiceException as e:
             print("Reset service call failed:", str(e))
 
+    def move_turtle(self, action):
+        if action == 0:  # Up
+            self.move(3.0, 0.0)
+        elif action == 1:  # Down
+            self.move(-3.0, 0.0)
+        elif action == 2:  # Left
+            self.move(0.0, 3.0)
+        elif action == 3:  # Right
+            self.move(0.0, -3.0)
 
+    def move(self, linear_vel, angular_vel):
+        velocity_msg = Twist()
+        velocity_msg.linear.x = linear_vel
+        velocity_msg.angular.z = angular_vel
+        self.velocity_publisher.publish(velocity_msg)
 
     def train_agent(self, num_episodes):
         for episode in range(num_episodes):
@@ -176,7 +149,6 @@ class TurtleBot3Controller:
             episode_states = []
             episode_actions = []
             episode_discounted_rewards = []
-
 
             while not rospy.is_shutdown():
                 print("episode: ", episode + 1)
@@ -201,11 +173,68 @@ class TurtleBot3Controller:
                         current_x, current_y, 5.544445, 5.544445
                     )
                     print("distance_to_bound: ", distance_to_bound)
-                    if (
-                        distance_to_bound > 2.5
-                    ):  # more than 2.5 radius from start position
+                    if distance_to_bound >3.5: # more than 2.5 radius from start position
+                        reward = -distance_to_target*2
+                        target_angle = math.atan2(self.target_y - current_y, self.target_x - current_x)
+                        print("target angle b4: ", target_angle)
+                        if target_angle < 0:
+                            target_angle += 2 * math.pi
+
+                        print("target angle: ", target_angle)
+
+                        current_theta = current_theta if current_theta >= 0 else 2 * math.pi + current_theta
+                        print("current theta ", current_theta)
+                        # exit()
+
+                        # Calculate relative angle
+                        relative_angle = target_angle - current_theta
+                        if relative_angle > math.pi:
+                            relative_angle -= 2 * math.pi
+                        elif relative_angle < -math.pi:
+                            relative_angle += 2 * math.pi
+                    
+                        print("relative angle ", relative_angle)
+                        # exit()
+
+                        # Compute action
+                        state = np.array([current_x, current_y, current_theta, distance_to_target, relative_angle])
+                        action = self.agent.get_action(state)
+                        episode_reward += reward
+                        episode_states.append(state)  # episode_states contains present state  
+                        episode_actions.append(action)
+                        episode_discounted_rewards.append(reward)
                         break
+
                     if distance_to_target < 0.5:  # Reached target
+                        reward = -distance_to_target+100
+                        target_angle = math.atan2(self.target_y - current_y, self.target_x - current_x)
+                        print("target angle b4: ", target_angle)
+                        if target_angle < 0:
+                            target_angle += 2 * math.pi
+
+                        print("target angle: ", target_angle)
+
+                        current_theta = current_theta if current_theta >= 0 else 2 * math.pi + current_theta
+                        print("current theta ", current_theta)
+                        # exit()
+
+                        # Calculate relative angle
+                        relative_angle = target_angle - current_theta
+                        if relative_angle > math.pi:
+                            relative_angle -= 2 * math.pi
+                        elif relative_angle < -math.pi:
+                            relative_angle += 2 * math.pi
+                    
+                        print("relative angle ", relative_angle)
+                        # exit()
+
+                        # Compute action
+                        state = np.array([current_x, current_y, current_theta, distance_to_target, relative_angle])
+                        action = self.agent.get_action(state)
+                        episode_reward += reward
+                        episode_states.append(state)  # episode_states contains present state  
+                        episode_actions.append(action)
+                        episode_discounted_rewards.append(reward)
                         break
 
                     target_angle = math.atan2(
@@ -246,13 +275,18 @@ class TurtleBot3Controller:
                         ]
                     )
                     action = self.agent.get_action(state)
-        
+
+                    # either 0,1,2,3
+
+                    # Move turtle withnew actions
+
+                    self.move_turtle(action)
 
                     # Move turtle
-                    vel_msg = Twist()
-                    vel_msg.linear.x = 1.0  # Constant linear velocity
-                    vel_msg.angular.z = action / 3.0  # Scale the action for angular velocity
-                    self.velocity_publisher.publish(vel_msg)
+                    # vel_msg = Twist()
+                    # vel_msg.linear.x = 1.0  # Constant linear velocity
+                    # vel_msg.angular.z = action / 3.0  # Scale the action for angular velocity
+                    # self.velocity_publisher.publish(vel_msg)
 
                     next_state = self.state
                     reward = -distance_to_target
@@ -276,8 +310,8 @@ class TurtleBot3Controller:
             print("stopping done")
 
             self.reset_turtlesim()
-            self.count+=1
-            print("reset happened ",self.count)
+            self.count += 1
+            print("reset happened ", self.count)
 
             # Compute discounted rewards
             discounted_rewards = []
@@ -304,6 +338,7 @@ class TurtleBot3Controller:
             self.agent.train(episode_states, episode_actions, discounted_rewards)
 
             print(f"Episode {episode + 1}: Reward = {episode_reward}")
+        
 
 
 # Example usage
