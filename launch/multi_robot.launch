@@ -8,10 +8,8 @@
 	<arg name="roll" default="0"/>
 	<arg name="pitch" default="0"/>
 	<arg name="yaw" default="0"/>
-	<arg name="robot_name" default="atom"/>
+	
 
-  <!-- World File -->
-	<arg name="world_file" default="$(find fredbots)/worlds/empty.world"/>
 
 	<!-- Launch Gazebo World -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -24,22 +22,28 @@
 		<arg name="debug" value="false"/>
     	</include>
 
-  <param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/atom/urdf/atom.xacro'" />
+  
 
   <!-- BEGIN ROBOT 1-->
   <param name="robot_description_Robot1" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_1/atom.xacro'" />
+
   <group ns="robot1">
+
     <param name="tf_prefix" value="robot1_tf" />
+
     <include file="$(find fredbots)/launch/one_robot.launch" >
       <arg name="init_pose" value="-x 1 -y 1 -z 0" />
       <arg name="robot_name"  value="Robot1" />
+
     </include>
 
   </group>
 
   <!-- BEGIN ROBOT 2 -->
 	<param name="robot_description_Robot2" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_2/atom.xacro'" />
+
   <group ns="robot2">
+
     <param name="tf_prefix" value="robot2_tf" />
     <include file="$(find fredbots)/launch/one_robot.launch" >
       <arg name="init_pose" value="-x 0 -y 1 -z 0" />
@@ -51,7 +55,9 @@
 
   <!-- BEGIN ROBOT 3-->
   <param name="robot_description_Robot3" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_3/atom.xacro'" />
+
   <group ns="robot3">
+
     <param name="tf_prefix" value="robot3_tf" />
     <include file="$(find fredbots)/launch/one_robot.launch" >
       <arg name="init_pose" value="-x -1 -y 1 -z 0" />
@@ -63,12 +69,29 @@
 
   <!-- BEGIN ROBOT 4-->
   <param name="robot_description_Robot4" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_4/atom.xacro'" />
+
   <group ns="robot4">
+
     <param name="tf_prefix" value="robot4_tf" />
     <include file="$(find fredbots)/launch/one_robot.launch" >
       <arg name="init_pose" value="-x -2 -y 1 -z 0" />
       <arg name="robot_name"  value="Robot4" />
+
     </include>
+
   </group>
+
+    <!-- Import the fredbots package -->
+  <arg name="atom_move_script" default="$(find fredbots)/src/scripts/atom_move.py" />
+  <arg name="rviz_config" default="$(find fredbots)/src/atom/default.rviz" />
+
+  <!-- Run the atom_move.py node for each robot -->
+  <node name="atom_move_robot1" pkg="fredbots" type="atom_1_move.py" output="screen" />
+  <node name="atom_move_robot2" pkg="fredbots" type="atom_2_move.py" output="screen" />
+  <node name="atom_move_robot3" pkg="fredbots" type="atom_3_move.py" output="screen" />
+  <node name="atom_move_robot4" pkg="fredbots" type="atom_4_move.py" output="screen" />
+
+  <!-- Launch RViz with the provided configuration -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" />
 
 </launch>
