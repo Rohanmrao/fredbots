@@ -10,47 +10,22 @@ from tensorflow.keras import layers
 
 # changing actions to just FRONT, BACK, LEFT, RIGHT
 
-
-# Actor model
-class Actor(keras.Model):
-    def __init__(self, num_actions):
-        super(Actor, self).__init__()
-        self.dense1 = layers.Dense(32, activation="relu")
-        self.dense2 = layers.Dense(32, activation="relu")
-        self.policy_logits = layers.Dense(num_actions)
-
-    def call(self, inputs):
-        x = self.dense1(inputs)
-        x = self.dense2(x)
-        logits = self.policy_logits(x)
-        return logits
-
-
-# Critic model
-class Critic(keras.Model):
-    def __init__(self):
-        super(Critic, self).__init__()
-        self.dense1 = layers.Dense(32, activation="relu")
-        self.dense2 = layers.Dense(32, activation="relu")
-        self.values = layers.Dense(1)
-
-    def call(self, inputs):
-        x = self.dense1(inputs)
-        x = self.dense2(x)
-        values = self.values(x)
-        return values
-
-
 # Actor-Critic model
 class ActorCriticModel(keras.Model):
     def __init__(self, num_actions):
         super(ActorCriticModel, self).__init__()
-        self.actor = Actor(num_actions)
-        self.critic = Critic()
+        self.num_actions = num_actions
+        self.model = keras.Sequential([
+            layers.Dense(32, activation='relu'),
+            layers.Dense(32, activation='relu')
+        ])
+        self.policy_logits = layers.Dense(num_actions)
+        self.values = layers.Dense(1)
 
     def call(self, inputs):
-        logits = self.actor(inputs)
-        values = self.critic(inputs)
+        x = self.model(inputs)
+        logits = self.policy_logits(x)
+        values = self.values(x)
         return logits, values
 
 
@@ -59,50 +34,34 @@ class TurtlesimActorCriticAgent:
     def __init__(self, num_actions):
         self.model = ActorCriticModel(num_actions)
         self.optimizer = keras.optimizers.Adam(learning_rate=0.01)
-        self.huber_loss = keras.losses.Huber()
         self.loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
-        # Huber loss is a type of loss function commonly used in regression tasks, including reinforcement learning.
 
     def get_action(self, state):
         state = tf.convert_to_tensor([state], dtype=tf.float32)
-        print("shape of state to get_action fn: ", state.shape)
-        logits, _ = self.model(state)  # state is the input
-        print("len of logits ", (logits))
-        # exit()
-        # print("logits: ", logits)
-        # print("self.model.output[0] for actions: ",self.model.output[0])
+        logits, _ = self.model(state)
         action_probabilities = tf.nn.softmax(logits)
-        # print("action_probs b4 converting to numpy: ",action_probabilities)
         action_probabilities = action_probabilities[0].numpy()  # Convert to NumPy array
-        # print("action probability after converting to numpy ", action_probabilities)
         action = np.random.choice(len(action_probabilities), p=action_probabilities)
-        print("chosen action ", action)
         return action
 
     def train(self, states, actions, discounted_rewards):
-        with tf.GradientTape() as tape:  # tf.GradientTape() is a TensorFlow API that enables automatic differentiation.
-            # states = tf.convert_to_tensor([states], dtype=tf.float32)
-            print("shape of states to train fn: ", states.shape)
-
+        with tf.GradientTape() as tape:
             logits, values = self.model(states)
-            print("logits: ", logits)
             advantage = discounted_rewards - values
-            print("ACTIONS SHAPE BEFORE ONE HOT")
-            print(actions.shape)
 
-            actions_one_hot = tf.one_hot(actions, depth=len(logits[0]))
+            actions_one_hot = tf.one_hot(actions, depth=self.model.num_actions)
             policy_loss = self.loss_fn(actions_one_hot, logits)
 
             discounted_rewards = tf.reshape(discounted_rewards, values.shape)
-
             value_loss = self.loss_fn(discounted_rewards, values)
 
             total_loss = policy_loss + value_loss
 
         grads = tape.gradient(total_loss, self.model.trainable_variables)
         self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
-        self.model.save('model')
+        self.model.save('model.h5')
         print("\n\n\n\nMODEL GOT SAVED\n\n\n")
+
 
 
 # TurtleBot3 Controller

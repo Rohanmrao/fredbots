@@ -68,6 +68,7 @@ class AtomActorCriticAgent:
         self.loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
         # Huber loss is a type of loss function commonly used in regression tasks, including reinforcement learning.
 
+
     def get_action(self, state):
         state = tf.convert_to_tensor([state], dtype=tf.float32)
         print("shape of state to get_action fn: ", state.shape)
@@ -336,4 +337,5 @@ class AtomEnv(gym.Env):
 
 if __name__ == "__main__":
     controller = AtomEnv()
-    controller.train_agent(num_episodes=100)
+    controller.train_agent(num_episodes=1)
+    # controller.agent.save_model("trained_model")

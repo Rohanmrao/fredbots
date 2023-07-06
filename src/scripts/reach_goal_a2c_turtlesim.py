@@ -18,6 +18,7 @@ class ActorCriticAgent:
         actor.add(tf.keras.layers.Dense(32, input_dim=self.state_size, activation='relu'))
         actor.add(tf.keras.layers.Dense(32, activation='relu'))
         actor.add(tf.keras.layers.Dense(self.action_size, activation='softmax'))
+        print(actor.summary)()
         return actor
 
     def build_critic(self):
@@ -25,6 +26,7 @@ class ActorCriticAgent:
         critic.add(tf.keras.layers.Dense(32, input_dim=self.state_size, activation='relu'))
         critic.add(tf.keras.layers.Dense(32, activation='relu'))
         critic.add(tf.keras.layers.Dense(1, activation='linear'))
+        print(critic.summary())
         return critic
 
     def load_model_weights(self, weights_file):
@@ -44,11 +46,20 @@ class TurtleBot3Controller:
         self.target_y = 0
         self.velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.pose_subscriber = rospy.Subscriber('/pose', Pose, self.pose_callback)
-        self.reset_proxy = rospy.ServiceProxy('/reset', Empty)
+        # self.reset_proxy = rospy.ServiceProxy('/reset', Empty)
         self.rate = rospy.Rate(10)  # 10hz
         self.agent = ActorCriticAgent(state_size=5, action_size=4)
 
     # ... Rest of the code
+
+    def pose_callback(self, data):
+        self.state = [
+            data.x,
+            data.y,
+            data.theta,
+            data.linear_velocity,
+            data.angular_velocity,
+        ]
 
     def shortest_path(self, weights_file):
         self.agent.load_model_weights(weights_file)
@@ -81,6 +92,6 @@ class TurtleBot3Controller:
 
 # Example usage
 if __name__ == '__main__':
-    print("tf version: ", tf.version())
+    # print("tf version: ", tf.version())
     controller = TurtleBot3Controller()
     controller.shortest_path(weights_file='model.h5')

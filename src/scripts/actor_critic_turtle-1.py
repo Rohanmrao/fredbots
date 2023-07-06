@@ -246,6 +246,7 @@ class TurtleBot3Controller:
                         ]
                     )
                     action = self.agent.get_action(state)
+        
 
                     # Move turtle
                     vel_msg = Twist()
