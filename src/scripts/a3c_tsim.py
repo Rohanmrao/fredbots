@@ -21,6 +21,15 @@ class A3CNetwork(tf.keras.Model):
         value = self.value(x)
         return logits, value
 
+
+'''
+logits are the unnormalized predictions or scores produced by 
+the model before applying a softmax activation function. 
+Logits represent the raw, unprocessed outputs of the 
+last layer of a neural network, typically used 
+for multiclass classification problems.
+'''
+
 # A3C Agent
 class A3CAgent:
     def __init__(self, num_actions):
@@ -30,7 +39,7 @@ class A3CAgent:
 
     def loss(self, states, actions, rewards, next_states, dones):
         logits, values = self.global_model(states)
-        next_logits, _ = self.global_model(next_states)
+        _, next_values = self.global_model(next_states)
 
         # Compute advantages and discounted rewards
         deltas = rewards + gamma * next_values * (1 - dones) - values
@@ -64,12 +73,6 @@ class A3CAgent:
     def run_episode(self, envs):
         states, actions, rewards, next_states, dones = [], [], [], [], []
 
-        # Reset and get initial states from all environments
-        initial_states = []
-        for env in envs:
-            env.reset()
-            initial_states.append(env.get_pose())
-
         for step in range(max_steps):
             # Collect states from all environments
             current_states = []
@@ -100,7 +103,7 @@ class A3CAgent:
                 # Update state
                 current_states[i] = next_state
 
-        return states, actions, rewards, next_states, dones
+        return states, actions, rewards, next_states,dones
 
 # Helper function to discount rewards
 def discount_rewards(rewards, gamma):
@@ -118,8 +121,8 @@ class TurtleSimEnv:
     def __init__(self, turtle_name):
         self.turtle_name = turtle_name
         self.pose = Pose()
-        self.pose_sub = rospy.Subscriber('/{}/pose'.format(self.turtle_name), Pose, self.pose_callback)
-        self.cmd_vel_pub = rospy.Publisher('/{}/cmd_vel'.format(self.turtle_name), Twist, queue_size=10)
+        self.pose_sub = rospy.Subscriber('/turtle1/pose'.format(self.turtle_name), Pose, self.pose_callback)
+        self.cmd_vel_pub = rospy.Publisher('/turtle1/cmd_vel'.format(self.turtle_name), Twist, queue_size=10)
         rospy.sleep(1)  # Wait for publisher and subscriber to initialize
 
     def pose_callback(self, data):
