@@ -1,25 +1,35 @@
 <launch>
-  <!-- Launch Gazebo with an empty world -->
-  <include file="$(find gazebo_ros)/launch/empty_world.launch" />
 
-  <!-- Load the Atom robot URDF -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find fredbots)/src/atom/urdf/atom.xacro'" />
+    <!-- Launch Gazebo with an empty world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch" />
 
-  <!-- Publish joint states -->
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+      <!-- Launch RViz -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find fredbots)/src/atom/urdf/spawn.rviz" />
 
-  <!-- Publish the robot's TF -->
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-  <!-- Spawn the robot in Gazebo -->
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model atom" respawn="false" output="screen" />
+  <group ns="single_bot">
+
+    <param name="tf_prefix" value="single_bot_tf" />
+
+    <!-- Load the Atom robot URDF -->
+    <param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/atom/urdf/atom.xacro'" />
+
+    <!-- Publish joint states -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+
+    <!-- Publish the robot's TF -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+    <!-- Spawn the robot in Gazebo -->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model atom" respawn="false" output="screen" />
+
   
-  <!-- Launch RViz -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find fredbots)/src/atom/default.rviz" />
-  
-  <!-- Atom move node -->
-  <node name="atom_move" pkg="fredbots" type="atom_move.py" output="screen"></node>
+    <!-- Atom move node -->
+    <node name="atom_move" pkg="fredbots" type="atom_move.py" output="screen" />
 
-  <node name="atom_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" />
+    <!-- Atom TF broadcaster -->
+    <node name="atom_tf_broadcaster_wrf" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 /single_bot_tf/odom /single_bot_tf/robot_footprint" />
+    <node name="atom_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 world /single_bot_tf/odom" />
 
+  </group>
 </launch>
