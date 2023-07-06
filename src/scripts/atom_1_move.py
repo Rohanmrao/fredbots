@@ -14,7 +14,7 @@ import numpy as np
 class AtomEnv(gym.Env):
     def __init__(self):
         super(AtomEnv, self).__init__()
-        rospy.init_node('atom__1_move', anonymous=True)
+        rospy.init_node('atom_1_move', anonymous=True)
         self.velocity_publisher = rospy.Publisher('/atom_1/cmd_vel', Twist, queue_size=10)
         self.pose_subscriber = rospy.Subscriber('/atom_1/odom', Odometry, self.update_pose)
         # self.reset_proxy = rospy.ServiceProxy('/reset', Empty)
