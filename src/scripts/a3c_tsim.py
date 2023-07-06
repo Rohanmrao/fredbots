@@ -30,6 +30,36 @@ last layer of a neural network, typically used
 for multiclass classification problems.
 '''
 
+# Actor Network architecture
+# class ActorNetwork(tf.keras.Model):
+#     def __init__(self, num_actions):
+#         super(ActorNetwork, self).__init__()
+#         self.dense1 = layers.Dense(24, activation='relu')
+#         self.dense2 = layers.Dense(24, activation='relu')
+#         self.policy_logits = layers.Dense(num_actions)
+
+#     def call(self, inputs):
+#         x = self.dense1(inputs)
+#         x = self.dense2(x)
+#         logits = self.policy_logits(x)
+#         return logits
+
+# # Critic Network architecture
+# class CriticNetwork(tf.keras.Model):
+#     def __init__(self):
+#         super(CriticNetwork, self).__init__()
+#         self.dense1 = layers.Dense(24, activation='relu')
+#         self.dense2 = layers.Dense(24, activation='relu')
+#         self.value = layers.Dense(1)
+
+#     def call(self, inputs):
+#         x = self.dense1(inputs)
+#         x = self.dense2(x)
+#         value = self.value(x)
+#         return value
+    
+
+
 # A3C Agent
 class A3CAgent:
     def __init__(self, num_actions):
@@ -77,10 +107,13 @@ class A3CAgent:
             # Collect states from all environments
             current_states = []
             for env in envs:
+                print("env.get_pose(): ",env.get_pose())
                 current_states.append(env.get_pose())
 
             # Convert states to numpy array
             states_np = np.array(current_states)
+
+            # states_tensor = tf.convert_to_tensor([states_np], dtype=tf.float32)
 
             # Predict actions and values
             logits, values = self.global_model(states_np)
@@ -126,10 +159,18 @@ class TurtleSimEnv:
         rospy.sleep(1)  # Wait for publisher and subscriber to initialize
 
     def pose_callback(self, data):
-        self.pose = data
+        # self.pose = data
+        self.state = [
+            data.x,
+            data.y,
+            data.theta,
+            data.linear_velocity,
+            data.angular_velocity,
+        ]
 
     def get_pose(self):
-        return self.pose
+        return self.state
+
 
     def step(self, action):
         twist = Twist()
