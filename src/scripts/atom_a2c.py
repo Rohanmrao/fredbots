@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import math
+import os
 import numpy as np
 import rospy
-import gym
-from gym import spaces
 import tensorflow as tf
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
@@ -106,7 +105,7 @@ class AtomActorCriticAgent:
         self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
 
 
-class AtomEnv(gym.Env):
+class AtomEnv():
     def __init__(self):
         super(AtomEnv, self).__init__()
         rospy.init_node("atom_a2c", anonymous=True)
@@ -230,7 +229,7 @@ class AtomEnv(gym.Env):
                         current_x, current_y, 0, 0
                     )
                     print("distance_to_bound: ", distance_to_bound)
-                    if distance_to_bound > 2.5:  # more than 2.5 radius from start position
+                    if distance_to_bound > 2:  # more than 2.5 radius from start position
                         break
                     if distance_to_target < 0.5:  # Reached target
                         break
@@ -292,7 +291,7 @@ class AtomEnv(gym.Env):
                     episode_actions.append(action)
                     episode_discounted_rewards.append(reward)
 
-                self.rate.sleep()
+                self.rate.sleep()   
             # print(episode_states)
             print("i came out")
             # Stop the robot
@@ -333,7 +332,21 @@ class AtomEnv(gym.Env):
 
             print(f"Episode {episode + 1}: Reward = {episode_reward}")
 
+        print("Training complete.")
+        #save the model
+        if episode == num_episodes - 1:
+            filename = "model_atom.h5"
+            figure_file = os.path.dirname(os.path.realpath(__file__))
+            file_path = os.path.join(figure_file, filename)
+            # print(file_path)
+            self.agent.model.save_weights(file_path)
+            print("Model saved.")
+            
+
 
 if __name__ == "__main__":
     controller = AtomEnv()
-    controller.train_agent(num_episodes=100)
+    controller.train_agent(num_episodes=1)
+    print("done")
+    exit()
+    

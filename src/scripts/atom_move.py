@@ -143,8 +143,7 @@ class AtomEnv(gym.Env):
         if np.random.random() < self.epsilon:
             return np.argmax(self.q_table[x,y])
         else:
-            return np.random.randint(4)
-        
+            return np.random.randint(4)        
 if __name__ == '__main__':
     env = AtomEnv()
     env.q_learning()
