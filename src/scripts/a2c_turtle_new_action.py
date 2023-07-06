@@ -324,11 +324,7 @@ class TurtleBot3Controller:
             self.agent.train(episode_states, episode_actions, discounted_rewards)
 
             print(f"Episode {episode + 1}: Reward = {episode_reward}")
-<<<<<<< HEAD
         self.agent.model.save_weights("model.h5")
-=======
-        
->>>>>>> amulya
 
 
 # Example usage

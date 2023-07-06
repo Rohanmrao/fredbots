@@ -348,10 +348,4 @@ class AtomEnv():
 if __name__ == "__main__":
     controller = AtomEnv()
     controller.train_agent(num_episodes=1)
-<<<<<<< HEAD
-    print("done")
-    exit()
-    
-=======
     # controller.agent.save_model("trained_model")
->>>>>>> amulya
