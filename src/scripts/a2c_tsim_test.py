@@ -33,7 +33,7 @@ class TurtleBot3Controller:
         )
         self.reset_proxy = rospy.ServiceProxy("/reset", Empty)
 
-        self.rate = rospy.Rate(10)  # 10hz
+        self.rate = rospy.Rate(10)  # 10hz 
 
     def pose_callback(self, data):
         self.state = [
