@@ -22,7 +22,8 @@
     	</include>
 
 
-  <node name="atom_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" />
+  <!-- <node name="atom_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" /> -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/atom/urdf/atom.xacro'" />
 
 
   <!-- BEGIN ROBOT 1-->
@@ -85,16 +86,16 @@
   </group>
 
     <!-- Import the fredbots package -->
-  <arg name="atom_move_script" default="$(find fredbots)/src/scripts/atom_move.py" />
-  <arg name="rviz_config" default="$(find fredbots)/src/atom/default.rviz" />
+  <!-- <arg name="atom_move_script" default="$(find fredbots)/src/scripts/atom_move.py" />
+  <arg name="rviz_config" default="$(find fredbots)/src/atom/default.rviz" /> -->
 
   <!-- Run the atom_move.py node for each robot -->
-  <node name="atom_move_robot1" pkg="fredbots" type="atom_1_move.py" output="screen" />
+  <!-- <node name="atom_move_robot1" pkg="fredbots" type="atom_1_move.py" output="screen" />
   <node name="atom_move_robot2" pkg="fredbots" type="atom_2_move.py" output="screen" />
   <node name="atom_move_robot3" pkg="fredbots" type="atom_3_move.py" output="screen" />
-  <node name="atom_move_robot4" pkg="fredbots" type="atom_4_move.py" output="screen" />
+  <node name="atom_move_robot4" pkg="fredbots" type="atom_4_move.py" output="screen" /> -->
 
   <!-- Launch RViz with the provided configuration -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" />
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" /> -->
 
 </launch>
