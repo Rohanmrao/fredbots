@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /Camera1
+        - /RobotModel1
         - /TF1
       Splitter Ratio: 0.5
     Tree Height: 531
@@ -27,7 +28,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: Camera
+    SyncSource: ""
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -149,7 +150,7 @@ Visualization Manager:
           Show Trail: false
       Name: RobotModel
       Robot Description: robot_description
-      TF Prefix: ""
+      TF Prefix: single_bot_tf
       Update Interval: 0
       Value: true
       Visual Enabled: true
@@ -160,23 +161,23 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        camera:
+        single_bot_tf/camera:
           Value: true
-        chassis:
+        single_bot_tf/chassis:
           Value: true
-        hokuyo:
+        single_bot_tf/hokuyo:
           Value: true
-        left_wheel_back:
+        single_bot_tf/left_wheel_back:
           Value: true
-        left_wheel_front:
+        single_bot_tf/left_wheel_front:
           Value: true
-        odom:
+        single_bot_tf/odom:
           Value: true
-        right_wheel_back:
+        single_bot_tf/right_wheel_back:
           Value: true
-        right_wheel_front:
+        single_bot_tf/right_wheel_front:
           Value: true
-        robot_footprint:
+        single_bot_tf/robot_footprint:
           Value: true
         world:
           Value: true
@@ -188,20 +189,20 @@ Visualization Manager:
       Show Names: true
       Tree:
         world:
-          odom:
-            robot_footprint:
-              chassis:
-                camera:
+          single_bot_tf/odom:
+            single_bot_tf/robot_footprint:
+              single_bot_tf/chassis:
+                single_bot_tf/camera:
                   {}
-                hokuyo:
+                single_bot_tf/hokuyo:
                   {}
-                left_wheel_back:
+                single_bot_tf/left_wheel_back:
                   {}
-                left_wheel_front:
+                single_bot_tf/left_wheel_front:
                   {}
-                right_wheel_back:
+                single_bot_tf/right_wheel_back:
                   {}
-                right_wheel_front:
+                single_bot_tf/right_wheel_front:
                   {}
       Update Interval: 0
       Value: true
