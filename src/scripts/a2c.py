@@ -1,10 +1,7 @@
 import rospy
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
-from turtlesim.srv import TeleportAbsolute
-from turtlesim.srv import SetPen
 from std_srvs.srv import Empty
-import random
 import math
 import numpy as np
 import tensorflow as tf
@@ -105,24 +102,8 @@ class TurtleBot3Controller:
         self.target_y = 4
         self.count = 0
         self.agent = TurtlesimActorCriticAgent(num_actions=4)
-        rospy.init_node("turtlebot_controller", anonymous=True)
-        self.velocity_publisher = rospy.Publisher(
-            "/turtle1/cmd_vel", Twist, queue_size=10)
-        self.pose_subscriber = rospy.Subscriber(
-            "/turtle1/pose", Pose, self.pose_callback)
-        self.reset_proxy = rospy.ServiceProxy("/reset", Empty)
-        self.teleport_absolute = rospy.ServiceProxy( "/turtle1/teleport_absolute", TeleportAbsolute)
-        self.pen_service = rospy.ServiceProxy("/turtle1/set_pen", SetPen)
-        self.rate = rospy.Rate(10)  # 10hz
-
-    def pose_callback(self, data):
-        self.state = [
-            data.x,
-            data.y,
-            data.theta,
-            data.linear_velocity,
-            data.angular_velocity,
-        ]
+        self.current_state = [4.55, 4.55, 0]
+        self.state = self.current_state
 
     def euclidean_distance(self, x1, y1, x2, y2):
         return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
@@ -132,23 +113,7 @@ class TurtleBot3Controller:
         self.target_y = target_y
 
     def reset_turtlesim(self):
-        rospy.wait_for_service("/reset")
-        try:
-            reset_service = rospy.ServiceProxy("/reset", Empty)
-            reset_service()
-            rospy.sleep(1.0)
-        except rospy.ServiceException as e:
-            print("Reset service call failed:", str(e))
-
-    def teleport_turtle(self, x, y, theta):
-        rospy.wait_for_service("/turtle1/teleport_absolute")
-        try:
-            self.pen_service(off=1)
-            self.teleport_absolute(x, y, theta)
-            self.pen_service(off=0)
-        except rospy.ServiceException as e:
-            print("Reset service call failed:", str(e))
-
+        self.current_state = [4.55, 4.55, 0]
 
     def move_turtle(self, action):
         if action == 0:  # Up
@@ -161,18 +126,9 @@ class TurtleBot3Controller:
             self.move(0.0, -3.0)
 
     def move(self, linear_vel, angular_vel):
-        velocity_msg = Twist()
-        velocity_msg.linear.x = linear_vel
-        velocity_msg.angular.z = angular_vel
-        self.velocity_publisher.publish(velocity_msg)
-
-    def get_random_position(self):
-        x = random.uniform(0, 8.5)
-        y = random.uniform(0, 10.5)
-        while (self.euclidean_distance(x, y, 5.445, 5.445) > 3):
-            x = random.uniform(0, 8.5)
-            y = random.uniform(0, 10.5)
-        return x, y
+        self.current_state[0] += linear_vel * math.cos(self.current_state[2])
+        self.current_state[1] += linear_vel * math.sin(self.current_state[2])
+        self.current_state[2] += angular_vel
 
     def train_agent(self, num_episodes):
         for episode in range(num_episodes):
@@ -182,12 +138,8 @@ class TurtleBot3Controller:
             episode_actions = []
             episode_discounted_rewards = []
 
-            start_x, start_y = self.get_random_position()
-            self.teleport_turtle(start_x, start_y, 0)
-
-
             print("episode: ", episode + 1)
-            while not rospy.is_shutdown():
+            while True:
                 if self.state is not None:
                     counter = 0                                                                                                    # counter to check if the bot is stuck
                     reward = 0
@@ -195,12 +147,12 @@ class TurtleBot3Controller:
                     state = np.array(state)
                     state = tf.convert_to_tensor([state], dtype=tf.float32)
 
-                    current_x, current_y, current_theta, _, _ = self.state
+                    current_x, current_y, current_theta = self.state
                     distance_to_target = self.euclidean_distance(current_x, current_y, self.target_x, self.target_y)
                     distance_to_bound = self.euclidean_distance(current_x, current_y, 5.544445, 5.544445)
 
-                    if distance_to_bound > 3.5:                                                                                        # more than 2.5 radius from start position
-                        reward += -(distance_to_target ** 2)
+                    if distance_to_bound > 4.5:                                                                                        # more than 2.5 radius from start position
+                        reward += -distance_to_target
                         counter = 1
                     if distance_to_target < 0.5:                                                                                        # Reached target
                         reward += -distance_to_target + 100
@@ -235,6 +187,9 @@ class TurtleBot3Controller:
                     )
                     action = self.agent.get_action(state)
 
+                    print("current state: ", self.current_state)
+
+
                     # either 0,1,2,3
                     # Move turtle withnew actions
                     self.move_turtle(action)
@@ -254,14 +209,11 @@ class TurtleBot3Controller:
                     if counter == 1:
                         break
 
-                self.rate.sleep()
+                # self.rate.sleep()
 
             # Stop the turtle
-            vel_msg = Twist()
-            vel_msg.linear.x = 0.0
-            vel_msg.angular.z = 0.0
-            self.velocity_publisher.publish(vel_msg)
-            # self.reset_turtlesim()
+  
+            self.reset_turtlesim()
             self.count += 1
 
             # Compute discounted rewards
@@ -274,7 +226,6 @@ class TurtleBot3Controller:
             # Normalize discounted rewards
             discounted_rewards = np.array(discounted_rewards)
             discounted_rewards = (discounted_rewards - np.mean(discounted_rewards)) / (np.std(discounted_rewards) + 1e-8)
-
             # Convert lists to numpy arrays
             episode_states = np.array(episode_states)
             episode_actions = np.array(episode_actions)
@@ -282,6 +233,7 @@ class TurtleBot3Controller:
             # Train agent
             self.agent.train(episode_states, episode_actions, discounted_rewards) 
             print(f"Episode {episode + 1}: Reward = {episode_reward}")
+        # self.agent.model.save_weights("model.h5")
 
 
 # Example usage

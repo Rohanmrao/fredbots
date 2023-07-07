@@ -21,7 +21,7 @@ class TurtleBot3Controller:
         # Callback function for pose subscriber, updates the current state of the turtle
         self.state = [data.x, data.y, data.theta, data.linear_velocity, data.angular_velocity]
 
-    def euclidean_distance(self, x1, y1, x2, y2):
+    def euclidean_distance(self, x1, y1, x2, y2):   
         # Calculates the Euclidean distance between two points
         return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
