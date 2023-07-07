@@ -220,6 +220,8 @@
 	<!-- Project center to the ground -->
 	<link name="robot_footprint"></link>
 
+
+
 	<!-- Define Joints -->
 
 	<!-- Right Wheel Joint Back-->
@@ -228,7 +230,7 @@
 	    <parent link="chassis"/>
 	    <child link="right_wheel_back" />
 	    <axis xyz="0 1 0" rpy="0 0 0" />
-	    
+	    <limit effort="10000" velocity="1000" />
 	    <dynamics damping="1.0" friction="1.0" />
 	</joint>
 
@@ -238,7 +240,7 @@
 	    <parent link="chassis"/>
 	    <child link="right_wheel_front" />
 	    <axis xyz="0 1 0" rpy="0 0 0" />
-	  
+	    <limit effort="10000" velocity="1000" />
 	    <dynamics damping="1.0" friction="1.0" />
 	</joint>
 
@@ -249,7 +251,7 @@
 	    <parent link="chassis"/>
 	    <child link="left_wheel_back" />
 	    <axis xyz="0 1 0" rpy="0 0 0" />
-	    
+	    <limit effort="10000" velocity="1000" />
 	    <dynamics damping="1.0" friction="1.0" />
 	</joint>
 
@@ -259,7 +261,7 @@
 	    <parent link="chassis"/>
 	    <child link="left_wheel_front" />
 	    <axis xyz="0 1 0" rpy="0 0 0" />
-	   
+	    <limit effort="10000" velocity="1000" />
 	    <dynamics damping="1.0" friction="1.0" />
 	</joint>
 
@@ -338,6 +340,6 @@
 	</gazebo>
 
 	<!-- Motor, Camera and Lidar Simulation -->
-	<xacro:include filename="$(find fredbots)/src/atom/urdf/atom.gazebo" />
+	<xacro:include filename="$(find fredbots)/src/atom/multi_urdf/bot_1/atom.gazebo" />
 
 </robot>

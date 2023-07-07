@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<robot>
+
+  <gazebo>
+    
+    <plugin name="skid_steer_drive_controller" filename="libgazebo_ros_skid_steer_drive.so">
+      <!-- ... -->
+      <robotNamespace>/single_bot</robotNamespace>
+      <!-- ... -->
+    </plugin>
+
+  </gazebo>
+
+  <!-- camera -->
+  <gazebo reference="camera">
+    <sensor type="camera" name="camera1">
+      <!-- ... -->
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <robotNamespace>/single_bot</robotNamespace>
+        <!-- ... -->
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- hokuyo -->
+  <gazebo reference="hokuyo">
+    <sensor type="ray" name="head_hokuyo_sensor">
+      <!-- ... -->
+      <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
+        <topicName>/single_bot/scan_1</topicName>
+        <frameName>hokuyo</frameName>
+        <robotNamespace>/single_bot</robotNamespace>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+</robot>
