@@ -20,11 +20,13 @@ class Actor(keras.Model):
         super(Actor, self).__init__()
         self.dense1 = layers.Dense(32, activation="relu")
         self.dense2 = layers.Dense(32, activation="relu")
+        self.dense3 = layers.Dense(32, activation="relu")
         self.policy_logits = layers.Dense(num_actions)
 
     def call(self, inputs):
         x = self.dense1(inputs)
         x = self.dense2(x)
+        x = self.dense3(x)
         logits = self.policy_logits(x)
         return logits
 
@@ -35,11 +37,13 @@ class Critic(keras.Model):
         super(Critic, self).__init__()
         self.dense1 = layers.Dense(32, activation="relu")
         self.dense2 = layers.Dense(32, activation="relu")
+        self.dense3 = layers.Dense(32, activation="relu")
         self.values = layers.Dense(1)
 
     def call(self, inputs):
         x = self.dense1(inputs)
         x = self.dense2(x)
+        x = self.dense3(x)
         values = self.values(x)
         return values
 
@@ -64,8 +68,7 @@ class TurtlesimActorCriticAgent:
         self.optimizer = keras.optimizers.Adam(learning_rate=0.01)
         self.huber_loss = keras.losses.Huber()
         # Huber loss is a type of loss function commonly used in regression tasks, including reinforcement learning.
-        self.loss_fn = tf.keras.losses.CategoricalCrossentropy(
-            from_logits=True)
+        self.loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
 
     def get_action(self, state):
         state = tf.convert_to_tensor([state], dtype=tf.float32)
@@ -101,6 +104,7 @@ class TurtlesimActorCriticAgent:
 class TurtleBot3Controller:
     def __init__(self):
         self.state = None
+        self.max_steps = 200
         self.target_x = 4
         self.target_y = 4
         self.count = 0
@@ -199,10 +203,13 @@ class TurtleBot3Controller:
             start_x, start_y = self.get_random_position()
             self.teleport_turtle(start_x, start_y, 0)
 
+            self.step = 0
 
             print("episode: ", episode + 1)
             while not rospy.is_shutdown():
-                if self.state is not None:
+                if self.state is not None :
+                    self.step+=1
+                    print("printing steps: ", self.step)
                     counter = 0                                                                                                    # counter to check if the bot is stuck
                     reward = 0
                     state = self.state
