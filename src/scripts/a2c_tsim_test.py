@@ -86,7 +86,7 @@ class TurtleBot3Controller:
             return True
         
         if distance_to_target < 0.5:
-            print("REACED GOAL!!!!!!!!!!!!!!!!!!!!")
+            print("REACHED GOAL!!!!!!!!!!!!!!!!!!!!")
             return True
         
         return False
