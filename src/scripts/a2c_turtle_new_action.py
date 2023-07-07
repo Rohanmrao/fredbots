@@ -113,6 +113,7 @@ class TurtleBot3Controller:
         self.reset_proxy = rospy.ServiceProxy("/reset", Empty)
         self.teleport_absolute = rospy.ServiceProxy( "/turtle1/teleport_absolute", TeleportAbsolute)
         self.pen_service = rospy.ServiceProxy("/turtle1/set_pen", SetPen)
+        self.clear_service = rospy.ServiceProxy('/clear', Empty)
         self.rate = rospy.Rate(10)  # 10hz
 
     def pose_callback(self, data):
@@ -140,12 +141,25 @@ class TurtleBot3Controller:
         except rospy.ServiceException as e:
             print("Reset service call failed:", str(e))
 
+    def clear_turtlesim(self):
+        rospy.wait_for_service("/clear")
+        try:
+            clear_service = rospy.ServiceProxy("/clear", Empty)
+            clear_service()
+        except rospy.ServiceException as e:
+            print("Clear service call failed:", str(e))
+
     def teleport_turtle(self, x, y, theta):
         rospy.wait_for_service("/turtle1/teleport_absolute")
         try:
+            # clear the turtle
+            self.clear_turtlesim()
             self.pen_service(off=1)
             self.teleport_absolute(x, y, theta)
             self.pen_service(off=0)
+            self.pen_service(255, 255, 255, 2, 0)
+
+            
         except rospy.ServiceException as e:
             print("Reset service call failed:", str(e))
 
@@ -169,7 +183,7 @@ class TurtleBot3Controller:
     def get_random_position(self):
         x = random.uniform(0, 8.5)
         y = random.uniform(0, 10.5)
-        while (self.euclidean_distance(x, y, 5.445, 5.445) > 3):
+        while (self.euclidean_distance(x, y, 5.445, 5.445) > 3 or (x == self.target_x and self.target_y)):
             x = random.uniform(0, 8.5)
             y = random.uniform(0, 10.5)
         return x, y
