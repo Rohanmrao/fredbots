@@ -104,7 +104,7 @@ class TurtlesimActorCriticAgent:
 class TurtleBot3Controller:
     def __init__(self):
         self.state = None
-        self.max_steps = 200
+        self.max_steps = 500
         self.target_x = 4
         self.target_y = 4
         self.count = 0
@@ -128,6 +128,7 @@ class TurtleBot3Controller:
             data.linear_velocity,
             data.angular_velocity,
         ]
+
 
     def euclidean_distance(self, x1, y1, x2, y2):
         return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
@@ -207,6 +208,9 @@ class TurtleBot3Controller:
 
             print("episode: ", episode + 1)
             while not rospy.is_shutdown():
+                if self.step > self.max_steps:
+                    break 
+
                 if self.state is not None :
                     self.step+=1
                     print("printing steps: ", self.step)
