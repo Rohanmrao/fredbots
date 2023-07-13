@@ -141,7 +141,7 @@ def main():
         robot_threads.append(t)
 
     # package and robot updates
-    while True:
+    while True: 
         package_table = []
         for package in packages:
             package_table.append([
