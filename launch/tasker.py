@@ -108,9 +108,9 @@ def move_robot(robot):
 
         time.sleep(1)  # Update battery every second
 
-# Main function
+
 def main():
-    # Create packages
+    # packages
     packages = [
         Packages(1, (2, 2), (8, 8), 2),
         Packages(2, (5, 5), (3, 1), 3),
@@ -118,7 +118,7 @@ def main():
         Packages(4, (7, 7), (4, 6), 4)
     ]
 
-    # Create robots
+    # robots
     robots = [
         Atoms(1, 100, (0, 0)),
         Atoms(2, 100, (10, 10)),
@@ -140,7 +140,7 @@ def main():
         t.start()
         robot_threads.append(t)
 
-    # Simulate package and robot updates
+    # package and robot updates
     while True:
         package_table = []
         for package in packages:
