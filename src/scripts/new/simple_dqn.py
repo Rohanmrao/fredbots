@@ -48,6 +48,9 @@ class DQNAgent:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
+class dqn_env():
+    def __init__(self):
+        
 # Initialize the environment and agent
 state_shape = (4,)  # Example state shape, adjust according to your actual state representation
 action_space = 4  # Example action space size, adjust according to your actual actions
