@@ -130,8 +130,24 @@ class MADDPG:
                 target_param.assign(self.tau * param + (1 - self.tau) * target_param)
 
             for target_param, param in zip(critic_target.trainable_variables, critic.trainable_variables):
+ 
                 target_param.assign(self.tau * param + (1 - self.tau) * target_param)
 
+def move_turtle(self, action):
+        if action == 0:  # Up
+            self.move(3.0, 0.0)
+        elif action == 1:  # Down
+            self.move(-3.0, 0.0)
+        elif action == 2:  # Left
+            self.move(0.0, 3.0)
+        elif action == 3:  # Right
+            self.move(0.0, -3.0)
+
+def move(self, linear_vel, angular_vel):
+        velocity_msg = Twist()
+        velocity_msg.linear.x = linear_vel
+        velocity_msg.angular.z = angular_vel
+        self.velocity_publisher.publish(velocity_msg)
 
 def main():
     # Set up the environment and initialize ROS nodes
@@ -161,7 +177,7 @@ def main():
         for step in range(max_steps_per_episode):
             # Select actions for each agent
             actions = [agent.select_action(agent_id, state) for agent_id in range(num_agents)]
-
+            print("actions: ",actions)
             # Execute actions on the turtlesim environment
             # TODO: Implement the code to execute actions on the turtlesim environment
 
