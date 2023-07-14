@@ -81,11 +81,11 @@
 
     </include>
 
-    <node name="atom3_tf_broadcaster_wo" pkg="tf3_ros" type="static_transform_publisher"  args="0 0 0 0 0 /atom_3/odom atom3_tf/robot_footprint" /> <!-- use gazebo ns here-->
-    <node name="atom3_tf_broadcaster_rwf" pkg="tf3_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/right_wheel_front" />
-    <node name="atom3_tf_broadcaster_rwb" pkg="tf3_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/right_wheel_back" />
-    <node name="atom3_tf_broadcaster_lwf" pkg="tf3_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/left_wheel_front" />
-    <node name="atom3_tf_broadcaster_lwb" pkg="tf3_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/left_wheel_back" />
+    <node name="atom3_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 /atom_3/odom atom3_tf/robot_footprint" /> <!-- use gazebo ns here-->
+    <node name="atom3_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/right_wheel_front" />
+    <node name="atom3_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/right_wheel_back" />
+    <node name="atom3_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/left_wheel_front" />
+    <node name="atom3_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/left_wheel_back" />
     
 
   </group>
@@ -95,12 +95,18 @@
 
   <group ns="atom_4">
 
-    <param name="tf_prefix" value="robot4_tf" />
+    <param name="tf_prefix" value="atom4_tf" />
     <include file="$(find fredbots)/launch/one_robot.launch" >
       <arg name="init_pose" value="-x -2 -y 7 -z 0" />
-      <arg name="robot_name"  value="Robot4" />
+      <arg name="robot_name"  value="atom4" />
 
     </include>
+
+    <node name="atom4_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 /atom_4/odom atom4_tf/robot_footprint" /> <!-- use gazebo ns here-->
+    <node name="atom4_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom4_tf/chassis atom4_tf/right_wheel_front" />
+    <node name="atom4_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom4_tf/chassis atom4_tf/right_wheel_back" />
+    <node name="atom4_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom4_tf/chassis atom4_tf/left_wheel_front" />
+    <node name="atom4_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom4_tf/chassis atom4_tf/left_wheel_back" />
 
   </group>
 
