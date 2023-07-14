@@ -27,28 +27,31 @@
 
 
   <!-- BEGIN ROBOT 1-->
-  <param name="robot_description_Robot1" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_1/atom.xacro'" />
+  <param name="robot_description_atom1" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_1/atom.xacro'" />
 
-  <group ns="robot1">
+  <group ns="atom_1">
 
-    <param name="tf_prefix" value="robot1_tf" />
+    <param name="tf_prefix" value="atom1_tf" />
 
     <include file="$(find fredbots)/launch/one_robot.launch" >
       <arg name="init_pose" value="-x -5 -y 1 -z 0" />
-      <arg name="robot_name"  value="Robot1" />
+      <arg name="robot_name"  value="atom1" />
 
     </include>
 
-    <!-- <node name="atom1_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 world /robot1_tf/odom" />
-    <node name="atom1_tf_broadcaster_wrf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /robot1_tf/odom robot1_tf/robot_footprint" />
-    <node name="atom1_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /robot1_tf/chassis robot1_tf/robot_footprint" /> -->
+    <node name="atom1_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 /atom1_tf/odom /atom1_tf/robot_footprint" />
+    <node name="atom1_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/right_wheel_front" />
+    <node name="atom1_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/right_wheel_back" />
+    <node name="atom1_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/left_wheel_front" />
+    <node name="atom1_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/left_wheel_back" />
+    
 
   </group>
 
   <!-- BEGIN ROBOT 2 -->
-	<param name="robot_description_Robot2" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_2/atom.xacro'" />
+	<param name="robot_description_atom2" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_2/atom.xacro'" />
 
-  <group ns="robot2">
+  <group ns="atom_2">
 
     <param name="tf_prefix" value="robot2_tf" />
     <include file="$(find fredbots)/launch/one_robot.launch" >
@@ -60,9 +63,9 @@
   </group>
 
   <!-- BEGIN ROBOT 3-->
-  <param name="robot_description_Robot3" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_3/atom.xacro'" />
+  <param name="robot_description_atom3" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_3/atom.xacro'" />
 
-  <group ns="robot3">
+  <group ns="atom_3">
 
     <param name="tf_prefix" value="robot3_tf" />
     <include file="$(find fredbots)/launch/one_robot.launch" >
@@ -74,9 +77,9 @@
   </group>
 
   <!-- BEGIN ROBOT 4-->
-  <param name="robot_description_Robot4" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_4/atom.xacro'" />
+  <param name="robot_description_atom4" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_4/atom.xacro'" />
 
-  <group ns="robot4">
+  <group ns="atom_4">
 
     <param name="tf_prefix" value="robot4_tf" />
     <include file="$(find fredbots)/launch/one_robot.launch" >
