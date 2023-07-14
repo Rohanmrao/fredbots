@@ -20,11 +20,13 @@ class Actor(keras.Model):
         super(Actor, self).__init__()
         self.dense1 = layers.Dense(32, activation="relu")
         self.dense2 = layers.Dense(32, activation="relu")
+        self.dense3 = layers.Dense(32, activation="relu")
         self.policy_logits = layers.Dense(num_actions)
 
     def call(self, inputs):
         x = self.dense1(inputs)
         x = self.dense2(x)
+        x = self.dense3(x)
         logits = self.policy_logits(x)
         return logits
 
@@ -35,11 +37,13 @@ class Critic(keras.Model):
         super(Critic, self).__init__()
         self.dense1 = layers.Dense(32, activation="relu")
         self.dense2 = layers.Dense(32, activation="relu")
+        self.dense3 = layers.Dense(32, activation="relu")
         self.values = layers.Dense(1)
 
     def call(self, inputs):
         x = self.dense1(inputs)
         x = self.dense2(x)
+        x = self.dense3(x)
         values = self.values(x)
         return values
 
@@ -64,8 +68,7 @@ class TurtlesimActorCriticAgent:
         self.optimizer = keras.optimizers.Adam(learning_rate=0.01)
         self.huber_loss = keras.losses.Huber()
         # Huber loss is a type of loss function commonly used in regression tasks, including reinforcement learning.
-        self.loss_fn = tf.keras.losses.CategoricalCrossentropy(
-            from_logits=True)
+        self.loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
 
     def get_action(self, state):
         state = tf.convert_to_tensor([state], dtype=tf.float32)
@@ -101,6 +104,7 @@ class TurtlesimActorCriticAgent:
 class TurtleBot3Controller:
     def __init__(self):
         self.state = None
+        self.max_steps = 500
         self.target_x = 4
         self.target_y = 4
         self.count = 0
@@ -113,6 +117,7 @@ class TurtleBot3Controller:
         self.reset_proxy = rospy.ServiceProxy("/reset", Empty)
         self.teleport_absolute = rospy.ServiceProxy( "/turtle1/teleport_absolute", TeleportAbsolute)
         self.pen_service = rospy.ServiceProxy("/turtle1/set_pen", SetPen)
+        self.clear_service = rospy.ServiceProxy('/clear', Empty)
         self.rate = rospy.Rate(10)  # 10hz
 
     def pose_callback(self, data):
@@ -123,6 +128,7 @@ class TurtleBot3Controller:
             data.linear_velocity,
             data.angular_velocity,
         ]
+
 
     def euclidean_distance(self, x1, y1, x2, y2):
         return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
@@ -140,12 +146,25 @@ class TurtleBot3Controller:
         except rospy.ServiceException as e:
             print("Reset service call failed:", str(e))
 
+    def clear_turtlesim(self):
+        rospy.wait_for_service("/clear")
+        try:
+            clear_service = rospy.ServiceProxy("/clear", Empty)
+            clear_service()
+        except rospy.ServiceException as e:
+            print("Clear service call failed:", str(e))
+
     def teleport_turtle(self, x, y, theta):
         rospy.wait_for_service("/turtle1/teleport_absolute")
         try:
+            # clear the turtle
+            self.clear_turtlesim()
             self.pen_service(off=1)
             self.teleport_absolute(x, y, theta)
             self.pen_service(off=0)
+            self.pen_service(255, 255, 255, 2, 0)
+
+            
         except rospy.ServiceException as e:
             print("Reset service call failed:", str(e))
 
@@ -169,7 +188,7 @@ class TurtleBot3Controller:
     def get_random_position(self):
         x = random.uniform(0, 8.5)
         y = random.uniform(0, 10.5)
-        while (self.euclidean_distance(x, y, 5.445, 5.445) > 3):
+        while (self.euclidean_distance(x, y, 5.445, 5.445) > 3 or (x == self.target_x and self.target_y)):
             x = random.uniform(0, 8.5)
             y = random.uniform(0, 10.5)
         return x, y
@@ -185,10 +204,16 @@ class TurtleBot3Controller:
             start_x, start_y = self.get_random_position()
             self.teleport_turtle(start_x, start_y, 0)
 
+            self.step = 0
 
             print("episode: ", episode + 1)
             while not rospy.is_shutdown():
-                if self.state is not None:
+                if self.step > self.max_steps:
+                    break 
+
+                if self.state is not None :
+                    self.step+=1
+                    print("printing steps: ", self.step)
                     counter = 0                                                                                                    # counter to check if the bot is stuck
                     reward = 0
                     state = self.state

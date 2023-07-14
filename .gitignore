@@ -2,3 +2,7 @@
 resources/exclude
 test
 __pycache__
+src/scripts/scratch/multi/qlearning_atom_with_dynam_obst_det_bot_3.ipynb
+src/scripts/scratch/multi/ql_bot_2.py
+src/scripts/scratch/multi/ql_bot_1.py
+src/scripts/scratch/qlearning_turtle_with_obst_new_rotation.py
