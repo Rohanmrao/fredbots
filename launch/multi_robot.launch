@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- Checking done.. all the bots spawn in gazebo and rviz, the wheels still clump at the chassis centre-->
+
 <launch>
 	<!-- Robot pose -->
 	<arg name="x" default="0"/>
