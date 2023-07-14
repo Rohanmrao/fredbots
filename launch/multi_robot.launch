@@ -74,12 +74,19 @@
 
   <group ns="atom_3">
 
-    <param name="tf_prefix" value="robot3_tf" />
+    <param name="tf_prefix" value="atom3_tf" />
     <include file="$(find fredbots)/launch/one_robot.launch" >
       <arg name="init_pose" value="-x -3 -y 4 -z 0" />
-      <arg name="robot_name"  value="Robot3" />
+      <arg name="robot_name"  value="atom3" />
 
     </include>
+
+    <node name="atom3_tf_broadcaster_wo" pkg="tf3_ros" type="static_transform_publisher"  args="0 0 0 0 0 /atom_3/odom atom3_tf/robot_footprint" /> <!-- use gazebo ns here-->
+    <node name="atom3_tf_broadcaster_rwf" pkg="tf3_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/right_wheel_front" />
+    <node name="atom3_tf_broadcaster_rwb" pkg="tf3_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/right_wheel_back" />
+    <node name="atom3_tf_broadcaster_lwf" pkg="tf3_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/left_wheel_front" />
+    <node name="atom3_tf_broadcaster_lwb" pkg="tf3_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/left_wheel_back" />
+    
 
   </group>
 
