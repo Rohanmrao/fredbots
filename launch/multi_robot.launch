@@ -39,7 +39,7 @@
 
     </include>
 
-    <node name="atom1_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 /atom1_tf/odom /atom1_tf/robot_footprint" />
+    <node name="atom1_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 /atom_1/odom atom1_tf/robot_footprint" /> <!-- use gazebo ns here-->
     <node name="atom1_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/right_wheel_front" />
     <node name="atom1_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/right_wheel_back" />
     <node name="atom1_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/left_wheel_front" />
