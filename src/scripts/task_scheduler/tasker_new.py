@@ -174,4 +174,6 @@ def main():
         time.sleep(2)  # Print updates every 2 seconds
 
 
-main()
+if __name__ == "__main__":
+    main()
+    
