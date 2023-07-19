@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 
 <robot name="atom" xmlns:xacro="http://www.ros.org/wiki/xacro">
-	<xacro:property name="robot_name" value="atom" />
+	<xacro:property name="robot_name" value="atom_2" />
 	<xacro:property name="robot_chassis_mass" value="15"/>
 	<xacro:property name="robot_chassis_length" value="0.2"/>
 	<xacro:property name="robot_chassis_radius" value="0.25"/>
