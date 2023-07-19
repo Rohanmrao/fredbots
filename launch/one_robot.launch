@@ -14,7 +14,7 @@
           name="joint_state_publisher">
 
         <param name="use_gui" value="true"/>
-        
+
     </node>
 
     <!-- The odometry estimator, throttling, fake laser etc. go here -->
