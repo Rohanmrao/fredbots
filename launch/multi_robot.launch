@@ -123,6 +123,7 @@
   <node name="atom_move_robot4" pkg="fredbots" type="atom_4_move.py" output="screen" /> -->
 
   <!-- Launch RViz with the provided configuration -->
-  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" /> -->
+  <arg name="rviz_config" default="$(find fredbots)/worlds/multi_robot.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" />
 
 </launch>
