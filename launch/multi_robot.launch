@@ -46,6 +46,35 @@
     <node name="atom1_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/right_wheel_back" />
     <node name="atom1_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/left_wheel_front" />
     <node name="atom1_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/left_wheel_back" />
+
+    <node pkg="joint_state_publisher" type="joint_state_publisher" 
+          name="joint_state_publisher_atom1">
+
+        <param name="use_gui" value="true"/>
+
+    </node>
+
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom1" args="scan:=/scan_1" output="screen">
+
+
+    <param name="base_frame" value="/atom1_tf/robot_footprint"/>
+    <param name="odom_frame" value="/atom1_tf/odom"/>
+    <param name="map_frame" value="/atom1_tf/map"/>
+    <param name="delta" value="0.1"/>
+    <param name="maxUrange" value="10.0"/>
+    <param name="sigma" value="0.05"/>
+    <param name="kernelSize" value="3"/>
+    <param name="lstep" value="0.05"/>
+    <param name="astep" value="0.05"/>
+    <param name="iterations" value="5"/>
+    <param name="lsigma" value="0.075"/>
+    <param name="ogain" value="3.0"/>
+    <param name="minimumScore" value="100"/>
+    <param name="maximumScore" value="0"/>
+    <param name="publish_map" value="true"/>	
+
+  
+  </node>
     
 
   </group>
@@ -67,6 +96,35 @@
     <node name="atom2_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom2_tf/chassis atom2_tf/right_wheel_back" />
     <node name="atom2_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom2_tf/chassis atom2_tf/left_wheel_front" />
     <node name="atom2_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom2_tf/chassis atom2_tf/left_wheel_back" />
+
+    <node pkg="joint_state_publisher" type="joint_state_publisher" 
+          name="joint_state_publisher_atom2">
+
+        <param name="use_gui" value="true"/>
+
+    </node>
+
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom2" args="scan:=/scan_2" output="screen">
+
+
+    <param name="base_frame" value="/atom2_tf/robot_footprint"/>
+    <param name="odom_frame" value="/atom2_tf/odom"/>
+    <param name="map_frame" value="/atom2_tf/map"/>
+    <param name="delta" value="0.1"/>
+    <param name="maxUrange" value="10.0"/>
+    <param name="sigma" value="0.05"/>
+    <param name="kernelSize" value="3"/>
+    <param name="lstep" value="0.05"/>
+    <param name="astep" value="0.05"/>
+    <param name="iterations" value="5"/>
+    <param name="lsigma" value="0.075"/>
+    <param name="ogain" value="3.0"/>
+    <param name="minimumScore" value="100"/>
+    <param name="maximumScore" value="0"/>
+    <param name="publish_map" value="true"/>	
+
+  
+  </node>
     
 
   </group>
@@ -88,6 +146,35 @@
     <node name="atom3_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/right_wheel_back" />
     <node name="atom3_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/left_wheel_front" />
     <node name="atom3_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/left_wheel_back" />
+
+    <node pkg="joint_state_publisher" type="joint_state_publisher" 
+          name="joint_state_publisher_atom3">
+
+        <param name="use_gui" value="true"/>
+
+    </node>
+
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom3" args="scan:=/scan_3" output="screen">
+
+  
+    <param name="base_frame" value="/atom3_tf/robot_footprint"/>
+    <param name="odom_frame" value="/atom3_tf/odom"/>
+    <param name="map_frame" value="/atom3_tf/map"/>
+    <param name="delta" value="0.1"/>
+    <param name="maxUrange" value="10.0"/>
+    <param name="sigma" value="0.05"/>
+    <param name="kernelSize" value="3"/>
+    <param name="lstep" value="0.05"/>
+    <param name="astep" value="0.05"/>
+    <param name="iterations" value="5"/>
+    <param name="lsigma" value="0.075"/>
+    <param name="ogain" value="3.0"/>
+    <param name="minimumScore" value="100"/>
+    <param name="maximumScore" value="0"/>
+    <param name="publish_map" value="true"/>	
+
+  
+  </node>
     
 
   </group>
@@ -110,6 +197,35 @@
     <node name="atom4_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom4_tf/chassis atom4_tf/left_wheel_front" />
     <node name="atom4_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom4_tf/chassis atom4_tf/left_wheel_back" />
 
+
+    <node pkg="joint_state_publisher" type="joint_state_publisher" 
+          name="joint_state_publisher_atom4">
+
+        <param name="use_gui" value="true"/>
+
+    </node>
+
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom4" args="scan:=/scan_4" output="screen">
+
+    <param name="base_frame" value="/atom4_tf/robot_footprint"/>
+    <param name="odom_frame" value="/atom4_tf/odom"/>
+    <param name="map_frame" value="/atom4_tf/map"/>
+    <param name="delta" value="0.1"/>
+    <param name="maxUrange" value="10.0"/>
+    <param name="sigma" value="0.05"/>
+    <param name="kernelSize" value="3"/>
+    <param name="lstep" value="0.05"/>
+    <param name="astep" value="0.05"/>
+    <param name="iterations" value="5"/>
+    <param name="lsigma" value="0.075"/>
+    <param name="ogain" value="3.0"/>
+    <param name="minimumScore" value="100"/>
+    <param name="maximumScore" value="0"/>
+    <param name="publish_map" value="true"/>	
+
+  
+  </node>
+
   </group>
 
     <!-- Import the fredbots package -->
@@ -125,5 +241,9 @@
   <!-- Launch RViz with the provided configuration -->
   <arg name="rviz_config" default="$(find fredbots)/worlds/multi_robot.rviz" />
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" />
+
+  <!-- launching the mapper node-->
+  <!-- <node name="auto_map" pkg="fredbots" type="auto_map.py" output="screen" /> -->
+  <node name="atom_move_robot4" pkg="fredbots" type="atom_4_move.py" output="screen" />
 
 </launch>
