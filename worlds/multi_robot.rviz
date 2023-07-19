@@ -6,6 +6,9 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Map1
+        - /TF1
+        - /TF1/Tree1
       Splitter Ratio: 0.5
     Tree Height: 719
   - Class: rviz/Selection
@@ -25,7 +28,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: scan1
+    SyncSource: scan4
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -383,11 +386,181 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+    - Alpha: 0.699999988079071
+      Class: rviz/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic: /atom_4/map
+      Unreliable: false
+      Use Timestamp: false
+      Value: true
+    - Class: rviz/TF
+      Enabled: true
+      Filter (blacklist): ""
+      Filter (whitelist): ""
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+        atom1_tf/camera:
+          Value: true
+        atom1_tf/chassis:
+          Value: true
+        atom1_tf/hokuyo:
+          Value: true
+        atom1_tf/left_wheel_back:
+          Value: true
+        atom1_tf/left_wheel_front:
+          Value: true
+        atom1_tf/map:
+          Value: true
+        atom1_tf/odom:
+          Value: true
+        atom1_tf/right_wheel_back:
+          Value: true
+        atom1_tf/right_wheel_front:
+          Value: true
+        atom1_tf/robot_footprint:
+          Value: true
+        atom2_tf/camera:
+          Value: true
+        atom2_tf/chassis:
+          Value: true
+        atom2_tf/hokuyo:
+          Value: true
+        atom2_tf/left_wheel_back:
+          Value: true
+        atom2_tf/left_wheel_front:
+          Value: true
+        atom2_tf/map:
+          Value: true
+        atom2_tf/odom:
+          Value: true
+        atom2_tf/right_wheel_back:
+          Value: true
+        atom2_tf/right_wheel_front:
+          Value: true
+        atom2_tf/robot_footprint:
+          Value: true
+        atom3_tf/camera:
+          Value: true
+        atom3_tf/chassis:
+          Value: true
+        atom3_tf/hokuyo:
+          Value: true
+        atom3_tf/left_wheel_back:
+          Value: true
+        atom3_tf/left_wheel_front:
+          Value: true
+        atom3_tf/map:
+          Value: true
+        atom3_tf/odom:
+          Value: true
+        atom3_tf/right_wheel_back:
+          Value: true
+        atom3_tf/right_wheel_front:
+          Value: true
+        atom3_tf/robot_footprint:
+          Value: true
+        atom4_tf/camera:
+          Value: true
+        atom4_tf/chassis:
+          Value: true
+        atom4_tf/hokuyo:
+          Value: true
+        atom4_tf/left_wheel_back:
+          Value: true
+        atom4_tf/left_wheel_front:
+          Value: true
+        atom4_tf/map:
+          Value: true
+        atom4_tf/odom:
+          Value: true
+        atom4_tf/right_wheel_back:
+          Value: true
+        atom4_tf/right_wheel_front:
+          Value: true
+        atom4_tf/robot_footprint:
+          Value: true
+      Marker Alpha: 1
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        atom1_tf/map:
+          atom1_tf/odom:
+            atom1_tf/robot_footprint:
+              atom1_tf/chassis:
+                atom1_tf/camera:
+                  {}
+                atom1_tf/hokuyo:
+                  {}
+                atom1_tf/left_wheel_back:
+                  {}
+                atom1_tf/left_wheel_front:
+                  {}
+                atom1_tf/right_wheel_back:
+                  {}
+                atom1_tf/right_wheel_front:
+                  {}
+        atom2_tf/map:
+          atom2_tf/odom:
+            atom2_tf/robot_footprint:
+              atom2_tf/chassis:
+                atom2_tf/camera:
+                  {}
+                atom2_tf/hokuyo:
+                  {}
+                atom2_tf/left_wheel_back:
+                  {}
+                atom2_tf/left_wheel_front:
+                  {}
+                atom2_tf/right_wheel_back:
+                  {}
+                atom2_tf/right_wheel_front:
+                  {}
+        atom3_tf/map:
+          atom3_tf/odom:
+            atom3_tf/robot_footprint:
+              atom3_tf/chassis:
+                atom3_tf/camera:
+                  {}
+                atom3_tf/hokuyo:
+                  {}
+                atom3_tf/left_wheel_back:
+                  {}
+                atom3_tf/left_wheel_front:
+                  {}
+                atom3_tf/right_wheel_back:
+                  {}
+                atom3_tf/right_wheel_front:
+                  {}
+        atom4_tf/map:
+          atom4_tf/odom:
+            atom4_tf/robot_footprint:
+              atom4_tf/chassis:
+                atom4_tf/camera:
+                  {}
+                atom4_tf/hokuyo:
+                  {}
+                atom4_tf/left_wheel_back:
+                  {}
+                atom4_tf/left_wheel_front:
+                  {}
+                atom4_tf/right_wheel_back:
+                  {}
+                atom4_tf/right_wheel_front:
+                  {}
+      Update Interval: 0
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: atom4_tf/odom
+    Fixed Frame: atom4_tf/map
     Frame Rate: 30
   Name: root
   Tools:
@@ -411,7 +584,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 17.369640350341797
+      Distance: 17.313417434692383
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -427,9 +600,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6603981256484985
+      Pitch: 0.12039832025766373
       Target Frame: <Fixed Frame>
-      Yaw: 0.8103979825973511
+      Yaw: 1.240397572517395
     Saved: ~
 Window Geometry:
   Displays:
