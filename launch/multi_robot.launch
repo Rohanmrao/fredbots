@@ -15,7 +15,7 @@
 	<!-- Launch Gazebo World -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
 
-		<arg name="world_name" value="$(find fredbots)/worlds/nonempty.world"/>
+		<arg name="world_name" value="$(find fredbots)/worlds/all_q_world_min_wall.world"/>
 		<arg name="paused" value="false"/>
 		<arg name="use_sim_time" value="true"/>
 		<arg name="gui" value="true"/>
@@ -42,15 +42,15 @@
     </include>
 
     <node name="atom1_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 /atom_1/odom atom1_tf/robot_footprint" /> <!-- use gazebo ns here-->
-    <node name="atom1_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/right_wheel_front" />
+    <!-- <node name="atom1_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/right_wheel_front" />
     <node name="atom1_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/right_wheel_back" />
     <node name="atom1_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/left_wheel_front" />
-    <node name="atom1_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/left_wheel_back" />
+    <node name="atom1_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/left_wheel_back" /> -->
 
-    <node pkg="joint_state_publisher" type="joint_state_publisher" 
-          name="joint_state_publisher_atom1">
+    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher_atom1">
 
-        <param name="use_gui" value="true"/>
+      <param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_1/atom.xacro'" />
+      <param name="use_gui" value="true"/>
 
     </node>
 
@@ -92,15 +92,15 @@
     </include>
 
     <node name="atom2_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 /atom_2/odom atom2_tf/robot_footprint" /> <!-- use gazebo ns here-->
-    <node name="atom2_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom2_tf/chassis atom2_tf/right_wheel_front" />
+    <!-- <node name="atom2_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom2_tf/chassis atom2_tf/right_wheel_front" />
     <node name="atom2_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom2_tf/chassis atom2_tf/right_wheel_back" />
     <node name="atom2_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom2_tf/chassis atom2_tf/left_wheel_front" />
-    <node name="atom2_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom2_tf/chassis atom2_tf/left_wheel_back" />
+    <node name="atom2_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom2_tf/chassis atom2_tf/left_wheel_back" /> -->
 
-    <node pkg="joint_state_publisher" type="joint_state_publisher" 
-          name="joint_state_publisher_atom2">
+    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher_atom2">
 
-        <param name="use_gui" value="true"/>
+      <param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_2/atom.xacro'" />
+      <param name="use_gui" value="true"/>
 
     </node>
 
@@ -142,15 +142,15 @@
     </include>
 
     <node name="atom3_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 /atom_3/odom atom3_tf/robot_footprint" /> <!-- use gazebo ns here-->
-    <node name="atom3_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/right_wheel_front" />
+    <!-- <node name="atom3_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/right_wheel_front" />
     <node name="atom3_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/right_wheel_back" />
     <node name="atom3_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/left_wheel_front" />
-    <node name="atom3_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/left_wheel_back" />
+    <node name="atom3_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom3_tf/chassis atom3_tf/left_wheel_back" /> -->
 
-    <node pkg="joint_state_publisher" type="joint_state_publisher" 
-          name="joint_state_publisher_atom3">
+    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher_atom3">
 
-        <param name="use_gui" value="true"/>
+      <param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_3/atom.xacro'" />
+      <param name="use_gui" value="true"/>
 
     </node>
 
@@ -192,18 +192,19 @@
     </include>
 
     <node name="atom4_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 /atom_4/odom atom4_tf/robot_footprint" /> <!-- use gazebo ns here-->
-    <node name="atom4_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom4_tf/chassis atom4_tf/right_wheel_front" />
+    <!-- <node name="atom4_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom4_tf/chassis atom4_tf/right_wheel_front" />
     <node name="atom4_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom4_tf/chassis atom4_tf/right_wheel_back" />
     <node name="atom4_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom4_tf/chassis atom4_tf/left_wheel_front" />
-    <node name="atom4_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom4_tf/chassis atom4_tf/left_wheel_back" />
+    <node name="atom4_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom4_tf/chassis atom4_tf/left_wheel_back" /> -->
 
 
-    <node pkg="joint_state_publisher" type="joint_state_publisher" 
-          name="joint_state_publisher_atom4">
+   <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher_atom4">
 
-        <param name="use_gui" value="true"/>
+      <param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_4/atom.xacro'" />
+      <param name="use_gui" value="true"/>
 
     </node>
+
 
     <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom4" args="scan:=/scan_4" output="screen">
 
@@ -244,6 +245,7 @@
 
   <!-- launching the mapper node-->
   <!-- <node name="auto_map" pkg="fredbots" type="auto_map.py" output="screen" /> -->
-  <node name="atom_move_robot4" pkg="fredbots" type="atom_4_move.py" output="screen" />
+  <!-- <node name="atom_move_robot4" pkg="fredbots" type="atom_4_move.py" output="screen" /> -->
+  <!-- <node name="teleop_twist_keyboard_atom4" pkg = "teleop_twist_keyboard" type="teleop_twist_keyboard.py" args="cmd_vel:=/atom_4/cmd_vel" output="screen" /> -->
 
 </launch>
