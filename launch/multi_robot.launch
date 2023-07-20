@@ -245,6 +245,7 @@
 
   <!-- launching the mapper node-->
   <!-- <node name="auto_map" pkg="fredbots" type="auto_map.py" output="screen" /> -->
-  <node name="atom_move_robot4" pkg="fredbots" type="atom_4_move.py" output="screen" />
+  <!-- <node name="atom_move_robot4" pkg="fredbots" type="atom_4_move.py" output="screen" /> -->
+  <!-- <node name="teleop_twist_keyboard_atom4" pkg = "teleop_twist_keyboard" type="teleop_twist_keyboard.py" args="cmd_vel:=/atom_4/cmd_vel" output="screen" /> -->
 
 </launch>
