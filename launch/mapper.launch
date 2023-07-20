@@ -1,0 +1,87 @@
+<launch>
+	<!-- Robot pose -->
+	<arg name="x" default="0"/>
+	<arg name="y" default="0"/>
+	<arg name="z" default="0"/>
+	<arg name="roll" default="0"/>
+	<arg name="pitch" default="0"/>
+	<arg name="yaw" default="0"/>
+	
+
+	<!-- Launch Gazebo World -->
+	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+
+		<arg name="world_name" value="$(find fredbots)/worlds/all_q_world_min_wall.world"/>
+		<arg name="paused" value="false"/>
+		<arg name="use_sim_time" value="true"/>
+		<arg name="gui" value="true"/>
+		<arg name="headless" value="false"/>
+		<arg name="debug" value="false"/>
+    	</include>
+
+
+  <!-- <node name="atom_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" /> -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/atom/urdf/atom.xacro'" />
+
+
+  <!-- BEGIN ROBOT 1-->
+  <param name="robot_description_atom1" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_1/atom.xacro'" />
+
+  <group ns="atom_1">
+
+    <param name="tf_prefix" value="atom1_tf" />
+
+    <include file="$(find fredbots)/launch/one_robot.launch" >
+      <arg name="init_pose" value="-x -5 -y 1 -z 0" />
+      <arg name="robot_name"  value="atom1" />
+
+    </include>
+
+    <node name="atom1_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 /atom_1/odom atom1_tf/robot_footprint" /> <!-- use gazebo ns here-->
+    <!-- <node name="atom1_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/right_wheel_front" />
+    <node name="atom1_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/right_wheel_back" />
+    <node name="atom1_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/left_wheel_front" />
+    <node name="atom1_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/left_wheel_back" /> -->
+
+    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher_atom1">
+
+      <param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_1/atom.xacro'" />
+      <param name="use_gui" value="true"/>
+
+    </node>
+
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom1" args="scan:=/scan_1" output="screen">
+
+
+    <param name="base_frame" value="/atom1_tf/robot_footprint"/>
+    <param name="odom_frame" value="/atom1_tf/odom"/>
+    <param name="map_frame" value="/atom1_tf/map"/>
+    <param name="delta" value="0.1"/>
+    <param name="maxUrange" value="10.0"/>
+    <param name="sigma" value="0.05"/>
+    <param name="kernelSize" value="3"/>
+    <param name="lstep" value="0.05"/>
+    <param name="astep" value="0.05"/>
+    <param name="iterations" value="5"/>
+    <param name="lsigma" value="0.075"/>
+    <param name="ogain" value="3.0"/>
+    <param name="minimumScore" value="100"/>
+    <param name="maximumScore" value="0"/>
+    <param name="publish_map" value="true"/>	
+
+  
+  </node>
+    
+
+  </group>
+
+  <!-- Launch RViz with the provided configuration -->
+  <arg name="rviz_config" default="$(find fredbots)/worlds/mapper.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" />
+
+  <!-- launching the mapper node-->
+  <!-- <node name="auto_map" pkg="fredbots" type="auto_map.py" output="screen" /> -->
+  <!-- <node name="atom_move_robot4" pkg="fredbots" type="atom_4_move.py" output="screen" /> -->
+  <!-- <node name="teleop_twist_keyboard_atom4" pkg = "teleop_twist_keyboard" type="teleop_twist_keyboard.py" args="cmd_vel:=/atom_4/cmd_vel" output="screen" /> -->
+
+</launch>
