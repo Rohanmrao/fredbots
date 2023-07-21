@@ -25,12 +25,12 @@ def create_model(input_shape, num_actions):
         Dense(32, activation='relu'),
         Dense(num_actions, activation='linear')
     ])
-    model.compile(loss='mse', optimizer=Adam(learning_rate=0.005))
+    model.compile(loss='mse', optimizer=Adam(learning_rate=0.01))
     return model
 
 # Create a class for the environment
 class Env():
-    def __init__(self, grid_size=6, max_steps=30):
+    def __init__(self, grid_size=6, max_steps=100):
         self.grid_size = grid_size
         self.max_steps = max_steps
         # self.goal = np.random.randint(0, grid_size, size=2) # random goal
@@ -79,10 +79,10 @@ class Agent():
     def __init__(self, env, model):
         self.env = env
         self.model = model
-        self.gamma = 0.5
-        self.epsilon = 0.5
+        self.gamma = 0.7
+        self.epsilon = 1.0
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.1
+        self.epsilon_decay = 0.05
         self.batch_size = 32
         self.memory = deque(maxlen=1000)
         self.target_model = create_model((1, 2), 4)
@@ -134,7 +134,7 @@ class Agent():
 # Initialize the agent
 
 try:
-    model = tf.keras.models.load_model('doublenet_dqn_diff_start.h5')
+    model = tf.keras.models.load_model('doublenet_dqn_diff_start_fix_bug.h5')
     print("Loaded model from disk")
     agent = Agent(Env(), model=model)
 except:
@@ -144,7 +144,7 @@ except:
 
 # Train the agent
 
-num_episodes = 25
+num_episodes = 200
 reward_lst = []
 
 for episode in range(num_episodes):
@@ -168,19 +168,19 @@ for episode in range(num_episodes):
             print('Episode: {}/{}, steps: {}, e: {:.2}'.format(episode, num_episodes, step+1, agent.epsilon))
             print('State list:', state_lst) # DEBUG
             break
-        if len(agent.memory) > agent.batch_size:
-            agent.replay()
+    if len(agent.memory) > agent.batch_size:
+        agent.replay()
     if agent.epsilon > agent.epsilon_min:
         agent.epsilon = (1 - agent.epsilon_min) * np.exp(-agent.epsilon_decay*episode) + agent.epsilon_min
     if episode % 5 == 0:    
         agent.target_model.set_weights(agent.model.get_weights())
-        agent.model.save('doublenet_dqn_diff_start.h5')
+        agent.model.save('doublenet_dqn_diff_start_fix_bug.h5')
     reward_lst.append(ep_reward)
 
 print('Average reward:', np.mean(reward_lst))
 
 # Save the model
-agent.model.save('doublenet_dqn_diff_start.h5')
+agent.model.save('doublenet_dqn_diff_start_fix_bug.h5')
 
 time_taken = time.time() - start_time
 print(f"Time taken: {time_taken:.2f} seconds")

@@ -13,3 +13,14 @@ Episodes | Average rewards | Time Taken (seconds)
 200      | 50.2            | 1644.87
 225      | 48.28           | 1427.27
 250      | 52.52           | 1500.43
+
+
+
+
+FIX BUG
+
+Episodes | Average rewards | Time Taken (seconds)
+---------+-----------------+-----------
+25       | 68.08           | 91.31
+75       | 56.28           | 176.45
+125      | 65.84           | 173.09
