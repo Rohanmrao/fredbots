@@ -126,7 +126,7 @@ class Env():
         print("printing pos_x and pos_y",pos_x, pos_y)
         # print("x,y: ",x,y)
         count = 0
-        while(True):
+        while(count<10):
             print("x,y: ",x,y)
             velocity_msg = Twist()
             velocity_msg.linear.x = linear_vel
@@ -136,7 +136,7 @@ class Env():
             distance = abs(math.sqrt(((pos_x-x)**2)+((pos_y-y)**2)))
 
             # print("distance: ", distance)
-            # count+=1
+            count+=1
             if (distance<0.1):
                 break
         
