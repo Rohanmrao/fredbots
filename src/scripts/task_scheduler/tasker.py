@@ -1,176 +1,223 @@
+#!/usr/bin/env python3
+
 import time
 from threading import Thread
 import numpy as np
 from tabulate import tabulate
+import multiprocessing as mp
+from fredbots.srv import TaskAssign
+from fredbots.srv import TaskAssignResponse
+from fredbots.srv import TaskAssignRequest
 
-# Class to represent a package
-class Packages:
-    def __init__(self, package_id, start_coords, dest_coords, priority):
-        self.package_id = package_id
-        self.start_coords = start_coords
-        self.dest_coords = dest_coords
-        self.priority = priority
-        self.status = "waiting for pick up"
-        self.waiting_time = 0
+import rospy
 
-    def update_status(self, new_status):
-        self.status = new_status
-
-    def increment_waiting_time(self):
-        self.waiting_time += 1
-
-# Class to represent a robot
-class Atoms:
-    def __init__(self, robot_id, battery_capacity, current_coords):
+class Robot:
+    def __init__(self, robot_id, intital_position, battery_capacity=100):
         self.robot_id = robot_id
-        self.battery_capacity = battery_capacity
-        self.current_coords = current_coords
-        self.package = None
-        self.status = "idle"
-        self.destination_coords = None
+        self.current_position = intital_position
+        self.batter_level = battery_capacity
+        self.current_task = None
+        self.is_idle = True
+        self.destination_position = None
+
+    def __str__(self):
+        return f'Robot {self.robot_id}'
 
     def assign_package(self, package):
-        self.package = package
-        self.status = "going to pick up"
-        self.destination_coords = package.start_coords
+        self.current_task = package
+        update_robot_task(self)
+        self.destination_position = package.pickup_position
 
-    def update_status(self, new_status):
-        self.status = new_status
+    def update_position(self, new_position):
+        self.current_position = new_position
 
-    def update_coords(self, new_coords):
-        self.current_coords = new_coords
-
-    def consume_battery(self):
-        if self.status == "going to pick up" or self.status == "in transit":
-            battery_consumption_rate = 0.1
+    def update_battery(self):
+        if self.is_idle:
+            self.batter_level -= 0.05
+        elif self.current_task.weight > 0:
+            self.batter_level -= 0.1 * self.current_task.weight/10
         else:
-            battery_consumption_rate = 0.05  # Idle robots lose battery at a slower rate
+            self.batter_level -= 0.1
 
-        self.battery_capacity -= battery_consumption_rate
 
-# Euclidean distance between two coordinates
-def calculate_distance(coords1, coords2):
+class Package:
+    def __init__(self, package_id, pickup_position, dropoff_position, priority, weight=3):
+        self.package_id = package_id
+        self.pickup_position = pickup_position
+        self.dropoff_position = dropoff_position
+        self.weight = weight
+        self.priority = priority
+        self.picked_up = False
+        self.delivered = False
+        self.assigned = False
+        self.utilities = {}
+
+    def __str__(self):
+        return f'Package {self.package_id}'
+
+    def remove(self):
+        self.picked_up = True
+        self.delivered = True
+
+
+def euclidean_distance(coords1, coords2):
     x1, y1 = coords1
     x2, y2 = coords2
     return np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-#Function for assigning tasks to robots
-def assign_tasks(robots, packages, time_threshold):
-    while True:
-        for robot in robots:
-            if robot.status == "idle":
-                closest_package = None
-                min_distance = float('inf') # nothing so far
-                highest_priority = float('-inf')
-                critical_package_assigned = False
 
-                for package in packages:
-                    if package.status == "waiting for pick up":
-                        distance = calculate_distance(robot.current_coords, package.start_coords) #euclidean distance
-                        if package.priority == 1: #emergency package
-                            if not critical_package_assigned or (distance < min_distance and package.priority > highest_priority):
-                                robot.assign_package(package)
-                                package.update_status("picked up by robot " + str(robot.robot_id))
-                                robot.destination_coords = package.dest_coords
-                                robot.update_status("in transit")
-                                print(f"Robot {robot.robot_id} will pick up Critical Package {package.package_id}")
-                                critical_package_assigned = True
-                                min_distance = distance
-                                highest_priority = package.priority
-                        elif distance < min_distance and not critical_package_assigned: #priority and distances are written here
-                            min_distance = distance
-                            closest_package = package
-                            highest_priority = package.priority
-                
-                if closest_package is not None and not critical_package_assigned:
-                    robot.assign_package(closest_package)
-                    closest_package.update_status("picked up by robot " + str(robot.robot_id))
-                    robot.destination_coords = closest_package.dest_coords
-                    robot.update_status("in transit")
-                    print(f"Robot {robot.robot_id} will pick up Package {closest_package.package_id}")
 
-        for package in packages:
-            if package.status == "waiting for pick up":
-                package.increment_waiting_time()
+def assign_tasks(robots, packages):
+    for package in packages:
+        if not package.picked_up:
+            max_distance = max([euclidean_distance(robot.current_position, package.pickup_position) for robot in robots])
+            # store utility for each robot in package utility dictionary and sort by highest utility first  (descending order)
+            package.utilities = {robot.robot_id: calculate_utility(robot, package, max_distance) for robot in robots}
+            package.utilities = {k: v for k, v in sorted(package.utilities.items(), key=lambda item: item[1], reverse=True)}
+    # packages.sort(key=lambda x: get_max_utility(x), reverse=True)
+    # sort packages by first value in utilities dictionary (highest utility)
+    packages.sort(key=lambda x: list(x.utilities.values())[0], reverse=True)
+    assigned_robots = []
+    for i in range(len(packages)):
+        packages[i].utilities = {k: v for k, v in sorted(packages[i].utilities.items(), key=lambda item: item[1], reverse=True)}
+        # packages.sort(key=lambda x: get_max_utility(x), reverse=True)
+        packages.sort(key=lambda x: list(x.utilities.values())[0], reverse=True)
+        for robot_id, utility in packages[i].utilities.items():
+            if robot_id not in assigned_robots:
+                robots[robot_id - 1].assign_package(packages[i])
+                assigned_robots.append(robot_id)
+                packages[i].assigned = True
+                print(f'package {packages[i].package_id} assigned to robot {robot_id}')
+                for other_package in packages:
+                    if other_package.package_id != packages[i].package_id:
+                        other_package.utilities[robot_id] = -1
+                break
+            else:
+                packages[i].utilities[robot_id] = 0
+    # return robots
 
-        time.sleep(1)  # Check for tasks every second
+ 
+def calculate_utility(robot, package, max_distance):
+    distance = euclidean_distance(robot.current_position, package.pickup_position)
+    utilty = (1 - distance/max_distance) * 0.3 + package.priority * 0.7
+    # print(f'Utility of {robot} for package {package.package_id} is {utilty}')
+    return utilty
 
-        # Check package waiting time threshold
-        for package in packages:
-            if package.waiting_time >= time_threshold:
-                print(f"Package {package.package_id} has been waiting for {package.waiting_time} seconds. Prioritize moving it.")
 
-# Function for robot movement
-def move_robot(robot):
-    while True:
-        if robot.status == "going to pick up" or robot.status == "in transit":
-            robot.consume_battery()
+def update_robot_position(robot, new_position):
+    robot.update_position(new_position)
 
-        time.sleep(1)  # Update battery every second
+
+def update_robot_battery(robot):
+    robot.update_battery()
+
+
+def update_robot_task(robot):
+    if robot.current_task is not None:
+        if robot.current_task.picked_up and not robot.current_task.delivered:
+            robot.is_idle = False
+            robot.destination_position = robot.current_task.dropoff_position
+        elif not robot.current_task.picked_up:
+            robot.is_idle = False
+            robot.destination_position = robot.current_task.pickup_position
+    else:
+        robot.is_idle = True
+        robot.destination_position = None
+
+def tasker_server():
+    rospy.init_node('tasker_server')
+    s = rospy.Service('tasker', TaskAssign, handle_tasker)
+    print("Ready to assign tasks.")
+    rospy.spin()
+
+def handle_tasker(req):
+    robot_id = req.robot_id
+    x_pos = req.x
+    y_pos = req.y
+
+    # create robot object 
+    robots = [Robot(robot_id, (x_pos, y_pos))]
+    packages = [
+        Package(1, (2, 2), (8, 8), 8, 5),
+        Package(2, (5, 5), (3, 1), 4, 10),
+        Package(3, (1, 1), (9, 9), 6, 2),
+        Package(4, (7, 7), (4, 6), 2, 1),
+    ]
+
+    assign_tasks(robots, packages)
+
+    # print(f"Robot {robot_id} is at position ({x_pos}, {y_pos})")
+    robot_id = robots[0].robot_id
+    x_pos = robots[0].destination_position[0]
+    y_pos = robots[0].destination_position[1]
+    print(f"Robot {robot_id} is supposed to go to ({x_pos}, {y_pos})")
+    return robot_id, x_pos, y_pos
+
 
 
 def main():
-    # packages
     packages = [
-        Packages(1, (2, 2), (8, 8), 2),
-        Packages(2, (5, 5), (3, 1), 3),
-        Packages(3, (1, 1), (9, 9), 1),
-        Packages(4, (7, 7), (4, 6), 4)
+        Package(1, (2, 2), (8, 8), 8, 5),
+        Package(2, (5, 5), (3, 1), 4, 10),
+        Package(3, (1, 1), (9, 9), 6, 2),
+        Package(4, (7, 7), (4, 6), 2, 1),
     ]
+
+    # sort packages by priority
+    packages.sort(key=lambda x: x.priority, reverse=True)
 
     # robots
     robots = [
-        Atoms(1, 100, (0, 0)),
-        Atoms(2, 100, (10, 10)),
-        Atoms(3, 100, (5, 5))
+        Robot(1, (0, 0)),
+        Robot(2, (10, 10)),
+        Robot(3, (5, 5))
     ]
 
-    time_threshold = 10  # Time threshold for package waiting time (in seconds)
+    tasker_server() 
 
-    # Start task assignment thread
-    assign_thread = Thread(target=assign_tasks, args=(robots, packages, time_threshold))
+    """ # Start task assignment thread
+    assign_thread = Thread(target=assign_tasks, args=(robots, packages))
     assign_thread.daemon = True
-    assign_thread.start()
+    assign_thread.start() """
 
-    # Start robot movement threads
-    robot_threads = []
-    for robot in robots:
-        t = Thread(target=move_robot, args=(robot,))
-        t.daemon = True
-        t.start()
-        robot_threads.append(t)
+    assign_tasks(robots, packages)
 
     # package and robot updates
-    while True: 
+    while True:
+        # assign_tasks(robots, packages)
         package_table = []
         for package in packages:
             package_table.append([
                 package.package_id,
-                package.status,
+                package.assigned,
+                package.picked_up,
+                package.delivered,
                 package.priority,
-                package.start_coords,
-                package.waiting_time
+                package.pickup_position,
+                package.dropoff_position
             ])
 
         robot_table = []
         for robot in robots:
             robot_table.append([
                 robot.robot_id,
-                robot.status,
-                robot.current_coords,
-                robot.destination_coords,
-                robot.battery_capacity
+                robot.is_idle,
+                robot.current_position,
+                robot.destination_position,
+                robot.current_task.package_id if robot.current_task is not None else "No task assigned",
             ])
 
         # Print table
         print("\n")
         print("Package Schedule:")
-        print(tabulate(package_table, headers=["ID", "Status", "Priority", "Start Coords", "Waiting Time"]))
+        print(tabulate(package_table, headers=[
+              "ID", "Assigned", "Picked up", "Delivered", "Priority", "Pickup position", "Dropoff position"]))
         print("\nRobot Status:")
-        print(tabulate(robot_table, headers=["ID", "Status", "Current Coords", "Destination Coords", "Battery"]))
+        print(tabulate(robot_table, headers=[
+              "ID", "Idle", "Current position", "Destination position", "Current Task"]))
 
         time.sleep(2)  # Print updates every 2 seconds
 
 
-
-main()
+if __name__ == "__main__":
+    main()
