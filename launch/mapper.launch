@@ -69,6 +69,12 @@
     <param name="maximumScore" value="0"/>
     <param name="publish_map" value="true"/>	
 
+    <param name="xmin" value="-20"/>    <!-- Adjust the width (number of grid cells) here -->
+    <param name="xmax" value="20"/>   <!-- Adjust the height (number of grid cells) here -->
+    <param name="ymin" value="-20"/>    <!-- Adjust the width (number of grid cells) here -->
+    <param name="ymax" value="20"/>  
+    <param name="resolution" value="1.00"/> <!-- Adjust the resolution here -->
+
   
   </node>
     
