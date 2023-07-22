@@ -67,6 +67,7 @@ def publish_occupancy_grid(map_metadata_msg):
 
 if __name__ == '__main__':
     try:
+        print("\n*************\n")
         map_meta = publish_map_metadata()
         print("\n*************\n")
         #publish_occupancy_grid(map_meta)
