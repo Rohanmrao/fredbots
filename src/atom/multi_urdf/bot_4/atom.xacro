@@ -337,7 +337,7 @@
 	</gazebo>
 
 	<gazebo reference="chassis">
-		<material>Gazebo/Yellow</material>
+		<material>Gazebo/Blue</material>
 	</gazebo>
 
 	<!-- Motor, Camera and Lidar Simulation -->
