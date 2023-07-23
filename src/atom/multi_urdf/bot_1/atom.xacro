@@ -290,7 +290,7 @@
 
 	<!-- Color of bot -->
 	<gazebo reference="left_wheel_front">
-		<material>Gazebo/Green</material>
+		<material>Gazebo/Black</material>
 		<kp>1000000.0</kp> <!-- kp and kd for rubber -->
 		<kd>100.0</kd>
 		<mu1>1.0</mu1>
@@ -300,7 +300,7 @@
 	</gazebo>
 
 	<gazebo reference="left_wheel_back">
-		<material>Gazebo/Green</material>
+		<material>Gazebo/Black</material>
 		<kp>1000000.0</kp> <!-- kp and kd for rubber -->
 		<kd>100.0</kd>
 		<mu1>1.0</mu1>
@@ -310,7 +310,7 @@
 	</gazebo>
 
 	<gazebo reference="right_wheel_front">
-		<material>Gazebo/Green</material>
+		<material>Gazebo/Black</material>
 		<kp>1000000.0</kp> <!-- kp and kd for rubber -->
 		<kd>100.0</kd>
 		<mu1>1.0</mu1>
@@ -319,7 +319,7 @@
 		<minDepth>0.00</minDepth>
 	</gazebo>
 	<gazebo reference="right_wheel_back">
-		<material>Gazebo/Green</material>
+		<material>Gazebo/Black</material>
 		<kp>1000000.0</kp> <!-- kp and kd for rubber -->
 		<kd>100.0</kd>
 		<mu1>1.0</mu1>
@@ -328,15 +328,15 @@
 		<minDepth>0.00</minDepth>
 	</gazebo>
 	<!--<gazebo reference="right_wheel">
-		<material>Gazebo/Green</material>
+		<material>Gazebo/Black</material>
 	</gazebo>-->
 
 	<gazebo reference="camera">
-		<material>Gazebo/Red</material>
+		<material>Gazebo/Grey</material>
 	</gazebo>
 
 	<gazebo reference="chassis">
-		<material>Gazebo/Blue</material>
+		<material>Gazebo/Green</material>
 	</gazebo>
 
 	<!-- Motor, Camera and Lidar Simulation -->
