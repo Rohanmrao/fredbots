@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import math
 import rospy
@@ -29,7 +29,7 @@ q_values = np.zeros((env_row, env_col, len(actions)))
 # initialise rewards
 rewards = np.full((env_row, env_col), -100.)
 
-goal_x = 9  # int(input("Please enter goal x coordinate: "))
+goal_x = 1  # int(input("Please enter goal x coordinate: "))
 goal_y = 1  # int(input("Please enter goal y coordinate: "))
 
 obstacles = []
@@ -95,7 +95,7 @@ def get_next_location(current_row_index, current_column_index, action_index):
 def reset_atom():
     set_model_state_proxy = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
     set_model_state_msg = ModelState()
-    set_model_state_msg.model_name = 'atom'
+    set_model_state_msg.model_name = 'atom_4'
     set_model_state_msg.pose.position.x = start_pos_x
     set_model_state_msg.pose.position.y = start_pos_y
     set_model_state_msg.pose.position.z = 0
@@ -106,13 +106,13 @@ def reset_atom():
     set_model_state_proxy(set_model_state_msg)
 
 def stop_atom():
-    pub = rospy.Publisher('/atom_1/cmd_vel', Twist, queue_size=1)
+    pub = rospy.Publisher('/atom_4/cmd_vel', Twist, queue_size=1)
     twist = Twist()
     pub.publish(twist)
 
 #run through 1000 training episodes
 def train():
-  print("ATOM1: Obstacles are at:" + str(obstacles))
+  print("ATOM4 : Obstacles are at:" + str(obstacles))
   for obstacle in obstacles:
     rewards[obstacle[0]][obstacle[1]] = -100 #remove the reward for any actions that lead to the obstacle
   for episode in range(1000):
@@ -258,10 +258,10 @@ def approx_new_coord(coord):
     if flag == 1:
         train()
 
-rospy.init_node("Shortest_path_atom_1")
-pub = rospy.Publisher("/atom_1/cmd_vel",Twist, queue_size =10)
-sub = rospy.Subscriber("/atom_1/odom", Odometry, pose_callback)
-las = rospy.Subscriber("/scan_1", LaserScan, laser_callback)
+rospy.init_node("Shortest_path_atom_4")
+pub = rospy.Publisher("/atom_4/cmd_vel",Twist, queue_size =10)
+sub = rospy.Subscriber("/atom_4/odom", Odometry, pose_callback)
+las = rospy.Subscriber("/scan_4", LaserScan, laser_callback)
 
 time.sleep(1)
 
