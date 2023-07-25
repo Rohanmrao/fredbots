@@ -20,6 +20,7 @@ if __name__ == "__main__":
 
     while not rospy.is_shutdown():
         robot_id_result, final_x, final_y = robot_client(robot_id, current_x, current_y)
+        print("id, final_x, final_y: ", robot_id_result, final_x, final_y)
 
         if robot_id_result is not None:
             rospy.loginfo(f"Received response from Robot {robot_id_result}: Final Position: ({final_x}, {final_y})")

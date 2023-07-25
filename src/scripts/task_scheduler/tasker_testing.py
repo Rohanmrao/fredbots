@@ -143,8 +143,9 @@ def handle_tasker(req):
     robots[robot_id-1] = Robot(robot_id, (x_pos, y_pos))
 
     assign_tasks(robots, packages)
+    final_x, final_y = robots[robot_id-1].destination_position
 
-    return robot_id, x_pos, y_pos
+    return robot_id, final_x, final_y
 
 
 
