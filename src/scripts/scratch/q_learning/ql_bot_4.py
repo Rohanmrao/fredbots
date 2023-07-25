@@ -29,8 +29,8 @@ q_values = np.zeros((env_row, env_col, len(actions)))
 # initialise rewards
 rewards = np.full((env_row, env_col), -100.)
 
-goal_x = 1  # int(input("Please enter goal x coordinate: "))
-goal_y = 1  # int(input("Please enter goal y coordinate: "))
+goal_x = 0  # int(input("Please enter goal x coordinate: "))
+goal_y = 0  # int(input("Please enter goal y coordinate: "))
 
 obstacles = []
 
