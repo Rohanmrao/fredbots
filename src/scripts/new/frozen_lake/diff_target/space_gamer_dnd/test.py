@@ -1,3 +1,3 @@
 import numpy as np
-a = np.array([5,2,35,1])
-print(np.argsort(a)[-3])
+a = np.array([[1,2],[3,4]])
+print(np.array([1,2]) in a)
