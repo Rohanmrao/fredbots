@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import math
 import rospy
@@ -95,7 +95,7 @@ def get_next_location(current_row_index, current_column_index, action_index):
 def reset_atom():
     set_model_state_proxy = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
     set_model_state_msg = ModelState()
-    set_model_state_msg.model_name = 'atom'
+    set_model_state_msg.model_name = 'atom_1'
     set_model_state_msg.pose.position.x = start_pos_x
     set_model_state_msg.pose.position.y = start_pos_y
     set_model_state_msg.pose.position.z = 0

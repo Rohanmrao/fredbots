@@ -54,7 +54,7 @@
 
     </node>
 
-    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom1" args="scan:=/scan_1" output="screen">
+    <!-- <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom1" args="scan:=/scan_1" output="screen">
 
 
     <param name="base_frame" value="/atom1_tf/robot_footprint"/>
@@ -74,8 +74,7 @@
     <param name="publish_map" value="true"/>	
 
   
-  </node>
-    
+  </node> -->
 
   </group>
 
@@ -104,7 +103,7 @@
 
     </node>
 
-    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom2" args="scan:=/scan_2" output="screen">
+    <!-- <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom2" args="scan:=/scan_2" output="screen">
 
 
     <param name="base_frame" value="/atom2_tf/robot_footprint"/>
@@ -124,7 +123,7 @@
     <param name="publish_map" value="true"/>	
 
   
-  </node>
+  </node> -->
     
 
   </group>
@@ -154,7 +153,7 @@
 
     </node>
 
-    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom3" args="scan:=/scan_3" output="screen">
+    <!-- <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom3" args="scan:=/scan_3" output="screen">
 
   
     <param name="base_frame" value="/atom3_tf/robot_footprint"/>
@@ -174,7 +173,7 @@
     <param name="publish_map" value="true"/>	
 
   
-  </node>
+  </node> -->
     
 
   </group>
@@ -206,7 +205,7 @@
     </node>
 
 
-    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom4" args="scan:=/scan_4" output="screen">
+    <!-- <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping_atom4" args="scan:=/scan_4" output="screen">
 
     <param name="base_frame" value="/atom4_tf/robot_footprint"/>
     <param name="odom_frame" value="/atom4_tf/odom"/>
@@ -225,7 +224,7 @@
     <param name="publish_map" value="true"/>	
 
   
-  </node>
+  </node> -->
 
   </group>
 
@@ -234,10 +233,10 @@
   <arg name="rviz_config" default="$(find fredbots)/src/atom/default.rviz" /> -->
 
   <!-- Run the atom_move.py node for each robot -->
-  <!-- <node name="atom_move_robot1" pkg="fredbots" type="atom_1_move.py" output="screen" />
-  <node name="atom_move_robot2" pkg="fredbots" type="atom_2_move.py" output="screen" />
-  <node name="atom_move_robot3" pkg="fredbots" type="atom_3_move.py" output="screen" />
-  <node name="atom_move_robot4" pkg="fredbots" type="atom_4_move.py" output="screen" /> -->
+  <node name="atom_move_robot1" pkg="fredbots" type="ql_bot_1.py" output="screen" />
+  <!-- <node name="atom_move_robot2" pkg="fredbots" type="atom_2_move.py" output="screen" /> -->
+  <!-- <node name="atom_move_robot3" pkg="fredbots" type="atom_3_move.py" output="screen" /> -->
+  <!-- <node name="atom_move_robot4" pkg="fredbots" type="atom_4_move.py" output="screen" />  -->
 
   <!-- Launch RViz with the provided configuration -->
   <arg name="rviz_config" default="$(find fredbots)/worlds/multi_robot.rviz" />

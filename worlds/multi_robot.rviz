@@ -560,7 +560,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: atom4_tf/map
+    Fixed Frame: atom1_tf/odom
     Frame Rate: 30
   Name: root
   Tools:
