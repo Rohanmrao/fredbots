@@ -8,10 +8,11 @@ def laser_scan_callback(msg):
     # Find the minimum and maximum range values
     min_range = min(ranges)
     max_range = max(ranges)
+    
 
     print("mini range: ", min_range)
 
-    
+
 
     # Print the results
     # rospy.loginfo("Minimum range: %.2f meters" % min_range)
