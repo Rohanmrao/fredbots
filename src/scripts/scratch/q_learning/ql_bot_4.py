@@ -29,8 +29,8 @@ q_values = np.zeros((env_row, env_col, len(actions)))
 # initialise rewards
 rewards = np.full((env_row, env_col), -100.)
 
-goal_x = 6  # int(input("Please enter goal x coordinate: "))
-goal_y = 3  # int(input("Please enter goal y coordinate: "))
+goal_x = 1  # int(input("Please enter goal x coordinate: "))
+goal_y = 1  # int(input("Please enter goal y coordinate: "))
 
 obstacles = []
 
@@ -106,13 +106,13 @@ def reset_atom():
     set_model_state_proxy(set_model_state_msg)
 
 def stop_atom():
-    pub = rospy.Publisher('/atom/cmd_vel', Twist, queue_size=1)
+    pub = rospy.Publisher('/atom_4/cmd_vel', Twist, queue_size=1)
     twist = Twist()
     pub.publish(twist)
 
 #run through 1000 training episodes
 def train():
-  print("Obstacles are at:" + str(obstacles))
+  print("ATOM4 : Obstacles are at:" + str(obstacles))
   for obstacle in obstacles:
     rewards[obstacle[0]][obstacle[1]] = -100 #remove the reward for any actions that lead to the obstacle
   for episode in range(1000):
