@@ -15,7 +15,7 @@ def robot_client(robot_id, x, y):
 
 if __name__ == "__main__":
     rospy.init_node('task_assign_client')
-
+    
     robot_id = 1
     current_x = 10
     current_y = 20 
