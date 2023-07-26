@@ -29,6 +29,7 @@ def handle_add_two_ints(req):
                 print("\n\n")
                 return AddTwoIntsResponse(1)
             else:
+                grid[cur_x][cur_y] = 0
                 # [TO PRINT]
                 for i in range(6):
                     for j in range(6):
@@ -52,7 +53,7 @@ def main():
     for i in range(6):
         for j in range(6):
             grid[i][j] = 0
-            if i==1 and j ==0:
+            if i==0 and j ==4:
                 grid[i][j] = 1
             if i==4 and j ==4:
                 grid[i][j] = 1

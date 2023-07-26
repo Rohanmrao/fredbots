@@ -336,10 +336,10 @@
 	</gazebo>
 
 	<gazebo reference="chassis">
-		<material>Gazebo/Yellow</material>
+		<material>Gazebo/Red</material>
 	</gazebo>
 
 	<!-- Motor, Camera and Lidar Simulation -->
-	<xacro:include filename="$(find fredbots)/src/atom/multi_urdf/bot_2/atom.gazebo" />
+	<xacro:include filename="$(find fredbots)/src/atom/multi_urdf/bot_1/atom.gazebo" />
 
 </robot>
