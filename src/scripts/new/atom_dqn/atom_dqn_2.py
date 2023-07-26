@@ -77,6 +77,8 @@ class Env():
         self.y1 = data.pose.pose.position.y
         roll, pitch, self.theta1 = euler_from_quaternion([data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w])
 
+        # self.theta1 is the yaw 
+
     def reset(self):
         self.pos = np.random.randint(0, self.grid_size, size=2)
         self.steps = 0
@@ -126,32 +128,7 @@ class Env():
                 reward = -10
         return self.pos, reward, self.done, False
     
-    # def update_pose(self):
-    #     global x, y
-    #     x = self.state[0]
-    #     y = self.state[1]
-    
-    # def move(self, linear_vel, angular_vel, pos_x, pos_y):
-    #     global x,y
-    #     print("printing pos_x and pos_y",pos_x, pos_y)
-    #     # print("x,y: ",x,y)
-    #     count = 0
-    #     while(True):
-    #         print("x,y: ",x,y)
-    #         velocity_msg = Twist()
-    #         velocity_msg.linear.x = linear_vel
-    #         velocity_msg.angular.z = angular_vel
-    #         self.velocity_publisher.publish(velocity_msg)
 
-    #         # self.update_pose()
-    #         print("\n\n", x, y, "\n\n")
-            
-    #         distance = abs(math.sqrt(((pos_x-x)**2)+((pos_y-y)**2)))
-
-    #         # print("distance: ", distance)
-    #         count+=1
-    #         if (distance<0.1):
-    #             break
 
     def rotate (self, angular_speed_degree, relative_angle_degree, clockwise, goal_angle):
         
@@ -211,23 +188,9 @@ class Env():
 
         distance = abs(math.sqrt(((x_goal-self.x1)**2)+((y_goal-self.y1)**2)))
 
-        # ang_dist = math.atan2((y_goal-y1),(x_goal-x1))
-        # while (abs(ang_dist-theta1)>0.01):
-        #     Phi = 4
-        #     ang_dist = math.atan2((y_goal-y1),(x_goal-x1))
-
-        #     ang_speed = Phi*(ang_dist-theta1)
-
-        #     msg.linear.x = 0
-        #     msg.angular.z = ang_speed
-
-        #     pub.publish(msg)
-
         angle_t = math.atan2((y_goal-self.y1),(x_goal-self.x1)) # -pi to pi
         angle_t = math.degrees(angle_t) # -180 to 180
 
-        # if angle_t < 0:
-        #     angle_t = 360 + angle_t
 
         theta1_deg = math.degrees(self.theta1) # -180 to 180
         # angle = offset between current and goal angle ranging from -180 to 180
@@ -256,12 +219,6 @@ class Env():
             self.rotate(min(abs(angle*phi),30), angle, True, angle_t) 
         else:
             self.rotate(min(abs(angle*phi),30), angle, False, angle_t)
-        
-        # theta1_deg = math.degrees(theta1)
-        # angle = angle - theta1_deg
-        # rotate(10, angle, True)
-
-        # rospy.sleep(2)
 
         while (distance>0.15):        
             Beta = 0.5

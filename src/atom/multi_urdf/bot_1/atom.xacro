@@ -328,7 +328,7 @@
 		<minDepth>0.00</minDepth>
 	</gazebo>
 	<!--<gazebo reference="right_wheel">
-		<material>Gazebo/Black</material>
+		<material>Gazebo/Green</material>
 	</gazebo>-->
 
 	<gazebo reference="camera">
@@ -336,10 +336,10 @@
 	</gazebo>
 
 	<gazebo reference="chassis">
-		<material>Gazebo/Green</material>
+		<material>Gazebo/Yellow</material>
 	</gazebo>
 
 	<!-- Motor, Camera and Lidar Simulation -->
-	<xacro:include filename="$(find fredbots)/src/atom/multi_urdf/bot_1/atom.gazebo" />
+	<xacro:include filename="$(find fredbots)/src/atom/multi_urdf/bot_2/atom.gazebo" />
 
 </robot>
