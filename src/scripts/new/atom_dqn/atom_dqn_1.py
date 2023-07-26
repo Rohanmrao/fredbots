@@ -263,8 +263,9 @@ if __name__ == "__main__":
     goal = agent.env.reset_goal()
     print('Goal:', goal)
 
+    flag = True
+
     for step in range(30):
-        flag = True
         print('State:', state)
         inputt = np.concatenate((state, goal))
         inputt = tf.convert_to_tensor(inputt)
@@ -296,6 +297,7 @@ if __name__ == "__main__":
         print("NEXT_STATE: ", next_state)
 
         if (response.occ == 0): # [NOT OCCUPIED]
+            flag = True
             print("occu: ", response.occ)
             agent.env.Goto_goal(next_state[0], next_state[1])
         
