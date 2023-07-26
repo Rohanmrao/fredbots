@@ -166,8 +166,10 @@ def get_shortest_path(start_row_index, start_column_index, atom_sim=False):
 def laser_callback(msg):
 
     laser_range = msg.ranges
+    max_range = msg.range_max
+    min_range = msg.range_min
 
-    coord = update_obst_coord(laser_range, msg.angle_min, msg.angle_max, len(laser_range))
+    coord = update_obst_coord(laser_range, msg.angle_min, msg.angle_max, len(laser_range))  
 
     approx_new_coord(coord)
 
@@ -214,6 +216,8 @@ def Goto_goal(x_goal, y_goal):
     msg.linear.x = 0
     msg.angular.z = 0
     pub.publish(msg)
+
+    
 
 def update_obst_coord(range_data, theta_min, theta_max, num_samples):
 
