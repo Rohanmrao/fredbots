@@ -17,8 +17,8 @@ from sensor_msgs.msg import LaserScan
 
 from tf.transformations import euler_from_quaternion
 
-env_row = 11
-env_col = 11
+env_row = 21
+env_col = 21
 
 # define actions
 # numeric action codes: 0 = up, 1 = right, 2 = down, 3 = left
@@ -29,10 +29,10 @@ q_values = np.zeros((env_row, env_col, len(actions)))
 # initialise rewards
 rewards = np.full((env_row, env_col), -100.)
 
-goal_x = 3  # int(input("Please enter goal x coordinate: "))
-goal_y = 5  # int(input("Please enter goal y coordinate: "))
 
-obstacles = []
+obstacles = [[3,0],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[3,7],[3,8],[3,9],
+             [8,9],[8,10],[8,11],[8,12],[8,13],[8,14],[8,15],[8,16],[8,17],[8,18],[8,19],[8,20],
+             [14,0],[14,1],[14,2],[14,3],[14,4],[14,5],[14,6],[14,7],[14,8],[14,9]]
 
 #define training parameters
 epsilon = 0.9 #the percentage of time when we should take the best action (instead of a random action)
@@ -44,18 +44,23 @@ y1 = 0
 z1 = 0
 theta1 = 0
 
+def construct_reward_matrix(goal_x, goal_y, obstacles=obstacles):
+    rewards = np.full((env_row, env_col), -1)
+    for obstacle in obstacles:
+        try:
+            rewards[obstacle[0]][obstacle[1]] = -100 #remove the reward for any actions that lead to the obstacle
+        except IndexError:
+            continue
+    rewards[goal_x][goal_y] = 100
+    return rewards
 
 def get_euclidian_dist(x1,y1,x2,y2):
     return np.sqrt((x1-x2)**2 + (y1-y2)**2)
 
-# assign reward value to goal
-for i in range(len(q_values)):
-    for j in range(len(q_values[0])):
-        rewards[i][j] = - get_euclidian_dist(i,j,goal_x,goal_y)
 
 # Functions for QLearning   
 
-def is_final_state(row, col):
+def is_final_state(row, col, goal_x, goal_y):
     if row == goal_x and col == goal_y:
         return True
     else:
@@ -92,35 +97,32 @@ def get_next_location(current_row_index, current_column_index, action_index):
     new_column_index -= 1
   return new_row_index, new_column_index
 
-def reset_atom():
-    set_model_state_proxy = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
-    set_model_state_msg = ModelState()
-    set_model_state_msg.model_name = 'atom_4'
-    set_model_state_msg.pose.position.x = start_pos_x
-    set_model_state_msg.pose.position.y = start_pos_y
-    set_model_state_msg.pose.position.z = 0
-    set_model_state_msg.pose.orientation.x = 0
-    set_model_state_msg.pose.orientation.y = 0
-    set_model_state_msg.pose.orientation.z = 0
-    set_model_state_msg.pose.orientation.w = 1
-    set_model_state_proxy(set_model_state_msg)
+# def reset_atom():
+#     set_model_state_proxy = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+#     set_model_state_msg = ModelState()
+#     set_model_state_msg.model_name = 'atom'
+#     set_model_state_msg.pose.position.x = start_pos_x
+#     set_model_state_msg.pose.position.y = start_pos_y
+#     set_model_state_msg.pose.position.z = 0
+#     set_model_state_msg.pose.orientation.x = 0
+#     set_model_state_msg.pose.orientation.y = 0
+#     set_model_state_msg.pose.orientation.z = 0
+#     set_model_state_msg.pose.orientation.w = 1
+#     set_model_state_proxy(set_model_state_msg)
 
-def stop_atom():
-    pub = rospy.Publisher('/atom_4/cmd_vel', Twist, queue_size=1)
-    twist = Twist()
-    pub.publish(twist)
+# def stop_atom():
+#     pub = rospy.Publisher('/atom/cmd_vel', Twist, queue_size=1)
+#     twist = Twist()
+#     pub.publish(twist)
 
 #run through 1000 training episodes
-def train():
-  print("ATOM4 : Obstacles are at:" + str(obstacles))
-  for obstacle in obstacles:
-    rewards[obstacle[0]][obstacle[1]] = -100 #remove the reward for any actions that lead to the obstacle
+def train(goal_x, goal_y, obstacles=obstacles):
   for episode in range(1000):
     #get the starting location for this episode
     row_index, column_index = get_starting_location()
     #continue taking actions (i.e., moving) until we reach a terminal state
     #(i.e., until we reach the item packaging area or crash into an item storage location)
-    while not is_final_state(row_index, column_index):
+    while not is_final_state(row_index, column_index, goal_x, goal_y):
       #choose which action to take (i.e., where to move next)
       action_index = get_next_action(row_index, column_index, epsilon)
       #perform the chosen action, and transition to the next state (i.e., move to the next location)
@@ -137,69 +139,133 @@ def train():
 
 #Define a function that will get the shortest path between any location within the warehouse that 
 #the robot is allowed to travel and the item packaging location.
-def get_shortest_path(start_row_index, start_column_index, atom_sim=False):
+def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_sim=False):
   #return immediately if this is an invalid starting location
-  train()
-  if is_final_state(start_row_index, start_column_index):
+  if is_final_state(start_row_index, start_column_index, goal_x, goal_y):
     return []
   else: #if this is a 'legal' starting location
     current_row_index, current_column_index = start_row_index, start_column_index
     shortest_path = []
     shortest_path.append([current_row_index, current_column_index])
     #continue moving along the path until we reach the goal (i.e., the item packaging location)
-    while not is_final_state(current_row_index, current_column_index):
+    while not is_final_state(current_row_index, current_column_index, goal_x, goal_y):
       #get the best action to take
       action_index = get_next_action(current_row_index, current_column_index, 1.)
       #move to the next location on the path, and add the new location to the list
       current_row_index, current_column_index = get_next_location(current_row_index, current_column_index, action_index)
       shortest_path.append([current_row_index, current_column_index])
-      global obstacles
-      obstacles = []
       if atom_sim:
         print("Moving to location: ", current_row_index, current_column_index)
         Goto_goal(current_row_index, current_column_index)
+      time.sleep(1)
     
     return shortest_path
 
 # ROS movement functions and callbacks
 
-def laser_callback(msg):
+# def laser_callback(msg):
 
-    laser_range = msg.ranges
+#     laser_range = msg.ranges
 
-    coord = update_obst_coord(laser_range, msg.angle_min, msg.angle_max, len(laser_range))
+#     coord = update_obst_coord(laser_range, msg.angle_min, msg.angle_max, len(laser_range))
 
-    approx_new_coord(coord)
+#     approx_new_coord(coord)
 
 def pose_callback(data):
     global x1,y1,z1,theta1
     x1 = data.pose.pose.position.x
     y1 = data.pose.pose.position.y
+
+    # Change four quadrants data to first quadrant data
+    x1 += 10
+    y1 += 10
+
     roll, pitch, theta1 = euler_from_quaternion([data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w])
+
+def angle_difference(angle1, angle2):
+    
+    diff = abs(angle1 - angle2) % 360
+    return min(diff, 360 - diff)
+
+def rotate (angular_speed_degree, relative_angle_degree, clockwise, goal_angle):
+    
+    velocity_message = Twist()
+    velocity_message.linear.x=0
+    velocity_message.linear.y=0
+    velocity_message.linear.z=0
+    velocity_message.angular.x=0
+    velocity_message.angular.y=0
+    velocity_message.angular.z=0
+
+    angular_speed=math.radians(abs(angular_speed_degree))
+
+    if (clockwise):
+        velocity_message.angular.z =-abs(angular_speed)
+    else:
+        velocity_message.angular.z =abs(angular_speed)
+
+    angle_moved = 0.0
+    loop_rate = rospy.Rate(10) # we publish the velocity at 10 Hz (10 times a second)    
+
+    t0 = rospy.Time.now().to_sec()
+
+    while True :
+        # rospy.loginfo("Turtlesim rotates")
+        pub.publish(velocity_message)
+
+        t1 = rospy.Time.now().to_sec()
+        current_angle_degree = (t1-t0)*angular_speed_degree
+        loop_rate.sleep()
+
+        # print 'current_angle_degree: ',current_angle_degree
+        if angle_difference(math.degrees(theta1), goal_angle) < 1:
+            rospy.loginfo("Atom_1 rotated")
+            break
+
+    #finally, stop the robot when the distance is moved
+    velocity_message.angular.z =0
+    pub.publish(velocity_message)
 
 def Goto_goal(x_goal, y_goal):
     global x1,y1,theta1
     msg = Twist()
 
-
-    rate = rospy.Rate(10)
-
     distance = abs(math.sqrt(((x_goal-x1)**2)+((y_goal-y1)**2)))
 
-    ang_dist = math.atan2((y_goal-y1),(x_goal-x1))
-    while (abs(ang_dist-theta1)>0.05):
-        Phi = 4
-        ang_dist = math.atan2((y_goal-y1),(x_goal-x1))
+    angle_t = math.atan2((y_goal-y1),(x_goal-x1)) # -pi to pi
+    angle_t = math.degrees(angle_t) # -180 to 180
 
-        ang_speed = Phi*(ang_dist-theta1)
+    msg.linear.x = 0
+    msg.angular.z = 0
 
-        msg.linear.x = 0
-        msg.angular.z = ang_speed
+    theta1_deg = math.degrees(theta1) # -180 to 180
+    # angle = offset between current and goal angle ranging from -180 to 180
+    if angle_t < 0:
+        angle_t_b = 360 + angle_t # 180 to 360
+    else:
+        angle_t_b = angle_t # 0 to 180
+    if theta1_deg < 0:
+        theta1_deg_b = 360 + theta1_deg # 180 to 360
+    else:
+        theta1_deg_b = theta1_deg # 0 to 180
 
-        pub.publish(msg)
+    angle = angle_t_b - theta1_deg_b # -360 to 360
+       
 
-    # rospy.sleep(2)
 
+    print(theta1_deg, angle_t, angle)
+    phi = 1
+    if -180 < angle < 0:
+        rotate(min(abs(angle*phi),30), abs(angle), True, angle_t)
+    elif -360 < angle < -180:
+        angle = 360 - abs(angle)
+        rotate(min(abs(angle*phi),30), abs(angle), False, angle_t)
+    elif 180 < angle < 360:
+        angle = 360 - angle
+        rotate(min(abs(angle*phi),30), angle, True, angle_t) 
+    else:
+        rotate(min(abs(angle*phi),30), angle, False, angle_t)
+    
     while (distance>0.15):        
         Beta = 0.75
         distance = abs(math.sqrt(((x_goal-x1)**2)+((y_goal-y1)**2)))
@@ -215,58 +281,75 @@ def Goto_goal(x_goal, y_goal):
     msg.angular.z = 0
     pub.publish(msg)
 
-def update_obst_coord(range_data, theta_min, theta_max, num_samples):
+# def update_obst_coord(range_data, theta_min, theta_max, num_samples):
 
-    # Get the angle of each sample
-    thetas = np.linspace(theta_min, theta_max, num_samples)
+#     # Get the angle of each sample
+#     thetas = np.linspace(theta_min, theta_max, num_samples)
 
-    # Adjust theta according to the orientation of the robot
-    thetas = theta1 + thetas
+#     # Adjust theta according to the orientation of the robot
+#     thetas = theta1 + thetas
 
-    # Get the apparent x and y coordinates of each sample
-    xs, ys = [], []
-    for i in range(num_samples):
-        if range_data[i] < 5:
-            xs.append(range_data[i] * np.cos(thetas[i]))
-            ys.append(range_data[i] * np.sin(thetas[i]))
-        else:
-            xs.append(float('inf'))
-            ys.append(float('inf'))
+#     # Get the apparent x and y coordinates of each sample
+#     xs, ys = [], []
+#     for i in range(num_samples):
+#         if range_data[i] < 5:
+#             xs.append(range_data[i] * np.cos(thetas[i]))
+#             ys.append(range_data[i] * np.sin(thetas[i]))
+#         else:
+#             xs.append(float('inf'))
+#             ys.append(float('inf'))
 
-    # Calculate the lidar's offset from the robot's center
-    l_x = x1 + 0.2 * np.cos(theta1)
-    l_y = y1 + 0.2 * np.sin(theta1)
+#     # Calculate the lidar's offset from the robot's center
+#     l_x = x1 + 0.2 * np.cos(theta1)
+#     l_y = y1 + 0.2 * np.sin(theta1)
 
-    # Get the x and y coordinates of each sample
-    obst_coord = [(xs[i]+l_x, ys[i]+l_y) for i in range(num_samples)]
+#     # Get the x and y coordinates of each sample
+#     obst_coord = [(xs[i]+l_x, ys[i]+l_y) for i in range(num_samples)]
 
-def approx_new_coord(coord):
-    flag = 0
-    if not coord:
-        return
-    for (i,j) in coord:
-        if (i == float('inf')) or (i == float('-inf')) or (j == float('inf')) or (j == float('-inf')):
-            continue
-        else:
-            i_r = int(round(i,0))
-            j_r = int(round(j,0))
-            if [i_r,j_r] in obstacles:
-                continue
-            else:
-                obstacles.append([i_r,j_r])
-                flag = 1
-    if flag == 1:
-        train()
+#     for (i,j) in obst_coord:
+#       if i > env_col - 1 or i < 0 or j > env_row - 1 or j < 0:
+#           obst_coord.remove((i,j))
 
-rospy.init_node("Shortest_path_atom_4")
-pub = rospy.Publisher("/atom_4/cmd_vel",Twist, queue_size =10)
-sub = rospy.Subscriber("/atom_4/odom", Odometry, pose_callback)
-las = rospy.Subscriber("/scan_4", LaserScan, laser_callback)
+#     return obst_coord
 
-time.sleep(1)
+# def approx_new_coord(coord):
+#     flag = 0
+#     if not coord:
+#         return
+#     for (i,j) in coord:
+#         if (i == float('inf')) or (i == float('-inf')) or (j == float('inf')) or (j == float('-inf')):
+#             continue
+#         else:
+#             i_r = int(round(i,0))
+#             j_r = int(round(j,0))
+#             if [i_r,j_r] in obstacles_new:
+#                 continue
+#             else:
+#                 obstacles_new.append([i_r,j_r])
+#                 flag = 1
+#     if flag == 1:
+#         train()
 
-start_pos_x = int(round(x1,0))
-start_pos_y = int(round(y1,0))
-print(start_pos_x, start_pos_y)
+def main():
+    global pub, sub
+    rospy.init_node("Shortest_path_atom_1")
+    pub = rospy.Publisher("/atom_1/cmd_vel",Twist, queue_size =10)
+    sub = rospy.Subscriber("/atom_1/odom", Odometry, pose_callback)
+    # las = rospy.Subscriber("/scan_1", LaserScan, laser_callback)
 
-get_shortest_path(start_pos_x, start_pos_y, atom_sim=True)
+    time.sleep(5)
+
+    goal = [[20,20],[15,7]]
+    for i in goal:
+       global rewards
+       rewards = construct_reward_matrix(i[0], i[1])
+       train(i[0], i[1])
+       start_x, start_y = int(round(x1,0)), int(round(y1,0))
+       print(f"Starting from {start_x, start_y}")
+       get_shortest_path(start_x, start_y, i[0], i[1], atom_sim=True)
+       print("Goal reached")
+
+    time.sleep(5)
+
+if __name__ == '__main__':
+    main()
