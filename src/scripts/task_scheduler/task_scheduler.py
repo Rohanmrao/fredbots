@@ -27,9 +27,6 @@ class Robot:
         self.is_idle = False
         self.task_positions = [package.pickup_position, package.dropoff_position]
 
-    def update_position(self, new_position):
-        self.current_position = new_position
-
 
 class Package:
     def __init__(self, package_id, pickup_position, dropoff_position, priority, weight=3):
@@ -72,20 +69,18 @@ def check_task_status(robots):
 def assign_tasks(robots, packages):
     # loop through all packages
     for package in packages:
-        # if package has not been picked up
-        if not package.picked_up:
+        # if package has not been assigned
+        if not package.assigned:
             # calculate the maximum distance between the package and all robots
             max_distance = max([euclidean_distance(robot.current_position, package.pickup_position)
                                 for robot in robots.values()])
             # store utility for each robot in package utility dictionary and sort by highest utility first  (descending order)
-            package.utilities = {robot.robot_id: calculate_utility(
-                robot, package, max_distance) for robot in robots.values()}
-            package.utilities = {k: v for k, v in sorted(
-                package.utilities.items(), key=lambda item: item[1], reverse=True)}
+            package.utilities = {robot.robot_id: calculate_utility(robot, package, max_distance) for robot in robots.values()}
+            package.utilities = {k: v for k, v in sorted(package.utilities.items(), key=lambda item: item[1], reverse=True)}
+            print(package, package.utilities)
 
     # sort packages by first value in utilities dictionary (highest utility)
     packages.sort(key=lambda x: list(x.utilities.values())[0], reverse=True)
-    assigned_robots = []
     # loop through all packages
     for i in range(len(packages)):
         # sort the utilities of the current package by highest utility first (descending order)
@@ -94,12 +89,12 @@ def assign_tasks(robots, packages):
         # sort packages by first value in utilities dictionary (highest utility)
         packages.sort(key=lambda x: list(x.utilities.values())[0], reverse=True)
         # loop through all robots in the utilities dictionary of the current package
+        print(packages[i].utilities)
         for robot_id, utility in packages[i].utilities.items():
             # if the robot has not been assigned a package
-            if robot_id not in assigned_robots:
+            if robots[robot_id].is_idle and not packages[i].assigned:
                 # assign the package to the robot
-                robots[robot_id - 1].assign_package(packages[i])
-                assigned_robots.append(robot_id)
+                robots[robot_id].assign_package(packages[i])
                 packages[i].assigned = True
                 # update the utilities of all other packages for the assigned robot to -1
                 for other_package in packages:
@@ -116,15 +111,6 @@ def calculate_utility(robot, package, max_distance):
     distance = euclidean_distance(robot.current_position, package.pickup_position)
     utilty = (1 - distance/max_distance) * 0.3 + package.priority * 0.7
     return utilty
-
-
-def update_robot_position(robot, new_position):
-    robot.update_position(new_position)
-
-
-def update_robot_battery(robot):
-    robot.update_battery()
-
 
 
 
@@ -178,7 +164,10 @@ def handle_tasker(req):
     x_pos = req.x
     y_pos = req.y
 
-    robots[robot_id-1] = Robot(robot_id, (x_pos, y_pos))
+    if robot_id in robots:
+        robots[robot_id].current_position = (x_pos, y_pos)
+    else:
+        robots[robot_id] = Robot(robot_id, (x_pos, y_pos))
 
 
     # fetch packages
@@ -193,8 +182,8 @@ def handle_tasker(req):
 
     # fetch robot task position
     try:
-        pickup_x, pickup_y = robots[robot_id-1].task_positions[0]
-        destination_x, destination_y = robots[robot_id-1].task_positions[1]
+        pickup_x, pickup_y = robots[robot_id].task_positions[0]
+        destination_x, destination_y = robots[robot_id].task_positions[1]
     except:
         pickup_x, pickup_y = None, None
         destination_x, destination_y = None, None
