@@ -1,9 +1,15 @@
+#!/usr/bin/env python3
+
 import time
 from threading import Thread
 import numpy as np
 from tabulate import tabulate
 import multiprocessing as mp
+from fredbots.srv import TaskAssign
+from fredbots.srv import TaskAssignResponse
+from fredbots.srv import TaskAssignRequest
 
+import rospy
 
 class Robot:
     def __init__(self, robot_id, intital_position, battery_capacity=100):
@@ -62,34 +68,44 @@ def euclidean_distance(coords1, coords2):
 
 
 def assign_tasks(robots, packages):
+    # loop through all packages
     for package in packages:
+        # if package has not been picked up
         if not package.picked_up:
-            max_distance = max([euclidean_distance(robot.current_position, package.pickup_position) for robot in robots])
+            # calculate the maximum distance between the package and all robots
+            max_distance = max([euclidean_distance(robot.current_position, package.pickup_position) for robot in robots.values()])
             # store utility for each robot in package utility dictionary and sort by highest utility first  (descending order)
-            package.utilities = {robot.robot_id: calculate_utility(robot, package, max_distance) for robot in robots}
+            package.utilities = {robot.robot_id: calculate_utility(robot, package, max_distance) for robot in robots.values()}
             package.utilities = {k: v for k, v in sorted(package.utilities.items(), key=lambda item: item[1], reverse=True)}
-    # packages.sort(key=lambda x: get_max_utility(x), reverse=True)
+
     # sort packages by first value in utilities dictionary (highest utility)
     packages.sort(key=lambda x: list(x.utilities.values())[0], reverse=True)
     assigned_robots = []
+    # loop through all packages
     for i in range(len(packages)):
+        # sort the utilities of the current package by highest utility first (descending order)
         packages[i].utilities = {k: v for k, v in sorted(packages[i].utilities.items(), key=lambda item: item[1], reverse=True)}
-        # packages.sort(key=lambda x: get_max_utility(x), reverse=True)
+        # sort packages by first value in utilities dictionary (highest utility)
         packages.sort(key=lambda x: list(x.utilities.values())[0], reverse=True)
+        # loop through all robots in the utilities dictionary of the current package
         for robot_id, utility in packages[i].utilities.items():
+            # if the robot has not been assigned a package
             if robot_id not in assigned_robots:
+                # assign the package to the robot
                 robots[robot_id - 1].assign_package(packages[i])
                 assigned_robots.append(robot_id)
                 packages[i].assigned = True
-                print(f'package {packages[i].package_id} assigned to robot {robot_id}')
+                # update the utilities of all other packages for the assigned robot to -1
                 for other_package in packages:
                     if other_package.package_id != packages[i].package_id:
                         other_package.utilities[robot_id] = -1
                 break
             else:
+                # if the robot has already been assigned a package, set the utility of the robot for the current package to 0
                 packages[i].utilities[robot_id] = 0
+    # return robots
 
-
+ 
 def calculate_utility(robot, package, max_distance):
     distance = euclidean_distance(robot.current_position, package.pickup_position)
     utilty = (1 - distance/max_distance) * 0.3 + package.priority * 0.7
@@ -117,8 +133,64 @@ def update_robot_task(robot):
         robot.is_idle = True
         robot.destination_position = None
 
+def tasker_server():
+    rospy.init_node('tasker_server')
+    s = rospy.Service('tasker', TaskAssign, handle_tasker)
+    rospy.loginfo("Tasker server ready.")
+    rospy.spin()
+
+def handle_tasker(req):
+    global robots
+    robot_id = req.robot_id
+    x_pos = req.x
+    y_pos = req.y
+
+    # rospy.loginfo(f"Received request from robot {robot_id} at position ({x_pos}, {y_pos})")
+    # rospy.loginfo("Assigning tasks...")
+
+    robots[robot_id-1] = Robot(robot_id, (x_pos, y_pos))
+
+    assign_tasks(robots, packages)
+    final_x, final_y = robots[robot_id-1].destination_position
+    
+    # Table
+
+    package_table = []
+    for package in packages:
+        package_table.append([
+            package.package_id,
+            package.assigned,
+            package.picked_up,
+            package.delivered,
+            package.priority,
+            package.pickup_position,
+            package.dropoff_position
+        ])
+
+    robot_table = []
+    for robot in robots.values():
+        robot_table.append([
+            robot.robot_id,
+            robot.is_idle,
+            robot.current_position,
+            robot.destination_position,
+            robot.current_task.package_id if robot.current_task is not None else "No task assigned",
+        ])
+
+
+    print("Package Schedule:")
+    print(tabulate(package_table, headers=["ID", "Assigned", "Picked up", "Delivered", "Priority", "Pickup position", "Dropoff position"]))
+
+    print("Robot Status:")
+    print(tabulate(robot_table, headers=["ID", "Idle", "Current position", "Destination position", "Current Task"]))
+
+
+    return robot_id, final_x, final_y
+
+
 
 def main():
+    global robots, packages
     packages = [
         Package(1, (2, 2), (8, 8), 8, 5),
         Package(2, (5, 5), (3, 1), 4, 10),
@@ -130,55 +202,8 @@ def main():
     packages.sort(key=lambda x: x.priority, reverse=True)
 
     # robots
-    robots = [
-        Robot(1, (0, 0)),
-        Robot(2, (10, 10)),
-        Robot(3, (5, 5))
-    ]
+    robots = dict()
+    tasker_server() 
 
-    """ # Start task assignment thread
-    assign_thread = Thread(target=assign_tasks, args=(robots, packages))
-    assign_thread.daemon = True
-    assign_thread.start() """
-
-    assign_tasks(robots, packages)
-
-    # package and robot updates
-    while True:
-        # assign_tasks(robots, packages)
-        package_table = []
-        for package in packages:
-            package_table.append([
-                package.package_id,
-                package.assigned,
-                package.picked_up,
-                package.delivered,
-                package.priority,
-                package.pickup_position,
-                package.dropoff_position
-            ])
-
-        robot_table = []
-        for robot in robots:
-            robot_table.append([
-                robot.robot_id,
-                robot.is_idle,
-                robot.current_position,
-                robot.destination_position,
-                robot.current_task.package_id if robot.current_task is not None else "No task assigned",
-            ])
-
-        # Print table
-        print("\n")
-        print("Package Schedule:")
-        print(tabulate(package_table, headers=[
-              "ID", "Assigned", "Picked up", "Delivered", "Priority", "Pickup position", "Dropoff position"]))
-        print("\nRobot Status:")
-        print(tabulate(robot_table, headers=[
-              "ID", "Idle", "Current position", "Destination position", "Current Task"]))
-
-        time.sleep(2)  # Print updates every 2 seconds
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
