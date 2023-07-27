@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Checking done.. all the bots spawn in gazebo and rviz, the wheels still clump at the chassis centre-->
+
+<launch>
+	<!-- Robot pose -->
+	<arg name="x" default="0"/>
+	<arg name="y" default="0"/>
+	<arg name="z" default="0"/>
+	<arg name="roll" default="0"/>
+	<arg name="pitch" default="0"/>
+	<arg name="yaw" default="0"/>
+	
+
+	<!-- Launch Gazebo World -->
+	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+
+		<!-- <arg name="world_name" value="$(find fredbots)/worlds/nonempty.world"/> -->
+		<arg name="paused" value="false"/>
+		<arg name="use_sim_time" value="true"/>
+		<arg name="gui" value="true"/>
+		<arg name="headless" value="false"/>
+		<arg name="debug" value="false"/>
+    	</include>
+
+
+  <!-- <node name="atom_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" /> -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/atom/urdf/atom.xacro'" />
+
+
+  <!-- BEGIN ROBOT 1-->
+  <param name="robot_description_atom1" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_1/atom.xacro'" />
+
+  <group ns="atom_1">
+
+    <param name="tf_prefix" value="atom1_tf" />
+
+    <include file="$(find fredbots)/launch/one_robot.launch" >
+      <arg name="init_pose" value="-x 3 -y 5 -z 0" />
+      <arg name="robot_name"  value="atom1" />
+
+    </include>
+
+    <node name="atom1_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 /atom_1/odom atom1_tf/robot_footprint" /> <!-- use gazebo ns here-->
+    <node name="atom1_tf_broadcaster_rwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/right_wheel_front" />
+    <node name="atom1_tf_broadcaster_rwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/right_wheel_back" />
+    <node name="atom1_tf_broadcaster_lwf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/left_wheel_front" />
+    <node name="atom1_tf_broadcaster_lwb" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 /atom1_tf/chassis atom1_tf/left_wheel_back" />
+    <!-- <node name="atom_move" pkg="fredbots" type="atom_dqn_1.py" output="screen"></node> -->
+
+  </group>
+
+
+</launch>

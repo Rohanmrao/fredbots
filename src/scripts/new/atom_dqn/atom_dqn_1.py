@@ -53,14 +53,23 @@ class Agent():
 
         return list(l).index(act)
 
+    def predict_random_2(self, inputt, action, action_1):
+        l = self.model.predict(inputt, verbose=0)[0]
+        act= random.choice(l)
+
+        while act == action or act == action_1:
+            act= random.choice(l)
+
+        return list(l).index(act)
+
 
 # Create a class for the environment
 class Env():
     def __init__(self, grid_size=6, max_steps=500):
 
         rospy.init_node("atom_dqn_1", anonymous=True)
-        self.velocity_publisher = rospy.Publisher("/atom_2/cmd_vel", Twist, queue_size=10)
-        self.pose_subscriber = rospy.Subscriber( "/atom_2/odom", Odometry, self.pose_callback)
+        self.velocity_publisher = rospy.Publisher("/atom_1/cmd_vel", Twist, queue_size=10)
+        self.pose_subscriber = rospy.Subscriber( "/atom_1/odom", Odometry, self.pose_callback)
 
         self.grid_size = grid_size
         self.max_steps = max_steps
@@ -98,6 +107,15 @@ class Env():
     
     def reset_goal(self):
         self.goal = np.random.randint(0, self.grid_size, size=2)
+        obs = [(2,3), (2,4), (2,5), (5,0), (5,1), (5,2)]
+        flag = True
+        
+        while flag:
+            if tuple(self.goal) in obs:
+                self.goal = np.random.randint(0, self.grid_size, size=2)
+            else:
+                flag = False
+                
         # print('Goal:', self.goal)
         for i in range(self.grid_size):
             for j in range(self.grid_size):
@@ -172,7 +190,7 @@ class Env():
 
             # print 'current_angle_degree: ',current_angle_degree
             if self.angle_difference(math.degrees(self.theta1), goal_angle) < 1:
-                rospy.loginfo("Atom_2 rotated")
+                rospy.loginfo("Atom_1 rotated")
                 break
 
             # if  (current_angle_degree>relative_angle_degree):
@@ -259,11 +277,14 @@ if __name__ == "__main__":
 
     # testing for custom goal and random start point:
     # state = agent.env.reset()
-    state = [0,5]
+    state = [3,5]
     goal = agent.env.reset_goal()
+    goal = [1,5]
     print('Goal:', goal)
 
     flag = True
+
+    osci = state.copy()
 
     for step in range(30):
         print('State:', state)
@@ -274,10 +295,21 @@ if __name__ == "__main__":
         x = state.copy()
 
         if flag:
+            print('State inside FLAG == TRUE :', state)
             action = agent.predict(inputt)
             print("action: ", action)
             next_state, reward, done, terminate = agent.env.step(action, state)
             print("next_state after action: ", next_state)
+
+            # [TO PREVENT OSCILLATION]
+            print("OSCI just b4 comparing in first time: ", osci)
+            while osci[0] == next_state[0] and osci[1] == next_state[1]:
+                print("inputt inside that while: ", inputt)
+                action = agent.predict_random_2(inputt, action,action_1)
+                print("action after random_2 prediction: ", action)
+                print("state passed in step: ", state)
+                next_state, reward, done, terminate = agent.env.step(action, state)
+                print("next_state after random_2 action: ", next_state)
         
         state = x.copy()
         # [LOCAL CONTROLLER]
@@ -297,21 +329,50 @@ if __name__ == "__main__":
         print("NEXT_STATE: ", next_state)
 
         if (response.occ == 0): # [NOT OCCUPIED]
+            print('State occ == 0 :', state)
             flag = True
             print("occu: ", response.occ)
             agent.env.Goto_goal(next_state[0], next_state[1])
+
+            # [TO PREVENT OSCILLATION]
+            print("OSCI just b4 comparing occ==0: ", osci)
+            while osci[0] == next_state[0] and osci[1] == next_state[1]:
+                print("inputt inside that while: ", inputt)
+                action = agent.predict_random_2(inputt, action,action_1)
+                print("action after random_2 prediction: ", action)
+                print("state being passed: ", state)
+                next_state, reward, done, terminate = agent.env.step(action, state)
+                print("next_state after random_2 action: ", next_state)
         
         else: # [IF OCCUPIED]
+            print('State inside occ == 1:', state)
+            x = state.copy()
             agent.env.pos = state.copy()
             print("occu: ", response.occ)
             flag = False
-            agent.predict_random(inputt, action)
-            print("action after random prediction: ", action)
-            next_state, reward, done, terminate = agent.env.step(action, state)
+            print("inputt inside occ == 1")
+            action_1 = agent.predict_random(inputt, action)
+            rem_action = action_1
+            print("action after random prediction: ", action_1)
+            print("state b4 : ", state)
+            next_state, reward, done, terminate = agent.env.step(action_1,state)
             print("next_state after random action: ", next_state)
+
+            state = x.copy()
+            
+            # [TO PREVENT OSCILLATION]
+            print("OSCI just b4 comparing occ == 1: ", osci)
+            while osci[0] == next_state[0] and osci[1] == next_state[1]:
+                print("inputt inside that while: ", inputt)
+                action = agent.predict_random_2(inputt, action,action_1)
+                print("action after random_2 prediction: ", action)
+                next_state, reward, done, terminate = agent.env.step(action, state)
+                print("next_state after random_2 action: ", next_state)
+
             print("\n\n")
             continue
-
+        osci = state.copy()
+        print("osci just b4 ending for: ", osci)
         state = next_state
         print("next state: ", next_state)
         if done:
