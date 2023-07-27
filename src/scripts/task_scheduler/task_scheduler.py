@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
 import time
+from multiprocessing import Process
 from threading import Thread
-import numpy as np
-from tabulate import tabulate
-import multiprocessing as mp
-from fredbots.srv import TaskAssign
-from fredbots.srv import TaskAssignResponse
-from fredbots.srv import TaskAssignRequest
 
+import numpy as np
 import rospy
+from tabulate import tabulate
+
+from fredbots.srv import TaskAssign, TaskAssignRequest, TaskAssignResponse
+
 
 class Robot:
     def __init__(self, robot_id, intital_position):
@@ -17,7 +17,7 @@ class Robot:
         self.current_position = intital_position
         self.is_idle = True
         self.current_task = None
-        self.task_positions = None
+        self.task_positions = [None, None]
 
     def __str__(self):
         return f'Robot {self.robot_id}'
@@ -52,6 +52,7 @@ def euclidean_distance(coords1, coords2):
     x2, y2 = coords2
     return np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
+
 def check_task_status(robots):
     for robot in robots.values():
         # print(robots, robot.current_task)
@@ -67,16 +68,20 @@ def check_task_status(robots):
                 robot.is_idle = True
                 robot.task_positions[1] = None
 
+
 def assign_tasks(robots, packages):
     # loop through all packages
     for package in packages:
         # if package has not been picked up
         if not package.picked_up:
             # calculate the maximum distance between the package and all robots
-            max_distance = max([euclidean_distance(robot.current_position, package.pickup_position) for robot in robots.values()])
+            max_distance = max([euclidean_distance(robot.current_position, package.pickup_position)
+                                for robot in robots.values()])
             # store utility for each robot in package utility dictionary and sort by highest utility first  (descending order)
-            package.utilities = {robot.robot_id: calculate_utility(robot, package, max_distance) for robot in robots.values()}
-            package.utilities = {k: v for k, v in sorted(package.utilities.items(), key=lambda item: item[1], reverse=True)}
+            package.utilities = {robot.robot_id: calculate_utility(
+                robot, package, max_distance) for robot in robots.values()}
+            package.utilities = {k: v for k, v in sorted(
+                package.utilities.items(), key=lambda item: item[1], reverse=True)}
 
     # sort packages by first value in utilities dictionary (highest utility)
     packages.sort(key=lambda x: list(x.utilities.values())[0], reverse=True)
@@ -84,7 +89,8 @@ def assign_tasks(robots, packages):
     # loop through all packages
     for i in range(len(packages)):
         # sort the utilities of the current package by highest utility first (descending order)
-        packages[i].utilities = {k: v for k, v in sorted(packages[i].utilities.items(), key=lambda item: item[1], reverse=True)}
+        packages[i].utilities = {k: v for k, v in sorted(
+            packages[i].utilities.items(), key=lambda item: item[1], reverse=True)}
         # sort packages by first value in utilities dictionary (highest utility)
         packages.sort(key=lambda x: list(x.utilities.values())[0], reverse=True)
         # loop through all robots in the utilities dictionary of the current package
@@ -105,7 +111,7 @@ def assign_tasks(robots, packages):
                 packages[i].utilities[robot_id] = 0
     # return robots
 
- 
+
 def calculate_utility(robot, package, max_distance):
     distance = euclidean_distance(robot.current_position, package.pickup_position)
     utilty = (1 - distance/max_distance) * 0.3 + package.priority * 0.7
@@ -119,13 +125,52 @@ def update_robot_position(robot, new_position):
 def update_robot_battery(robot):
     robot.update_battery()
 
-        
+
+
+
+def fetch_packages():
+    global packages, package_number
+    try:
+        file = open("package.txt", "r")
+        lines = file.readlines()
+        # print(lines)
+        for line in lines:
+            package_number += 1
+            package_info = line.split()
+            package_id = package_number
+            pickup_x = int(package_info[0].strip())
+            pickup_y = int(package_info[1].strip())
+            dropoff_x = int(package_info[2].strip())
+            dropoff_y = int(package_info[3].strip())
+            priority = int(package_info[4].strip())
+
+            packages.append(Package(package_id, (pickup_x, pickup_y), (dropoff_x, dropoff_y), priority))
+
+            # delete the first line in the file
+            lines.pop(0)
+
+        # write the remaining lines back to the file
+        file = open("package.txt", "w")
+        for line in lines:
+            file.write(line)
+
+            
+        file.close()
+    except:
+        pass
+
+    # sort packages by priority
+    packages.sort(key=lambda x: x.priority, reverse=True)
+
+
+
 
 def tasker_server():
     rospy.init_node('tasker_server')
     s = rospy.Service('tasker', TaskAssign, handle_tasker)
     rospy.loginfo("Tasker server ready.")
     rospy.spin()
+
 
 def handle_tasker(req):
     global robots
@@ -135,15 +180,25 @@ def handle_tasker(req):
 
     robots[robot_id-1] = Robot(robot_id, (x_pos, y_pos))
 
+
+    # fetch packages
+    fetch_packages()
+    # print(len(packages))
+
     # task status
     check_task_status(robots)
-    
+
     # assign tasks
     assign_tasks(robots, packages)
-    # pickup_x, pikup_y, destination_x, destination_y = robots[robot_id-1].task_positions
-    pickup_x, pickup_y = robots[robot_id-1].task_positions[0]
-    destination_x, destination_y = robots[robot_id-1].task_positions[1]
-    
+
+    # fetch robot task position
+    try:
+        pickup_x, pickup_y = robots[robot_id-1].task_positions[0]
+        destination_x, destination_y = robots[robot_id-1].task_positions[1]
+    except:
+        pickup_x, pickup_y = None, None
+        destination_x, destination_y = None, None
+
     # Table
 
     package_table = []
@@ -169,32 +224,26 @@ def handle_tasker(req):
             robot.task_positions[1],
         ])
 
-
     print("Package Schedule:")
-    print(tabulate(package_table, headers=["ID", "Assigned", "Picked up", "Delivered", "Priority", "Pickup position", "Dropoff position"]))
+    print(tabulate(package_table, headers=["ID", "Assigned", "Picked up",
+          "Delivered", "Priority", "Pickup position", "Dropoff position"]))
 
     print("Robot Status:")
-    print(tabulate(robot_table, headers=["ID", "Idle", "Current position", "Current Task", "Pickup position", "Dropoff position"]))
+    print(tabulate(robot_table, headers=["ID", "Idle", "Current position",
+          "Current Task", "Pickup position", "Dropoff position"]))
 
     return robot_id, pickup_x, pickup_y, destination_x, destination_y
 
 
-
 def main():
-    global robots, packages
-    packages = [
-        Package(1, (2, 2), (8, 8), 8, 5),
-        Package(2, (5, 5), (3, 1), 4, 10),
-        Package(3, (1, 1), (9, 9), 6, 2),
-        Package(4, (7, 7), (4, 6), 2, 1),
-    ]
-
-    # sort packages by priority
-    packages.sort(key=lambda x: x.priority, reverse=True)
+    global robots, packages, package_number 
+    packages = []
+    package_number = 0
 
     # robots
     robots = dict()
-    tasker_server() 
+
+    tasker_server()
 
 if __name__ == '__main__':
     main()
