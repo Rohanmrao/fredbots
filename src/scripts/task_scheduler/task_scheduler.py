@@ -17,7 +17,7 @@ class Robot:
         self.current_position = intital_position
         self.is_idle = True
         self.current_task = None
-        self.task_positions = [None, None]
+        self.task_positions = None
 
     def __str__(self):
         return f'Robot {self.robot_id}'
@@ -54,7 +54,10 @@ def euclidean_distance(coords1, coords2):
 
 def check_task_status(robots):
     for robot in robots.values():
+        # print(robots, robot.current_task)
         if robot.current_task is not None:
+            # print(robot.robot_id, robot.current_position, robot.task_positions[0]) if robot.robot_id == 1 else None
+            # print(robot.robot_id, robot.current_position == robot.task_positions[0]) if robot.robot_id == 1 else None
             if robot.current_position == robot.task_positions[0]:
                 robot.current_task.picked_up = True
                 robot.task_positions[0] = None
@@ -106,7 +109,6 @@ def assign_tasks(robots, packages):
 def calculate_utility(robot, package, max_distance):
     distance = euclidean_distance(robot.current_position, package.pickup_position)
     utilty = (1 - distance/max_distance) * 0.3 + package.priority * 0.7
-    # print(f'Utility of {robot} for package {package.package_id} is {utilty}')
     return utilty
 
 
@@ -139,7 +141,7 @@ def handle_tasker(req):
     # assign tasks
     assign_tasks(robots, packages)
     # pickup_x, pikup_y, destination_x, destination_y = robots[robot_id-1].task_positions
-    pickup_x, pikup_y = robots[robot_id-1].task_positions[0]
+    pickup_x, pickup_y = robots[robot_id-1].task_positions[0]
     destination_x, destination_y = robots[robot_id-1].task_positions[1]
     
     # Table
@@ -174,8 +176,7 @@ def handle_tasker(req):
     print("Robot Status:")
     print(tabulate(robot_table, headers=["ID", "Idle", "Current position", "Current Task", "Pickup position", "Dropoff position"]))
 
-
-    return robot_id, pickup_x, pikup_y, destination_x, destination_y
+    return robot_id, pickup_x, pickup_y, destination_x, destination_y
 
 
 

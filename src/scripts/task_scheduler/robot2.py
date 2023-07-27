@@ -6,10 +6,10 @@ def robot_client(robot_id, x, y):
     try:
         tasker = rospy.ServiceProxy('tasker', TaskAssign)
         resp = tasker(robot_id, x, y)
-        return resp.robot_id, resp.x, resp.y
+        return resp.robot_id, resp.a, resp.b, resp.x, resp.y
     except rospy.ServiceException as e:
         print("Service call failed: %s" % e)
-        return None, None, None
+        return None, None, None, None, None
 
 if __name__ == "__main__":
     rospy.init_node("robot2_client")
