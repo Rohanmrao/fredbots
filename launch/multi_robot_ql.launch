@@ -198,10 +198,10 @@
   <arg name="rviz_config" default="$(find fredbots)/src/atom/default.rviz" /> -->
 
   <!-- Run the atom_move.py node for each robot -->
-  <node name="atom_move_robot1" pkg="fredbots" type="ql_bot_1.py" output="screen" />
+  <!-- <node name="atom_move_robot1" pkg="fredbots" type="ql_bot_1.py" output="screen" /> -->
   <!-- <node name="atom_move_robot2" pkg="fredbots" type="ql_bot_2.py" output="screen" /> -->
-  <!-- <node name="atom_move_robot3" pkg="fredbots" type="ql_bot_3.py" output="screen" /> -->
-  <!-- <node name="atom_move_robot4" pkg="fredbots" type="ql_bot_4.py" output="screen" /> -->
+  <node name="atom_move_robot3" pkg="fredbots" type="ql_bot_3.py" output="screen" />
+  <node name="atom_move_robot4" pkg="fredbots" type="ql_bot_4.py" output="screen" />
 
   <!-- <node name = "multi_bash" pkg = "fredbots" type="multi_script_run.sh" /> -->
 
