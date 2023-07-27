@@ -89,6 +89,9 @@
   <!-- <arg name="atom_move_script" default="$(find fredbots)/src/scripts/atom_move.py" />
   <arg name="rviz_config" default="$(find fredbots)/src/atom/default.rviz" /> -->
 
+  <!-- Run the cont_server.py node -->
+  <node name="cont_server" pkg="fredbots" type="cont_server.py" output="screen" />
+
   <!-- Run the atom_move.py node for each robot -->
   <node name="atom_move_robot1" pkg="fredbots" type="ql_bot_1.py" output="screen" />
   <node name="atom_move_robot2" pkg="fredbots" type="ql_bot_2.py" output="screen" />
