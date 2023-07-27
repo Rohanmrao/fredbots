@@ -11,7 +11,7 @@
 	<!-- Launch Gazebo World -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
 
-		<arg name="world_name" value="$(find fredbots)/worlds/all_q_world_min_wall.world"/>
+		<arg name="world_name" value="$(find fredbots)/worlds/final_four_q_warehouse.world"/>
 		<arg name="paused" value="false"/>
 		<arg name="use_sim_time" value="true"/>
 		<arg name="gui" value="true"/>
