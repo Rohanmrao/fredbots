@@ -125,7 +125,7 @@ class Env():
     
 
     def step(self, action, state): # As per the paper [REWARD FUNCTION]
-        self.pos = state 
+        # self.pos = state 
         self.steps += 1
         prev_pos = self.pos.copy()
         if action == 0 and self.pos[0] < self.grid_size - 1: # right
@@ -280,6 +280,10 @@ if __name__ == "__main__":
     state = [3,5]
     goal = agent.env.reset_goal()
     goal = [1,5]
+
+    agent.env.goal = np.array(goal)
+
+
     print('Goal:', goal)
 
     flag = True
@@ -295,19 +299,23 @@ if __name__ == "__main__":
         x = state.copy()
 
         if flag:
-            print('State inside FLAG == TRUE :', state)
+            # print('State inside FLAG == TRUE :', state)
             action = agent.predict(inputt)
             print("action: ", action)
+            agent.env.pos = state.copy()
             next_state, reward, done, terminate = agent.env.step(action, state)
             print("next_state after action: ", next_state)
 
+            state = x.copy()
+
             # [TO PREVENT OSCILLATION]
-            print("OSCI just b4 comparing in first time: ", osci)
+            print("OSCI first time: ", osci)
             while osci[0] == next_state[0] and osci[1] == next_state[1]:
                 print("inputt inside that while: ", inputt)
-                action = agent.predict_random_2(inputt, action,action_1)
+                action = agent.predict_random(inputt, action)
                 print("action after random_2 prediction: ", action)
                 print("state passed in step: ", state)
+                agent.env.pos = state.copy()
                 next_state, reward, done, terminate = agent.env.step(action, state)
                 print("next_state after random_2 action: ", next_state)
         
@@ -335,14 +343,15 @@ if __name__ == "__main__":
             agent.env.Goto_goal(next_state[0], next_state[1])
 
             # [TO PREVENT OSCILLATION]
-            print("OSCI just b4 comparing occ==0: ", osci)
-            while osci[0] == next_state[0] and osci[1] == next_state[1]:
-                print("inputt inside that while: ", inputt)
-                action = agent.predict_random_2(inputt, action,action_1)
-                print("action after random_2 prediction: ", action)
-                print("state being passed: ", state)
-                next_state, reward, done, terminate = agent.env.step(action, state)
-                print("next_state after random_2 action: ", next_state)
+            # print("OSCI just b4 comparing occ==0: ", osci)
+            # while osci[0] == next_state[0] and osci[1] == next_state[1]:
+            #     print("inputt inside that while: ", inputt)
+            #     action = agent.predict_random_2(inputt, action,action_1)
+            #     print("action after random_2 prediction: ", action)
+            #     print("state being passed: ", state)
+            #     agent.env.pos = state.copy()
+            #     next_state, reward, done, terminate = agent.env.step(action, state)
+            #     print("next_state after random_2 action: ", next_state)
         
         else: # [IF OCCUPIED]
             print('State inside occ == 1:', state)
@@ -350,11 +359,12 @@ if __name__ == "__main__":
             agent.env.pos = state.copy()
             print("occu: ", response.occ)
             flag = False
-            print("inputt inside occ == 1")
+            print("inputt inside occ == 1", inputt)
             action_1 = agent.predict_random(inputt, action)
             rem_action = action_1
             print("action after random prediction: ", action_1)
             print("state b4 : ", state)
+            agent.env.pos = state.copy()
             next_state, reward, done, terminate = agent.env.step(action_1,state)
             print("next_state after random action: ", next_state)
 
@@ -366,6 +376,7 @@ if __name__ == "__main__":
                 print("inputt inside that while: ", inputt)
                 action = agent.predict_random_2(inputt, action,action_1)
                 print("action after random_2 prediction: ", action)
+                agent.env.pos = state.copy()
                 next_state, reward, done, terminate = agent.env.step(action, state)
                 print("next_state after random_2 action: ", next_state)
 
