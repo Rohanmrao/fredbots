@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 import math
 import rospy
@@ -29,10 +29,11 @@ q_values = np.zeros((env_row, env_col, len(actions)))
 # initialise rewards
 rewards = np.full((env_row, env_col), -100.)
 
-goal_x = 3  # int(input("Please enter goal x coordinate: "))
-goal_y = 3  # int(input("Please enter goal y coordinate: "))
+goal_x = 1 #1 # int(input("Please enter goal x coordinate: "))
+goal_y = 4 #4 # int(input("Please enter goal y coordinate: "))
 
 obstacles = []
+obstacles_new = []
 
 #define training parameters
 epsilon = 0.9 #the percentage of time when we should take the best action (instead of a random action)
@@ -95,7 +96,7 @@ def get_next_location(current_row_index, current_column_index, action_index):
 def reset_atom():
     set_model_state_proxy = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
     set_model_state_msg = ModelState()
-    set_model_state_msg.model_name = 'atom_3'
+    set_model_state_msg.model_name = 'atom'
     set_model_state_msg.pose.position.x = start_pos_x
     set_model_state_msg.pose.position.y = start_pos_y
     set_model_state_msg.pose.position.z = 0
@@ -106,15 +107,20 @@ def reset_atom():
     set_model_state_proxy(set_model_state_msg)
 
 def stop_atom():
-    pub = rospy.Publisher('/atom_3/cmd_vel', Twist, queue_size=1)
+    pub = rospy.Publisher('/atom/cmd_vel', Twist, queue_size=1)
     twist = Twist()
     pub.publish(twist)
 
 #run through 1000 training episodes
 def train():
-  print("ATOM3: Obstacles are at:" + str(obstacles))
+  obstacles = obstacles_new
+  print("Obstacles are at:" + str(obstacles))
+  global rewards
   for obstacle in obstacles:
-    rewards[obstacle[0]][obstacle[1]] = -100 #remove the reward for any actions that lead to the obstacle
+    try:
+        rewards[obstacle[0]][obstacle[1]] = -100 #remove the reward for any actions that lead to the obstacle
+    except IndexError:
+        continue
   for episode in range(1000):
     #get the starting location for this episode
     row_index, column_index = get_starting_location()
@@ -154,10 +160,12 @@ def get_shortest_path(start_row_index, start_column_index, atom_sim=False):
       current_row_index, current_column_index = get_next_location(current_row_index, current_column_index, action_index)
       shortest_path.append([current_row_index, current_column_index])
       global obstacles
-      obstacles = []
+      obstacles = obstacles_new
       if atom_sim:
-        print("Moving to location: ", current_row_index, current_column_index)
+        print("Atom_2 moving to location: ", current_row_index, current_column_index)
         Goto_goal(current_row_index, current_column_index)
+      time.sleep(1)
+      train()
     
     return shortest_path
 
@@ -177,31 +185,116 @@ def pose_callback(data):
     y1 = data.pose.pose.position.y
     roll, pitch, theta1 = euler_from_quaternion([data.pose.pose.orientation.x, data.pose.pose.orientation.y, data.pose.pose.orientation.z, data.pose.pose.orientation.w])
 
+def angle_difference(angle1, angle2):
+    
+    diff = abs(angle1 - angle2) % 360
+    return min(diff, 360 - diff)
+
+def rotate (angular_speed_degree, relative_angle_degree, clockwise, goal_angle):
+    
+    velocity_message = Twist()
+    velocity_message.linear.x=0
+    velocity_message.linear.y=0
+    velocity_message.linear.z=0
+    velocity_message.angular.x=0
+    velocity_message.angular.y=0
+    velocity_message.angular.z=0
+
+    angular_speed=math.radians(abs(angular_speed_degree))
+
+    if (clockwise):
+        velocity_message.angular.z =-abs(angular_speed)
+    else:
+        velocity_message.angular.z =abs(angular_speed)
+
+    angle_moved = 0.0
+    loop_rate = rospy.Rate(10) # we publish the velocity at 10 Hz (10 times a second)    
+    # cmd_vel_topic='/cmd_vel_mux/input/teleop'
+    # pub = rospy.Publisher(cmd_vel_topic, Twist, queue_size=10)
+
+    t0 = rospy.Time.now().to_sec()
+
+    while True :
+        # rospy.loginfo("Turtlesim rotates")
+        pub.publish(velocity_message)
+
+        t1 = rospy.Time.now().to_sec()
+        current_angle_degree = (t1-t0)*angular_speed_degree
+        loop_rate.sleep()
+
+        # print 'current_angle_degree: ',current_angle_degree
+        if angle_difference(math.degrees(theta1), goal_angle) < 1:
+            rospy.loginfo("Atom_2 rotated")
+            break
+
+        # if  (current_angle_degree>relative_angle_degree):
+        #     rospy.loginfo("Atom_2 rotated")
+        #     break
+
+    #finally, stop the robot when the distance is moved
+    velocity_message.angular.z =0
+    pub.publish(velocity_message)
+
 def Goto_goal(x_goal, y_goal):
     global x1,y1,theta1
     msg = Twist()
 
-
-    rate = rospy.Rate(10)
-
     distance = abs(math.sqrt(((x_goal-x1)**2)+((y_goal-y1)**2)))
 
-    ang_dist = math.atan2((y_goal-y1),(x_goal-x1))
-    while (abs(ang_dist-theta1)>0.05):
-        Phi = 4
-        ang_dist = math.atan2((y_goal-y1),(x_goal-x1))
+    # ang_dist = math.atan2((y_goal-y1),(x_goal-x1))
+    # while (abs(ang_dist-theta1)>0.01):
+    #     Phi = 4
+    #     ang_dist = math.atan2((y_goal-y1),(x_goal-x1))
 
-        ang_speed = Phi*(ang_dist-theta1)
+    #     ang_speed = Phi*(ang_dist-theta1)
 
-        msg.linear.x = 0
-        msg.angular.z = ang_speed
+    #     msg.linear.x = 0
+    #     msg.angular.z = ang_speed
 
-        pub.publish(msg)
+    #     pub.publish(msg)
+
+    angle_t = math.atan2((y_goal-y1),(x_goal-x1)) # -pi to pi
+    angle_t = math.degrees(angle_t) # -180 to 180
+
+    # if angle_t < 0:
+    #     angle_t = 360 + angle_t
+
+    theta1_deg = math.degrees(theta1) # -180 to 180
+    # angle = offset between current and goal angle ranging from -180 to 180
+    if angle_t < 0:
+        angle_t_b = 360 + angle_t # 180 to 360
+    else:
+        angle_t_b = angle_t # 0 to 180
+    if theta1_deg < 0:
+        theta1_deg_b = 360 + theta1_deg # 180 to 360
+    else:
+        theta1_deg_b = theta1_deg # 0 to 180
+
+    angle = angle_t_b - theta1_deg_b # -360 to 360
+       
+
+
+    print(theta1_deg, angle_t, angle)
+    phi = 1
+    if -180 < angle < 0:
+        rotate(min(abs(angle*phi),30), abs(angle), True, angle_t)
+    elif -360 < angle < -180:
+        angle = 360 - abs(angle)
+        rotate(min(abs(angle*phi),30), abs(angle), False, angle_t)
+    elif 180 < angle < 360:
+        angle = 360 - angle
+        rotate(min(abs(angle*phi),30), angle, True, angle_t) 
+    else:
+        rotate(min(abs(angle*phi),30), angle, False, angle_t)
+    
+    # theta1_deg = math.degrees(theta1)
+    # angle = angle - theta1_deg
+    # rotate(10, angle, True)
 
     # rospy.sleep(2)
 
     while (distance>0.15):        
-        Beta = 0.75
+        Beta = 0.5
         distance = abs(math.sqrt(((x_goal-x1)**2)+((y_goal-y1)**2)))
 
         speed = distance*Beta
@@ -240,6 +333,12 @@ def update_obst_coord(range_data, theta_min, theta_max, num_samples):
     # Get the x and y coordinates of each sample
     obst_coord = [(xs[i]+l_x, ys[i]+l_y) for i in range(num_samples)]
 
+    for (i,j) in obst_coord:
+      if i > env_col - 1 or i < 0 or j > env_row - 1 or j < 0:
+          obst_coord.remove((i,j))
+
+    return obst_coord
+
 def approx_new_coord(coord):
     flag = 0
     if not coord:
@@ -250,20 +349,20 @@ def approx_new_coord(coord):
         else:
             i_r = int(round(i,0))
             j_r = int(round(j,0))
-            if [i_r,j_r] in obstacles:
+            if [i_r,j_r] in obstacles_new:
                 continue
             else:
-                obstacles.append([i_r,j_r])
+                obstacles_new.append([i_r,j_r])
                 flag = 1
     if flag == 1:
         train()
 
-rospy.init_node("Shortest_path_atom_3")
-pub = rospy.Publisher("/atom_3/cmd_vel",Twist, queue_size =10)
-sub = rospy.Subscriber("/atom_3/odom", Odometry, pose_callback)
-las = rospy.Subscriber("/scan_3", LaserScan, laser_callback)
+rospy.init_node("Shortest_path_atom_2")
+pub = rospy.Publisher("/atom_2/cmd_vel",Twist, queue_size =10)
+sub = rospy.Subscriber("/atom_2/odom", Odometry, pose_callback)
+las = rospy.Subscriber("/scan_2", LaserScan, laser_callback)
 
-time.sleep(1)
+time.sleep(5)
 
 start_pos_x = int(round(x1,0))
 start_pos_y = int(round(y1,0))
