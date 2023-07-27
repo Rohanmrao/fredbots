@@ -63,14 +63,30 @@ priority_slider.bind("<ButtonRelease-1>", update_priority_value_label)
 
 
 def save_values():
-    with open("package.txt", "a") as f:
-        # f.write(f"{package_id.get()} ")
-        f.write(f"{pickup_x.get()} ")
-        f.write(f"{pickup_y.get()} ")
-        f.write(f"{destination_x.get()} ")
-        f.write(f"{destination_y.get()} ")
-        f.write(f"{int(priority_slider.get())}\n")
-    print("Package saved to file.")
+    if not pickup_x.get() or not pickup_y.get() or not destination_x.get() or not destination_y.get() or not priority_slider.get():
+        # show an error message if any of the fields are empty in a new window and place it over the root window
+        error_window = tk.Toplevel(root)
+        error_window.title("Error")
+        error_label = ttk.Label(error_window, text="Please fill out all fields.")
+
+        def close_error_window():
+            error_window.destroy()
+
+        close_error_button = ttk.Button(error_window, text="Close", command=close_error_window)
+        error_label.pack(padx=10, pady=10)
+        close_error_button.pack(padx=10, pady=10)
+        error_window.transient(root)
+        error_window.grab_set()
+        root.wait_window(error_window)
+    else:
+        with open("package.txt", "a") as f:
+            # f.write(f"{package_id.get()} ")
+            f.write(f"{pickup_x.get()} ")
+            f.write(f"{pickup_y.get()} ")
+            f.write(f"{destination_x.get()} ")
+            f.write(f"{destination_y.get()} ")
+            f.write(f"{int(priority_slider.get())}\n")
+        print("Package saved to file.")
     # root.destroy()  # destroy the root window to end the program
 
 
