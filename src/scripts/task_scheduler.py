@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-import time
-from multiprocessing import Process
-from threading import Thread
+import os
 
 import numpy as np
 import rospy
@@ -117,8 +115,9 @@ def calculate_utility(robot, package, max_distance):
 
 def fetch_packages():
     global packages, package_number
+    path = os.path.dirname(os.path.abspath(__file__))
     try:
-        file = open("/home/pradeep/catkin_ws/src/fredbots/src/scripts/package.txt", "r")
+        file = open(path + "/packages/package.txt", "r")
         lines = file.readlines()
         for line in lines:
             package_number += 1
@@ -136,10 +135,12 @@ def fetch_packages():
             # lines.pop(0)
 
         # write the remaining lines back to the file
-        file = open("/home/pradeep/catkin_ws/src/fredbots/src/scripts/package.txt", "w")   
+        file = open(path + "/packages/package.txt", "w")   
         file.close()
     except FileNotFoundError:
-        print("File not found.")
+        # write the remaining lines back to the file
+        file = open(path + "/packages/package.txt", "w")   
+        file.close()
     except:
         print("Error")
 
@@ -213,6 +214,7 @@ def handle_tasker(req):
     
     
     if not (pickup_x == -1 and pickup_y == -1 and destination_x == -1 and destination_y == -1) or first_time:
+        os.system('clear')
         print("Package Schedule:")
         print(tabulate(package_table, headers=["ID", "Assigned", "Picked up",
             "Delivered", "Priority", "Pickup position", "Dropoff position"]))

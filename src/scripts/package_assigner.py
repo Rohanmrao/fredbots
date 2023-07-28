@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import os
 
 # Create the tkinter window
 root = tk.Tk()
@@ -100,7 +101,9 @@ def save_values():
         error_window.grab_set()
         root.wait_window(error_window)
     else:
-        with open("package.txt", "a") as f:
+        # get the path of the current file
+        path = os.path.dirname(os.path.abspath(__file__))
+        with open(path + "/packages/package.txt", "a") as f:
             # f.write(f"{package_id.get()} ")
             f.write(f"{pickup_x.get()} ")
             f.write(f"{pickup_y.get()} ")

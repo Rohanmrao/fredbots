@@ -96,7 +96,7 @@
   <node name="task_scheduler" pkg="fredbots" type="task_scheduler.py" output="screen" />
 
   <!-- Run the atom_move.py node for each robot -->
-  <node name="atom_move_robot1" pkg="fredbots" type="ql_bot_1.py" />
+  <node name="atom_move_robot1" pkg="fredbots" type="ql_bot_1.py" output="screen" />
   <node name="atom_move_robot2" pkg="fredbots" type="ql_bot_2.py" />
   <node name="atom_move_robot3" pkg="fredbots" type="ql_bot_3.py" />
   <node name="atom_move_robot4" pkg="fredbots" type="ql_bot_4.py" />

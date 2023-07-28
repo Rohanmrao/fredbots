@@ -4,16 +4,10 @@ import math
 import rospy
 import numpy as np
 import time
+import os
 
-from turtlesim.srv import TeleportAbsolute
-from std_srvs.srv import Empty
-from turtlesim.msg import Pose
 from geometry_msgs.msg import Twist
-from turtlesim.srv import Spawn
 from nav_msgs.msg import Odometry
-from gazebo_msgs.srv import SetModelState
-from gazebo_msgs.msg import ModelState
-from sensor_msgs.msg import LaserScan
 
 from tf.transformations import euler_from_quaternion
 
@@ -185,7 +179,7 @@ def train(goal_x, goal_y, obstacles=obstacles):
             new_q_value = old_q_value + (learning_rate * temporal_difference)
             q_values[old_row_index, old_column_index,
                      action_index] = new_q_value
-    print('Training complete!')
+    # print('Training complete!')
 
 # Define a function that will get the shortest path between any location within the warehouse that
 # the robot is allowed to travel and the item packaging location.
@@ -268,8 +262,10 @@ def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_
 
         response = add_two_ints(request)
         
+        # get the path of the current file
+        path = os.path.dirname(os.path.abspath(__file__))
         # Write the shortest path to a text file
-        file = open("shortest_path_1.txt", "a")
+        file = open(path + "/results/shortest_path_1.txt", "a")
         file.write(str(shortest_path))
         file.write("\n")
         file.close()
