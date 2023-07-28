@@ -19,6 +19,7 @@ from tf.transformations import euler_from_quaternion
 
 from fredbots.srv import AddTwoInts
 from fredbots.srv import AddTwoIntsRequest
+from fredbots.srv import TaskAssign
 
 env_row = 21
 env_col = 21
@@ -224,9 +225,9 @@ def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_
 
             if (response.occ == 0): # [NOT OCCUPIED]
                 ql_control = True
-                print("occu: ", response.occ)
+                # print("occu: ", response.occ)
                 if atom_sim:
-                    print("Atom_1 to location: ", next_row_index, next_column_index)
+                    # print("Atom_1 to location: ", next_row_index, next_column_index)
                     Goto_goal(next_row_index, next_column_index)
 
             else:
@@ -313,7 +314,7 @@ def rotate(angular_speed_degree, relative_angle_degree, clockwise, goal_angle):
 
         # print 'current_angle_degree: ',current_angle_degree
         if angle_difference(math.degrees(theta1), goal_angle) < 1:
-            rospy.loginfo("Atom_1 rotated")
+            # rospy.loginfo("Atom_1 rotated")
             break
 
     # finally, stop the robot when the distance is moved
@@ -346,7 +347,7 @@ def Goto_goal(x_goal, y_goal):
 
     angle = angle_t_b - theta1_deg_b  # -360 to 360
 
-    print(theta1_deg, angle_t, angle)
+    # print(theta1_deg, angle_t, angle)
     phi = 1
     if -180 < angle < 0:
         rotate(min(abs(angle*phi), 30), abs(angle), True, angle_t)
@@ -423,6 +424,16 @@ def Goto_goal(x_goal, y_goal):
 #     if flag == 1:
 #         train()
 
+def task_assigner(robot_id, x, y):
+    rospy.wait_for_service('tasker')
+    try:
+        tasker = rospy.ServiceProxy('tasker', TaskAssign)
+        resp = tasker(robot_id, x, y)
+        return resp.robot_id, resp.a, resp.b, resp.x, resp.y
+    except rospy.ServiceException as e:
+        print("Service call failed: %s" % e)
+        return None, None, None, None, None
+
 
 def main():
     global pub, sub
@@ -433,15 +444,29 @@ def main():
 
     time.sleep(5)
 
-    goal = [[20,20],[15,7]]
-    for i in goal:
-        global rewards
-        rewards = construct_reward_matrix(i[0], i[1])
-        train(i[0], i[1])
-        start_x, start_y = int(round(x1, 0)), int(round(y1, 0))
-        print(f"Starting from {start_x, start_y}")
-        get_shortest_path(start_x, start_y, i[0], i[1], atom_sim=True)
-        print("Goal reached")
+    while not rospy.is_shutdown():
+
+        robot_id_result, pickup_x, pickup_y, destination_x, destination_y = task_assigner(1, int(round(x1, 0)), int(round(y1, 0)))
+        
+
+        if robot_id_result == 1 and pickup_x != -1 and pickup_y != -1 and destination_x != -1 and destination_y != -1:
+            print(f"Atom_1 assigned {pickup_x, pickup_y}, {destination_x, destination_y}")
+            global rewards
+            rewards = construct_reward_matrix(pickup_x, pickup_y)
+            train(pickup_x, pickup_y)
+            start_x, start_y = int(round(x1, 0)), int(round(y1, 0))
+            print(f"Starting from {start_x, start_y}")
+            get_shortest_path(start_x, start_y, pickup_x, pickup_y, atom_sim=True)
+            print("Picked up")
+            _, _, _, destination_x, destination_y = task_assigner(1, int(round(x1, 0)), int(round(y1, 0)))
+            rewards = construct_reward_matrix(destination_x, destination_y)
+            train(destination_x, destination_y)
+            start_x, start_y = int(round(x1, 0)), int(round(y1, 0))
+            print(f"Starting from {start_x, start_y}")
+            get_shortest_path(start_x, start_y, destination_x, destination_y, atom_sim=True)
+            print("Dropped off")
+
+        time.sleep(1)
 
     time.sleep(5)
 
