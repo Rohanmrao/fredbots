@@ -1,8 +1,8 @@
-int64 robot_id
+string robot_id
 int64 x
 int64 y
 ---
-int64 robot_id
+string robot_id
 int64 a
 int64 b
 int64 x

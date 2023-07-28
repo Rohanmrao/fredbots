@@ -465,10 +465,10 @@ def main():
 
     while not rospy.is_shutdown():
 
-        robot_id_result, pickup_x, pickup_y, destination_x, destination_y = task_assigner(2, int(round(x1, 0)), int(round(y1, 0)))
+        robot_id_result, pickup_x, pickup_y, destination_x, destination_y = task_assigner("Orange", int(round(x1, 0)), int(round(y1, 0)))
         
 
-        if robot_id_result == 2 and pickup_x != -1 and pickup_y != -1 and destination_x != -1 and destination_y != -1:
+        if robot_id_result == "Orange" and pickup_x != -1 and pickup_y != -1 and destination_x != -1 and destination_y != -1:
             print(f"Atom_2 assigned {pickup_x, pickup_y}, {destination_x, destination_y}")
             global rewards
             rewards = construct_reward_matrix(pickup_x, pickup_y)
@@ -477,7 +477,7 @@ def main():
             print(f"Starting from {start_x, start_y}")
             get_shortest_path(start_x, start_y, pickup_x, pickup_y, atom_sim=True)
             print("Picked up")
-            _, _, _, destination_x, destination_y = task_assigner(2, int(round(x1, 0)), int(round(y1, 0)))
+            _, _, _, destination_x, destination_y = task_assigner("Orange", int(round(x1, 0)), int(round(y1, 0)))
             rewards = construct_reward_matrix(destination_x, destination_y)
             train(destination_x, destination_y)
             start_x, start_y = int(round(x1, 0)), int(round(y1, 0))
