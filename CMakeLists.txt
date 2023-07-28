@@ -59,7 +59,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   TaskAssign.srv
-  AddTwoInts.srv
+  LocalController.srv
   # Service2.srv
 )
 

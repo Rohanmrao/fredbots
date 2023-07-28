@@ -8,11 +8,11 @@ import os
 
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-"Red"
+
 from tf.transformations import euler_from_quaternion
 
-from fredbots.srv import AddTwoInts
-from fredbots.srv import AddTwoIntsRequest
+from fredbots.srv import LocalController
+from fredbots.srv import LocalControllerRequest
 from fredbots.srv import TaskAssign
 
 env_row = 21
@@ -198,9 +198,9 @@ def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_
         while not is_final_state(current_row_index, current_column_index, goal_x, goal_y):
 
             rospy.wait_for_service('add_two_ints')
-            add_two_ints = rospy.ServiceProxy('add_two_ints', AddTwoInts)
+            add_two_ints = rospy.ServiceProxy('add_two_ints', LocalController)
 
-            request = AddTwoIntsRequest()
+            request = LocalControllerRequest()
             request.cur_x = current_row_index
             request.cur_y = current_column_index
 
@@ -252,7 +252,7 @@ def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_
 
         # Unlock the last location
 
-        request = AddTwoIntsRequest()
+        request = LocalControllerRequest()
         request.cur_x = current_row_index
         request.cur_y = current_column_index
         request.next_x = current_row_index
