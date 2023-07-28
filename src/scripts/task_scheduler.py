@@ -108,7 +108,7 @@ def assign_tasks(robots, packages):
 
 def calculate_utility(robot, package, max_distance):
     distance = euclidean_distance(robot.current_position, package.pickup_position)
-    utilty = (1 - distance/max_distance) * 0.2 + package.priority * 0.8
+    utilty = (1 - distance/max_distance) * 0.2 + (11-package.priority) * 0.8
     return utilty
 
 

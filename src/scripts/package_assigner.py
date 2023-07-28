@@ -120,7 +120,7 @@ def save_values():
         # show a success message in a new window and place it over the root window
         success_window = tk.Toplevel(root)
         success_window.title("Success")
-        success_label = ttk.Label(success_window, text="Package saved to file.")
+        success_label = ttk.Label(success_window, text="Package deployed.")
         success_label.pack(padx=10, pady=10)
         success_window.transient(root)
         success_window.grab_set()
