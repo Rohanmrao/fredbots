@@ -197,8 +197,8 @@ def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_
         # continue moving along the path until we reach the goal (i.e., the item packaging location)
         while not is_final_state(current_row_index, current_column_index, goal_x, goal_y):
 
-            rospy.wait_for_service('add_two_ints')
-            add_two_ints = rospy.ServiceProxy('add_two_ints', LocalController)
+            rospy.wait_for_service('local_controller')
+            local_controller = rospy.ServiceProxy('local_controller', LocalController)
 
             request = LocalControllerRequest()
             request.cur_x = current_row_index
@@ -222,7 +222,7 @@ def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_
                 request.prev_x = -1
                 request.prev_y = -1
             
-            response = add_two_ints(request)
+            response = local_controller(request)
 
             if (response.occ == 0): # [NOT OCCUPIED]
                 ql_control = True
@@ -260,7 +260,7 @@ def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_
         request.prev_x = shortest_path[-2][0]
         request.prev_y = shortest_path[-2][1]
 
-        response = add_two_ints(request)
+        response = local_controller(request)
         
         # get the path of the current file
         path = os.path.dirname(os.path.abspath(__file__))
