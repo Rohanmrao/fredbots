@@ -89,7 +89,10 @@ def save_values():
         # show an error message if any of the fields are empty in a new window and place it over the root window
         error_window = tk.Toplevel(root)
         error_window.title("Error")
-        error_label = ttk.Label(error_window, text="Please choose a different coordinate.")
+        if [int(pickup_x.get()), int(pickup_y.get())] in obstacles:
+            error_label = ttk.Label(error_window, text="Please choose a different coordinate for pickup. This is an obstacle.")
+        else:
+            error_label = ttk.Label(error_window, text="Please choose a different coordinate for destination. This is an obstacle.")
 
         def close_error_window():
             error_window.destroy()
@@ -104,13 +107,26 @@ def save_values():
         # get the path of the current file
         path = os.path.dirname(os.path.abspath(__file__))
         with open(path + "/packages/package.txt", "a") as f:
+            if not priority_slider.get():
+                priority_slider.set(1)
             # f.write(f"{package_id.get()} ")
             f.write(f"{pickup_x.get()} ")
             f.write(f"{pickup_y.get()} ")
             f.write(f"{destination_x.get()} ")
             f.write(f"{destination_y.get()} ")
             f.write(f"{int(priority_slider.get())}\n")
-        print("Package saved to file.")
+        # print("Package saved to file.")
+
+        # show a success message in a new window and place it over the root window
+        success_window = tk.Toplevel(root)
+        success_window.title("Success")
+        success_label = ttk.Label(success_window, text="Package saved to file.")
+        success_label.pack(padx=10, pady=10)
+        success_window.transient(root)
+        success_window.grab_set()
+        okay_button = ttk.Button(success_window, text="Okay", command=success_window.destroy)
+        okay_button.pack(padx=10, pady=10)
+        root.wait_window(success_window)
     # root.destroy()  # destroy the root window to end the program
 
 
