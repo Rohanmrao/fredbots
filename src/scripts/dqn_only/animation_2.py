@@ -38,7 +38,7 @@ def update(frame):
     # Plot the paths for each point
     for key, p in path.items():
         x, y = zip(*p)
-        plt.plot(y, x, color='blue', linestyle='-', linewidth=2, alpha=0.7)
+        plt.plot(x, y, color='blue', linestyle='-', linewidth=2, alpha=0.7)
 
     plt.title(f"Frame: {frame}")
 
@@ -47,12 +47,19 @@ def update(frame):
 # Create the animation
 fig = plt.figure()
 
-# invert x and y axis
-plt.gca().invert_yaxis()
+# flip y axis to match matrix
+plt.gca().invert_xaxis()
 
 
-ani = animation.FuncAnimation(fig, update, frames=100, interval=200)
+
+
+
+
+# ani = animation.FuncAnimation(fig, update, frames=100, interval=200)
+update(frame=0)
 plt.show()
+
+
 
 
 
