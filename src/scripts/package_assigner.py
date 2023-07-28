@@ -63,11 +63,32 @@ priority_slider.bind("<ButtonRelease-1>", update_priority_value_label)
 
 
 def save_values():
-    if not pickup_x.get() or not pickup_y.get() or not destination_x.get() or not destination_y.get():
+    obstacles = [[3, 0], [3, 1], [3, 2], [3, 3], [3, 4], [3, 5], [3, 6], [3, 7], [3, 8], [3, 9],
+             [8, 9], [8, 10], [8, 11], [8, 12], [8, 13], [8, 14], [
+                 8, 15], [8, 16], [8, 17], [8, 18], [8, 19], [8, 20],
+             [14, 0], [14, 1], [14, 2], [14, 3], [14, 4], [14, 5], [14, 6], [14, 7], [14, 8], [14, 9]]
+
+    if "Choose Coordinates" in [pickup_x.get(), pickup_y.get(), destination_x.get(), destination_y.get()]:
         # show an error message if any of the fields are empty in a new window and place it over the root window
         error_window = tk.Toplevel(root)
         error_window.title("Error")
         error_label = ttk.Label(error_window, text="Please fill out all fields.")
+
+        def close_error_window():
+            error_window.destroy()
+
+        close_error_button = ttk.Button(error_window, text="Close", command=close_error_window)
+        error_label.pack(padx=10, pady=10)
+        close_error_button.pack(padx=10, pady=10)
+        error_window.transient(root)
+        error_window.grab_set()
+        root.wait_window(error_window)
+    
+    elif [int(pickup_x.get()), int(pickup_y.get())] in obstacles or [int(destination_x.get()), int(destination_y.get())] in obstacles:
+        # show an error message if any of the fields are empty in a new window and place it over the root window
+        error_window = tk.Toplevel(root)
+        error_window.title("Error")
+        error_label = ttk.Label(error_window, text="Please choose a different coordinate.")
 
         def close_error_window():
             error_window.destroy()
