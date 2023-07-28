@@ -7,6 +7,9 @@ from fredbots.srv import AddTwoIntsResponse
 
 
 def handle_add_two_ints(req):
+    prev_x = req.prev_x
+    prev_y = req.prev_y
+
     cur_x = req.cur_x
     cur_y = req.cur_y
 
@@ -19,23 +22,25 @@ def handle_add_two_ints(req):
     
     for i in range(21):
         for j in range(21):
+            if prev_x != -1 and prev_y != -1:
+                    grid[prev_x][prev_y] = 0
             if grid[next_x][next_y] == 1:
                 # [TO PRINT]
-                # for i in range(21):
-                #     for j in range(21):
-                #         print(grid[i][j], end='\t')
-                #     print('\n')
-                # print("\n\n")
+                for i in range(21):
+                    for j in range(21):
+                        print(grid[i][j], end='\t')
+                    print('\n')
+                print("\n\n")
                 return AddTwoIntsResponse(1)
             else:
-                grid[cur_x][cur_y] = 0
+                # grid[cur_x][cur_y] = 0
                 grid[next_x][next_y] = 1
                 # [TO PRINT]
-                # for i in range(21):
-                #     for j in range(21):
-                #         print(grid[i][j], end='\t')
-                #     print('\n')
-                # print("\n\n")
+                for i in range(21):
+                    for j in range(21):
+                        print(grid[i][j], end='\t')
+                    print('\n')
+                print("\n\n")
                 return AddTwoIntsResponse(0)
     
 

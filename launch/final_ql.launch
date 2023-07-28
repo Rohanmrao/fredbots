@@ -58,7 +58,7 @@
   </group>
 
   <!-- BEGIN ROBOT 3-->
-  <!-- <param name="robot_description_Robot3" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_3/atom.xacro'" />
+  <param name="robot_description_Robot3" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_3/atom.xacro'" />
 
   <group ns="robot3">
 
@@ -69,10 +69,10 @@
 
     </include>
 
-  </group> -->
+  </group>
 
   <!-- BEGIN ROBOT 4-->
-  <!-- <param name="robot_description_Robot4" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_4/atom.xacro'" />
+  <param name="robot_description_Robot4" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_4/atom.xacro'" />
 
   <group ns="robot4">
 
@@ -83,7 +83,7 @@
 
     </include>
 
-  </group> -->
+  </group>
 
     <!-- Import the fredbots package -->
   <!-- <arg name="atom_move_script" default="$(find fredbots)/src/scripts/atom_move.py" />
@@ -97,9 +97,9 @@
 
   <!-- Run the atom_move.py node for each robot -->
   <node name="atom_move_robot1" pkg="fredbots" type="ql_bot_1.py" />
-  <!-- <node name="atom_move_robot2" pkg="fredbots" type="ql_bot_2.py" output="screen" /> -->
-  <!-- <node name="atom_move_robot3" pkg="fredbots" type="atom_3_move.py" output="screen" />
-  <node name="atom_move_robot4" pkg="fredbots" type="atom_4_move.py" output="screen" /> -->
+  <node name="atom_move_robot2" pkg="fredbots" type="ql_bot_2.py" />
+  <node name="atom_move_robot3" pkg="fredbots" type="ql_bot_3.py" />
+  <node name="atom_move_robot4" pkg="fredbots" type="ql_bot_4.py" />
 
   <!-- Launch RViz with the provided configuration -->
   <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" /> -->

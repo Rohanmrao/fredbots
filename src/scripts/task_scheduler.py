@@ -51,6 +51,7 @@ def euclidean_distance(coords1, coords2):
 
 
 def check_task_status(robots):
+    global first_time
     for robot in robots.values():
         # print(robots, robot.current_task)
         if robot.current_task is not None:
@@ -58,8 +59,9 @@ def check_task_status(robots):
             # print(robot.robot_id, robot.current_position == robot.task_positions[0]) if robot.robot_id == 1 else None
             if robot.current_position == robot.task_positions[0]:
                 robot.current_task.picked_up = True
-            if robot.current_position == robot.task_positions[1]:
+            if robot.current_position == robot.task_positions[1] and robot.current_task.picked_up:
                 robot.current_task.delivered = True
+                first_time = True
                 robot.current_task = None
                 robot.is_idle = True
                 robot.task_positions[0] = None
