@@ -1,0 +1,9 @@
+string robot_id
+int64 x
+int64 y
+---
+string robot_id
+int64 a
+int64 b
+int64 x
+int64 y

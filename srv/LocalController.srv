@@ -1,0 +1,13 @@
+# Definition of the service
+int64 prev_x
+int64 prev_y
+
+int64 cur_x
+int64 cur_y
+
+int64 next_x
+int64 next_y
+
+---
+# Response of the service
+int64 occ

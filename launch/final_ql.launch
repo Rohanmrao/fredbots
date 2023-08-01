@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+	<!-- Robot pose -->
+	<arg name="x" default="0"/>
+	<arg name="y" default="0"/>
+	<arg name="z" default="0"/>
+	<arg name="roll" default="0"/>
+	<arg name="pitch" default="0"/>
+	<arg name="yaw" default="0"/>
+	
+
+	<!-- Launch Gazebo World -->
+	<include file="$(find gazebo_ros)/launch/empty_world.launch">
+
+		<arg name="world_name" value="$(find fredbots)/worlds/final_four_q_warehouse.world"/>
+		<arg name="paused" value="false"/>
+		<arg name="use_sim_time" value="true"/>
+		<arg name="gui" value="true"/>
+		<arg name="headless" value="false"/>
+		<arg name="debug" value="false"/>
+    	</include>
+
+
+  <!-- <node name="atom_tf_broadcaster_wo" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 world odom" /> -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find fredbots)/src/atom/urdf/atom.xacro'" />
+
+
+  <!-- BEGIN ROBOT 1-->
+  <param name="robot_description_Robot1" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_1/atom.xacro'" />
+
+  <group ns="robot1">
+
+    <param name="tf_prefix" value="robot1_tf" />
+
+    <include file="$(find fredbots)/launch/one_robot.launch" >
+      <arg name="init_pose" value="-x 1 -y 1 -z 0" />
+      <arg name="robot_name"  value="Robot1" />
+
+    </include>
+
+    <node name="atom1_tf_broadcaster_wrf" pkg="tf2_ros" type="static_transform_publisher"  args="0 0 0 0 0 0 odom robot1_tf/robot_footprint" />
+
+  </group>
+
+  <!-- BEGIN ROBOT 2 -->
+	<param name="robot_description_Robot2" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_2/atom.xacro'" />
+
+  <group ns="robot2">
+
+    <param name="tf_prefix" value="robot2_tf" />
+    <include file="$(find fredbots)/launch/one_robot.launch" >
+      <arg name="init_pose" value="-x 9 -y 1 -z 0 -Y 3.14" />
+      <arg name="robot_name"  value="Robot2" />
+
+    </include>
+
+  </group>
+
+  <!-- BEGIN ROBOT 3-->
+  <param name="robot_description_Robot3" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_3/atom.xacro'" />
+
+  <group ns="robot3">
+
+    <param name="tf_prefix" value="robot3_tf" />
+    <include file="$(find fredbots)/launch/one_robot.launch" >
+      <arg name="init_pose" value="-x -1 -y 1 -z 0" />
+      <arg name="robot_name"  value="Robot3" />
+
+    </include>
+
+  </group>
+
+  <!-- BEGIN ROBOT 4-->
+  <param name="robot_description_Robot4" command="$(find xacro)/xacro '$(find fredbots)/src/atom/multi_urdf/bot_4/atom.xacro'" />
+
+  <group ns="robot4">
+
+    <param name="tf_prefix" value="robot4_tf" />
+    <include file="$(find fredbots)/launch/one_robot.launch" >
+      <arg name="init_pose" value="-x -2 -y 1 -z 0" />
+      <arg name="robot_name"  value="Robot4" />
+
+    </include>
+
+  </group>
+
+    <!-- Import the fredbots package -->
+  <!-- <arg name="atom_move_script" default="$(find fredbots)/src/scripts/atom_move.py" />
+  <arg name="rviz_config" default="$(find fredbots)/src/atom/default.rviz" /> -->
+
+  <!-- Run the cont_server.py node -->
+  <node name="cont_server" pkg="fredbots" type="cont_server.py" />
+
+  <!-- Run the task_scheduler.py node -->
+  <node name="task_scheduler" pkg="fredbots" type="task_scheduler.py" output="screen" />
+
+  <!-- Run the atom_move.py node for each robot -->
+  <node name="atom_move_robot1" pkg="fredbots" type="ql_bot_1.py" />
+  <node name="atom_move_robot2" pkg="fredbots" type="ql_bot_2.py" />
+  <node name="atom_move_robot3" pkg="fredbots" type="ql_bot_3.py" />
+  <node name="atom_move_robot4" pkg="fredbots" type="ql_bot_4.py" />
+
+  <!-- Launch RViz with the provided configuration -->
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_config)" /> -->
+
+</launch>
