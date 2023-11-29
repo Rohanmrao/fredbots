@@ -5,6 +5,7 @@ import rospy
 import numpy as np
 import time
 import os
+
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 
@@ -244,7 +245,7 @@ def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_
 
             shortest_path.append([current_row_index, current_column_index])
             # if atom_sim:
-            #     print("Atom_2 moving to location: ",
+            #     print("Atom_3 moving to location: ",
             #           current_row_index, current_column_index)
             #     Goto_goal(current_row_index, current_column_index)
             # time.sleep(1)
@@ -264,10 +265,11 @@ def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_
         # get the path of the current file
         path = os.path.dirname(os.path.abspath(__file__))
         # Write the shortest path to a text file
-        file = open(path + "/results/shortest_path_2.txt", "a")
+        file = open(path + "/results/shortest_path_3.txt", "a")
         file.write(str(shortest_path))
         file.write("\n")
         file.close()
+
         return shortest_path
 
 # ROS movement functions and callbacks
@@ -333,7 +335,7 @@ def rotate(angular_speed_degree, relative_angle_degree, clockwise, goal_angle):
 
         # print 'current_angle_degree: ',current_angle_degree
         if angle_difference(math.degrees(theta1), goal_angle) < 1:
-            # rospy.loginfo("Atom_2 rotated")
+            # rospy.loginfo("Atom_3 rotated")
             break
 
     # finally, stop the robot when the distance is moved
@@ -456,20 +458,20 @@ def task_assigner(robot_id, x, y):
 
 def main():
     global pub, sub
-    rospy.init_node("Shortest_path_atom_2")
-    pub = rospy.Publisher("/atom_2/cmd_vel", Twist, queue_size=10)
-    sub = rospy.Subscriber("/atom_2/odom", Odometry, pose_callback)
-    # las = rospy.Subscriber("/scan_2", LaserScan, laser_callback)
+    rospy.init_node("Shortest_path_atom_3")
+    pub = rospy.Publisher("/atom_3/cmd_vel", Twist, queue_size=10)
+    sub = rospy.Subscriber("/atom_3/odom", Odometry, pose_callback)
+    # las = rospy.Subscriber("/scan_3", LaserScan, laser_callback)
 
     time.sleep(5)
 
     while not rospy.is_shutdown():
 
-        robot_id_result, pickup_x, pickup_y, destination_x, destination_y = task_assigner("Orange", int(round(x1, 0)), int(round(y1, 0)))
+        robot_id_result, pickup_x, pickup_y, destination_x, destination_y = task_assigner("Green", int(round(x1, 0)), int(round(y1, 0)))
         
 
-        if robot_id_result == "Orange" and pickup_x != -1 and pickup_y != -1 and destination_x != -1 and destination_y != -1:
-            print(f"Atom_2 assigned {pickup_x, pickup_y}, {destination_x, destination_y}")
+        if robot_id_result == "Green" and pickup_x != -1 and pickup_y != -1 and destination_x != -1 and destination_y != -1:
+            print(f"Atom_3 assigned {pickup_x, pickup_y}, {destination_x, destination_y}")
             global rewards
             rewards = construct_reward_matrix(pickup_x, pickup_y)
             train(pickup_x, pickup_y)
@@ -477,7 +479,7 @@ def main():
             print(f"Starting from {start_x, start_y}")
             get_shortest_path(start_x, start_y, pickup_x, pickup_y, atom_sim=True)
             print("Picked up")
-            _, _, _, destination_x, destination_y = task_assigner("Orange", int(round(x1, 0)), int(round(y1, 0)))
+            _, _, _, destination_x, destination_y = task_assigner("Green", int(round(x1, 0)), int(round(y1, 0)))
             rewards = construct_reward_matrix(destination_x, destination_y)
             train(destination_x, destination_y)
             start_x, start_y = int(round(x1, 0)), int(round(y1, 0))

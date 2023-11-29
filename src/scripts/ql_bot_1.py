@@ -1,25 +1,16 @@
 #!/usr/bin/python3
 
 import math
-import rospy
-import numpy as np
+import os
 import time
 
-from turtlesim.srv import TeleportAbsolute
-from std_srvs.srv import Empty
-from turtlesim.msg import Pose
+import numpy as np
+import rospy
 from geometry_msgs.msg import Twist
-from turtlesim.srv import Spawn
 from nav_msgs.msg import Odometry
-from gazebo_msgs.srv import SetModelState
-from gazebo_msgs.msg import ModelState
-from sensor_msgs.msg import LaserScan
-
 from tf.transformations import euler_from_quaternion
 
-from fredbots.srv import AddTwoInts
-from fredbots.srv import AddTwoIntsRequest
-from fredbots.srv import TaskAssign
+from fredbots.srv import LocalController, LocalControllerRequest, TaskAssign
 
 env_row = 21
 env_col = 21
@@ -112,8 +103,9 @@ def get_next_location(current_row_index, current_column_index, action_index):
         new_column_index -= 1
     return new_row_index, new_column_index
 
+
 def get_next_random_location(current_row_index, current_column_index, action_index):
-        
+
     new_row_index = current_row_index
     new_column_index = current_column_index
 
@@ -122,7 +114,7 @@ def get_next_random_location(current_row_index, current_column_index, action_ind
         random_action_index = np.random.randint(4)
         while random_action_index == action_index:
             random_action_index = np.random.randint(4)
-        
+
         if actions[random_action_index] == 'up' and current_row_index > 0:
             new_row_index -= 1
         elif actions[random_action_index] == 'right' and current_column_index < env_col - 1:
@@ -185,7 +177,7 @@ def train(goal_x, goal_y, obstacles=obstacles):
             new_q_value = old_q_value + (learning_rate * temporal_difference)
             q_values[old_row_index, old_column_index,
                      action_index] = new_q_value
-    print('Training complete!')
+    # print('Training complete!')
 
 # Define a function that will get the shortest path between any location within the warehouse that
 # the robot is allowed to travel and the item packaging location.
@@ -203,10 +195,10 @@ def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_
         # continue moving along the path until we reach the goal (i.e., the item packaging location)
         while not is_final_state(current_row_index, current_column_index, goal_x, goal_y):
 
-            rospy.wait_for_service('add_two_ints')
-            add_two_ints = rospy.ServiceProxy('add_two_ints', AddTwoInts)
+            rospy.wait_for_service('local_controller')
+            local_controller = rospy.ServiceProxy('local_controller', LocalController)
 
-            request = AddTwoIntsRequest()
+            request = LocalControllerRequest()
             request.cur_x = current_row_index
             request.cur_y = current_column_index
 
@@ -217,13 +209,20 @@ def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_
                 # move to the next location on the path, and add the new location to the list
                 next_row_index, next_column_index = get_next_location(
                     current_row_index, current_column_index, action_index)
-            
+
             request.next_x = next_row_index
             request.next_y = next_column_index
 
-            response = add_two_ints(request)
+            if len(shortest_path) > 1:
+                request.prev_x = shortest_path[-2][0]
+                request.prev_y = shortest_path[-2][1]
+            else:
+                request.prev_x = -1
+                request.prev_y = -1
 
-            if (response.occ == 0): # [NOT OCCUPIED]
+            response = local_controller(request)
+
+            if (response.occ == 0):  # [NOT OCCUPIED]
                 ql_control = True
                 # print("occu: ", response.occ)
                 if atom_sim:
@@ -234,12 +233,13 @@ def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_
                 ql_control = False
                 action_index = get_next_action(
                     current_row_index, current_column_index, 1.)
-                next_row_index, next_column_index = get_next_random_location(current_row_index, current_column_index, action_index)
-                
-                current_row_index, current_column_index = next_row_index, next_column_index
+                next_row_index, next_column_index = get_next_random_location(
+                    current_row_index, current_column_index, action_index)
+
+                # current_row_index, current_column_index = next_row_index, next_column_index
 
                 continue
-                
+
             current_row_index, current_column_index = next_row_index, next_column_index
 
             shortest_path.append([current_row_index, current_column_index])
@@ -248,6 +248,26 @@ def get_shortest_path(start_row_index, start_column_index, goal_x, goal_y, atom_
             #           current_row_index, current_column_index)
             #     Goto_goal(current_row_index, current_column_index)
             # time.sleep(1)
+
+        # Unlock the last location
+
+        request = LocalControllerRequest()
+        request.cur_x = current_row_index
+        request.cur_y = current_column_index
+        request.next_x = current_row_index
+        request.next_y = current_column_index
+        request.prev_x = shortest_path[-2][0]
+        request.prev_y = shortest_path[-2][1]
+
+        response = local_controller(request)
+
+        # get the path of the current file
+        path = os.path.dirname(os.path.abspath(__file__))
+        # Write the shortest path to a text file
+        file = open(path + "/results/shortest_path_1.txt", "a")
+        file.write(str(shortest_path))
+        file.write("\n")
+        file.close()
 
         return shortest_path
 
@@ -424,6 +444,7 @@ def Goto_goal(x_goal, y_goal):
 #     if flag == 1:
 #         train()
 
+
 def task_assigner(robot_id, x, y):
     rospy.wait_for_service('tasker')
     try:
@@ -446,10 +467,10 @@ def main():
 
     while not rospy.is_shutdown():
 
-        robot_id_result, pickup_x, pickup_y, destination_x, destination_y = task_assigner(1, int(round(x1, 0)), int(round(y1, 0)))
-        
+        robot_id_result, pickup_x, pickup_y, destination_x, destination_y = task_assigner(
+            'Blue', int(round(x1, 0)), int(round(y1, 0)))
 
-        if robot_id_result == 1 and pickup_x != -1 and pickup_y != -1 and destination_x != -1 and destination_y != -1:
+        if robot_id_result == 'Blue' and pickup_x != -1 and pickup_y != -1 and destination_x != -1 and destination_y != -1:
             print(f"Atom_1 assigned {pickup_x, pickup_y}, {destination_x, destination_y}")
             global rewards
             rewards = construct_reward_matrix(pickup_x, pickup_y)
@@ -458,7 +479,7 @@ def main():
             print(f"Starting from {start_x, start_y}")
             get_shortest_path(start_x, start_y, pickup_x, pickup_y, atom_sim=True)
             print("Picked up")
-            _, _, _, destination_x, destination_y = task_assigner(1, int(round(x1, 0)), int(round(y1, 0)))
+            _, _, _, destination_x, destination_y = task_assigner('Blue', int(round(x1, 0)), int(round(y1, 0)))
             rewards = construct_reward_matrix(destination_x, destination_y)
             train(destination_x, destination_y)
             start_x, start_y = int(round(x1, 0)), int(round(y1, 0))
