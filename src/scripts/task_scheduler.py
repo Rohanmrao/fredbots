@@ -116,7 +116,7 @@ def calculate_utility(robot, package, max_distance):
 def fetch_packages():
     global packages, package_number
     try:
-        file = open("/home/pradeep/catkin_ws/src/fredbots/src/scripts/package.txt", "r")
+        file = open("/home/rohan/catkin_ws/src/fredbots/src/scripts/package.txt", "r")
         lines = file.readlines()
         for line in lines:
             package_number += 1

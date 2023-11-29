@@ -9,7 +9,7 @@
 	<arg name="pitch" default="0"/>
 	<arg name="yaw" default="0"/>
 	
-
+  
 	<!-- Launch Gazebo World -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
 
